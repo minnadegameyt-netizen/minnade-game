@@ -12,10 +12,6 @@ const assetsToLoad = [
     'bgm/point.mp3', 'bgm/negative.mp3', 'bgm/select.mp3', 'bgm/start_turn.mp3',
     'bgm/event_start.mp3', 'bgm/gameover.mp3', 'bgm/quiz_correct.mp3', 'bgm/quiz_incorrect.mp3',
     'bgm/roulette.mp3', 'bgm/roulette_stop.mp3', 'bgm/hit.mp3', 'bgm/out.mp3', 'bgm/cheer.mp3',
-    // 動画
-    'video/april.mp4', 'video/summer.mp4', 'video/school.mp4', 'video/winter.mp4',
-    'video/muscle_training.mp4', 'video/running.mp4', 'video/training.mp4', 'video/study.mp4',
-    'video/city.mp4', 'video/cafe.mp4', 'video/phone.mp4', 'video/matchday.mp4', 'video/game-center.mp4',
     // 画像
     'img/p_normal.png', 'img/p_smile.png', 'img/p_sad.png', 'img/p_surprised.png', 'img/p_shy.png',
     'img/tanaka_normal.png', 'img/tanaka_smile.png', 'img/tanaka_sad.png',
@@ -25,6 +21,8 @@ const assetsToLoad = [
     'img/hoshikawa_blush.png', 'img/hoshikawa_normal.png', 'img/hoshikawa_smile.png',
     'img/suzuki_confident.png',
     'img/mysterious_man.png'
+    // ★動画はリストから削除するか、下の処理でスキップさせるためここではコメントアウトでもOKですが、
+    // パスが残っていても下の処理で無視するので問題ありません。
 ];
 
 function preloadAssets(paths) {
@@ -49,7 +47,6 @@ function preloadAssets(paths) {
                 };
                 img.onerror = (e) => {
                     console.warn(`Failed to load image: ${path}`, e);
-                    // エラーでも進行させる
                     loadedCount++;
                     progressBar.value = loadedCount;
                     resolve();
@@ -70,29 +67,18 @@ function preloadAssets(paths) {
                     resolve();
                 };
             } else if (['mp4', 'webm'].includes(extension)) {
-                // 動画の読み込み（修正版）
-                const video = document.createElement('video');
-                video.src = path;
-                video.preload = 'metadata'; // ★メタデータのみ読み込む（高速化）
-                video.muted = true;
-                video.playsInline = true;
-
-                // oncanplaythrough ではなく onloadedmetadata で完了とする
-                video.onloadedmetadata = () => {
-                    loadedCount++;
-                    progressBar.value = loadedCount;
-                    resolve();
-                };
+                // --- ★動画: ここを完全に修正しました！★ ---
+                // 動画ファイルへのアクセスを一切行わず、即座に「完了」とみなします。
+                // これでNetworkタブのPending（通信待ち）が発生しなくなります。
                 
-                video.onerror = (e) => {
-                    console.warn(`Failed to load video: ${path}`, e);
-                    // エラーでも進行させる
-                    loadedCount++;
-                    progressBar.value = loadedCount;
-                    resolve();
-                };
+                loadedCount++;
+                progressBar.value = loadedCount;
+                resolve(); 
+                
             } else {
                 // その他のファイル
+                loadedCount++;
+                progressBar.value = loadedCount;
                 resolve();
             }
         });
