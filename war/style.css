@@ -452,8 +452,15 @@ h3 span { font-size: 0.8em; color: var(--text-muted); font-family: var(--font-mo
 /* 投票ルール説明 */
 #vote-instruction {
     position: absolute;
-    top: 20px; 
-    right: 260px; /* ←位置をずらして、ワイプ地図との被りを避ける */
+    
+    /* 以前の位置設定をリセット */
+    top: auto;
+    right: auto;
+
+    /* 新しい位置：左下（支持率バーの上） */
+    bottom: 140px; 
+    left: 20px;
+
     width: 340px; 
     background: rgba(13, 17, 23, 0.9);
     border: 1px solid var(--highlight);
