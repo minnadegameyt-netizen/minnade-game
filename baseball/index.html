@@ -122,11 +122,22 @@
         <div class="setup-item" id="vote-duration-setup" style="display: none;">
             <label>投票時間（秒）</label>
             <div id="vote-duration-buttons">
-                <button class="setup-btn duration-btn" data-duration="10">10秒</button>
-                <button class="setup-btn duration-btn selected" data-duration="15">15秒</button>
-                <button class="setup-btn duration-btn" data-duration="20">20秒</button>
+                <button class="setup-btn duration-btn" data-duration="15">15秒</button>
+                <button class="setup-btn duration-btn selected" data-duration="20">20秒</button>
+                <button class="setup-btn duration-btn" data-duration="25">25秒</button>
+                <button class="setup-btn duration-btn" data-duration="30">30秒</button>
             </div>
-    <p class="setup-note">※ゲーム開始後、まずはコメントが集計に反映されているかご確認ください。F5を押すとトップ画面に戻ります。</p>
+            
+            <!-- ▼▼▼ 追加: アドバイス文 ▼▼▼ -->
+            <p class="setup-note" style="font-size: 0.85em; color: #ecc94b; margin-top: 8px; line-height: 1.4;">
+                <strong>💡 配信者の方へ:</strong><br>
+                YouTubeのラグ（通常3〜5秒、環境によってはそれ以上）があるため、<br>
+                視聴者画面に選択肢が出てからコメントが反映されるまで時間がかかります。<br>
+                迷ったら<strong>長めの時間（25秒〜30秒）</strong>から始めるのがおすすめです。<br>
+                <span style="color: #e53e3e;">※YouTubeの配信設定は「超低遅延」を推奨します。</span>
+            </p>
+            
+            <p class="setup-note">※ゲーム開始後、F5を押すとこの画面に戻ります。</p>
         </div>
                 <button id="confirm-setup-btn" class="start-game-btn">ゲーム開始</button>
             </div>
