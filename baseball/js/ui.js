@@ -115,11 +115,21 @@ function addMatchLog(text) {
     uiElements.matchLogList.parentElement.scrollTop = uiElements.matchLogList.parentElement.scrollHeight;
 }
 
+let hideCharacterTimeout = null; 
+
 function showCharacter(imagePath) {
     if (imagePath) {
+        // ★修正: 「隠すタイマー」が動いていたらキャンセルする
+        if (hideCharacterTimeout) {
+            clearTimeout(hideCharacterTimeout);
+            hideCharacterTimeout = null;
+        }
+
         uiElements.characterSprite.src = imagePath;
         uiElements.characterSprite.classList.remove('hidden');
         uiElements.logWindow.style.alignItems = 'flex-start';
+        
+        // 少し待ってからフェードインクラスをつける（CSSトランジション用）
         setTimeout(() => uiElements.characterSprite.classList.add('fade-in'), 10);
     }
 }
@@ -127,7 +137,17 @@ function showCharacter(imagePath) {
 function hideCharacter() {
     uiElements.characterSprite.classList.remove('fade-in');
     uiElements.logWindow.style.alignItems = 'center';
-    setTimeout(() => uiElements.characterSprite.classList.add('hidden'), 300);
+
+    // ★修正: 念のため既存のタイマーがあれば消す
+    if (hideCharacterTimeout) {
+        clearTimeout(hideCharacterTimeout);
+    }
+
+    // 0.3秒後（フェードアウト後）に完全に非表示にするタイマーをセット
+    hideCharacterTimeout = setTimeout(() => {
+        uiElements.characterSprite.classList.add('hidden');
+        hideCharacterTimeout = null;
+    }, 300);
 }
 
 function waitForUserAction() {
