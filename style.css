@@ -322,9 +322,18 @@ html, body {
     border-radius: 10px;
     text-align: center;
     width: 90%;
-    max-width: 500px;
+    max-width: 600px;
+    margin: auto;
     border: 1px solid #4a5568;
     box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    max-height: 90vh;  /* 画面の高さの90%までに制限 */
+    overflow-y: auto;  /* はみ出た部分をスクロール可能にする */
+    box-sizing: border-box; /* パディングを含めてサイズ計算 */
+    
+    /* フレックスボックスにして中身のレイアウトを安定させる */
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; 
 }
 
 .modal-content h2 {
