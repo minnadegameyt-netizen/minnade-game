@@ -345,7 +345,8 @@ h3 span { font-size: 0.8em; color: var(--text-muted); font-family: var(--font-mo
     box-shadow: 0 20px 50px rgba(0,0,0,0.7);
     text-align: center;
     position: relative;
-    overflow: hidden;
+    max-height: 90vh; /* 画面の高さの90%を上限にする */
+    overflow-y: auto; /* 中身が上限を超えたら縦スクロールバーを出す */
 }
 .modal-content::before {
     content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
@@ -451,7 +452,8 @@ h3 span { font-size: 0.8em; color: var(--text-muted); font-family: var(--font-mo
 /* 投票ルール説明 */
 #vote-instruction {
     position: absolute;
-    top: 20px; right: 20px;
+    top: 20px; 
+    right: 260px; /* ←位置をずらして、ワイプ地図との被りを避ける */
     width: 340px; 
     background: rgba(13, 17, 23, 0.9);
     border: 1px solid var(--highlight);
