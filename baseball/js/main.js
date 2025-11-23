@@ -4,6 +4,7 @@ import * as youtube from './youtube.js';
 
 // --- ▼▼▼ アセットのプリロード処理 ▼▼▼ ---
 
+
 // ゲームで使用するすべてのアセットのパスをリストアップ
 const assetsToLoad = [
     // BGM
