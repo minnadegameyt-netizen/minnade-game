@@ -4,6 +4,8 @@ import * as youtube from './youtube.js';
 
 // --- ▼▼▼ アセットのプリロード処理 ▼▼▼ ---
 
+// 読み込んだアセットをメモリに保持しておくためのキャッシュ（ガベージコレクション対策）
+const assetCache = [];
 
 // ゲームで使用するすべてのアセットのパスをリストアップ
 const assetsToLoad = [
@@ -21,9 +23,13 @@ const assetsToLoad = [
     'img/kazami_angry.png', 'img/kazami_blush.png', 'img/kazami_normal.png', 'img/kazami_sad.png', 'img/kazami_shy.png', 'img/kazami_smile.png', 'img/kazami_surprised.png',
     'img/hoshikawa_blush.png', 'img/hoshikawa_normal.png', 'img/hoshikawa_smile.png',
     'img/suzuki_confident.png',
-    'img/mysterious_man.png'
-    // ★動画はリストから削除するか、下の処理でスキップさせるためここではコメントアウトでもOKですが、
-    // パスが残っていても下の処理で無視するので問題ありません。
+    'img/mysterious_man.png',
+    
+    // ★動画ファイルも確実にリストに含めてください
+    'video/april.mp4', 'video/summer.mp4', 'video/school.mp4', 'video/winter.mp4',
+    'video/matchday.mp4', 'video/game-center.mp4',
+    'video/muscle_training.mp4', 'video/running.mp4', 'video/training.mp4',
+    'video/study.mp4', 'video/city.mp4', 'video/cafe.mp4', 'video/phone.mp4'
 ];
 
 function preloadAssets(paths) {
@@ -33,6 +39,9 @@ function preloadAssets(paths) {
     const totalAssets = paths.length;
     progressBar.max = totalAssets;
 
+    // 並列処理数を制限する場合の簡易実装（全部一気にPromise.allするとPending地獄になることがあるため）
+    // 今回はシンプルにPromise.allを使いますが、fetchを使用することで安定性を高めます。
+
     const promises = paths.map(path => {
         return new Promise((resolve, reject) => {
             const extension = path.split('.').pop().toLowerCase();
@@ -41,6 +50,9 @@ function preloadAssets(paths) {
                 // 画像の読み込み
                 const img = new Image();
                 img.src = path;
+                // キャッシュ配列に入れてガベージコレクションを防ぐ
+                assetCache.push(img);
+
                 img.onload = () => {
                     loadedCount++;
                     progressBar.value = loadedCount;
@@ -48,6 +60,7 @@ function preloadAssets(paths) {
                 };
                 img.onerror = (e) => {
                     console.warn(`Failed to load image: ${path}`, e);
+                    // エラーでも進行を止めない
                     loadedCount++;
                     progressBar.value = loadedCount;
                     resolve();
@@ -56,9 +69,12 @@ function preloadAssets(paths) {
                 // 音声の読み込み
                 const audio = new Audio();
                 audio.src = path;
+                // 音声は容量が大きい場合があるので、canplaythroughで判定
                 audio.oncanplaythrough = () => {
                     loadedCount++;
                     progressBar.value = loadedCount;
+                    // 一度発火したらイベント削除（メモリリーク防止）
+                    audio.oncanplaythrough = null; 
                     resolve();
                 };
                 audio.onerror = (e) => {
@@ -67,14 +83,29 @@ function preloadAssets(paths) {
                     progressBar.value = loadedCount;
                     resolve();
                 };
+                // 読み込みをキックする（一部ブラウザ対策）
+                audio.load();
             } else if (['mp4', 'webm'].includes(extension)) {
-                // --- ★動画: ここを完全に修正しました！★ ---
-                // 動画ファイルへのアクセスを一切行わず、即座に「完了」とみなします。
-                // これでNetworkタブのPending（通信待ち）が発生しなくなります。
-                
-                loadedCount++;
-                progressBar.value = loadedCount;
-                resolve(); 
+                // --- ★動画の修正: fetchを使ってデータを強制的にダウンロード（キャッシュ）させる ---
+                fetch(path)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.blob(); // データを最後まで読み込む
+                    })
+                    .then(blob => {
+                        // 必要であれば blob URL を使うこともできますが、
+                        // ここでダウンロード完了していればブラウザのディスクキャッシュに入ります。
+                        loadedCount++;
+                        progressBar.value = loadedCount;
+                        resolve();
+                    })
+                    .catch(e => {
+                        console.warn(`Failed to load video: ${path}`, e);
+                        // エラーでも止まらないようにする
+                        loadedCount++;
+                        progressBar.value = loadedCount;
+                        resolve();
+                    });
                 
             } else {
                 // その他のファイル
@@ -114,11 +145,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const mode = urlParams.get('mode');
 
         if (mode === 'solo') {
-            // 「個人で遊ぶ」ボタンを自動クリック
             const soloBtn = document.getElementById('start-solo-btn');
             if (soloBtn) soloBtn.click();
         } else if (mode === 'streamer') {
-            // 「配信で遊ぶ」ボタンを自動クリック
             const streamerBtn = document.getElementById('start-streamer-btn');
             if (streamerBtn) streamerBtn.click();
         }
@@ -126,6 +155,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } catch (error) {
         console.error("アセットの読み込みに失敗しました:", error);
-        document.getElementById('loading-screen').innerHTML = "エラーが発生しました。ページをリロードしてください。";
+        // エラーが起きても最低限ゲーム画面は出す（ロードスタック防止）
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('home-page').classList.remove('hidden');
+        ui.setupEventListeners();
     }
 });
