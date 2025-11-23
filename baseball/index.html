@@ -12,7 +12,18 @@
     <div id="loading-screen">
         <div class="loading-content">
             <div class="loading-text">Now Loading...</div>
+            
+            <!-- プログレスバー -->
             <progress id="loading-progress" value="0" max="100"></progress>
+            
+            <!-- ★追加: パーセント表示 -->
+            <div id="loading-percent">0%</div>
+
+            <!-- ★追加: 注意書き -->
+            <p class="loading-warning">
+                ※画像・動画データを読み込んでいるため、<br>
+                回線環境によっては時間がかかる場合があります。
+            </p>
         </div>
     </div>
 

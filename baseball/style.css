@@ -702,3 +702,18 @@ html, body {
     margin-top: 10px;
     line-height: 1.5;
 }
+
+#loading-percent {
+    color: #e2e8f0;
+    font-size: 1.5em;     /* 少し大きめにして数字を目立たせる */
+    font-weight: bold;
+    margin-top: 10px;
+    font-family: monospace; /* 数字がカチャカチャ動くのが格好いい */
+}
+
+.loading-warning {
+    color: #a0aec0;       /* 少し暗めの灰色にして目立ちすぎないように */
+    font-size: 0.85em;    /* 小さめの文字 */
+    margin-top: 20px;
+    line-height: 1.6;     /* 読みやすく行間を空ける */
+}

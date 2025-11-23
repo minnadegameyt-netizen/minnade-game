@@ -32,85 +32,79 @@ const assetsToLoad = [
     'video/study.mp4', 'video/city.mp4', 'video/cafe.mp4', 'video/phone.mp4'
 ];
 
+// js/main.js
+
 function preloadAssets(paths) {
     const loadingScreen = document.getElementById('loading-screen');
     const progressBar = document.getElementById('loading-progress');
+    // ★追加: パーセント表示要素を取得
+    const percentDisplay = document.getElementById('loading-percent');
+
     let loadedCount = 0;
     const totalAssets = paths.length;
     progressBar.max = totalAssets;
 
-    // 並列処理数を制限する場合の簡易実装（全部一気にPromise.allするとPending地獄になることがあるため）
-    // 今回はシンプルにPromise.allを使いますが、fetchを使用することで安定性を高めます。
+    // ★便利関数: 進捗を更新する処理をまとめる
+    const updateProgress = () => {
+        loadedCount++;
+        progressBar.value = loadedCount;
+        
+        // パーセント計算 (小数点なしの整数)
+        const percent = Math.round((loadedCount / totalAssets) * 100);
+        if (percentDisplay) {
+            percentDisplay.textContent = `${percent}%`;
+        }
+    };
 
     const promises = paths.map(path => {
         return new Promise((resolve, reject) => {
             const extension = path.split('.').pop().toLowerCase();
             
             if (['png', 'jpg', 'jpeg', 'gif', 'ico'].includes(extension)) {
-                // 画像の読み込み
                 const img = new Image();
                 img.src = path;
-                // キャッシュ配列に入れてガベージコレクションを防ぐ
                 assetCache.push(img);
+                // ★ updateProgress() を呼ぶ
+                img.onload = () => { updateProgress(); resolve(); };
+                img.onerror = (e) => { 
+                    console.warn(`Failed: ${path}`, e); 
+                    updateProgress(); // エラーでも進める
+                    resolve(); 
+                };
 
-                img.onload = () => {
-                    loadedCount++;
-                    progressBar.value = loadedCount;
-                    resolve();
-                };
-                img.onerror = (e) => {
-                    console.warn(`Failed to load image: ${path}`, e);
-                    // エラーでも進行を止めない
-                    loadedCount++;
-                    progressBar.value = loadedCount;
-                    resolve();
-                };
             } else if (['mp3', 'wav', 'ogg'].includes(extension)) {
-                // 音声の読み込み
                 const audio = new Audio();
                 audio.src = path;
-                // 音声は容量が大きい場合があるので、canplaythroughで判定
                 audio.oncanplaythrough = () => {
-                    loadedCount++;
-                    progressBar.value = loadedCount;
-                    // 一度発火したらイベント削除（メモリリーク防止）
-                    audio.oncanplaythrough = null; 
+                    audio.oncanplaythrough = null;
+                    updateProgress(); // ★
                     resolve();
                 };
                 audio.onerror = (e) => {
-                    console.warn(`Failed to load audio: ${path}`, e);
-                    loadedCount++;
-                    progressBar.value = loadedCount;
+                    console.warn(`Failed: ${path}`, e);
+                    updateProgress(); // ★
                     resolve();
                 };
-                // 読み込みをキックする（一部ブラウザ対策）
                 audio.load();
+
             } else if (['mp4', 'webm'].includes(extension)) {
-                // --- ★動画の修正: fetchを使ってデータを強制的にダウンロード（キャッシュ）させる ---
                 fetch(path)
                     .then(response => {
                         if (!response.ok) throw new Error('Network response was not ok');
-                        return response.blob(); // データを最後まで読み込む
+                        return response.blob();
                     })
                     .then(blob => {
-                        // 必要であれば blob URL を使うこともできますが、
-                        // ここでダウンロード完了していればブラウザのディスクキャッシュに入ります。
-                        loadedCount++;
-                        progressBar.value = loadedCount;
+                        updateProgress(); // ★
                         resolve();
                     })
                     .catch(e => {
-                        console.warn(`Failed to load video: ${path}`, e);
-                        // エラーでも止まらないようにする
-                        loadedCount++;
-                        progressBar.value = loadedCount;
+                        console.warn(`Failed: ${path}`, e);
+                        updateProgress(); // ★
                         resolve();
                     });
-                
+
             } else {
-                // その他のファイル
-                loadedCount++;
-                progressBar.value = loadedCount;
+                updateProgress(); // ★
                 resolve();
             }
         });
@@ -118,7 +112,6 @@ function preloadAssets(paths) {
 
     return Promise.all(promises);
 }
-
 
 // --- ▼▼▼ ゲーム初期化処理 ▼▼▼ ---
 
