@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>視聴者参加型ゲーム</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="baseball/img/favicon.ico" type="image/x-icon">
+</head>
+<body>
+
+    <header class="site-header">
+        <h1>視聴者参加型ゲーム</h1>
+        <nav>
+            <a href="index.html">ホーム</a>
+            <a href="about.html">このサイトについて</a>
+            <!-- 配信者用設定ボタン -->
+            <button id="api-settings-btn" class="header-api-btn">
+                <span class="icon">⚙️</span> 配信者用設定
+            </button>
+        </nav>
+    </header>
+
+    <main id="home-page">
+        <div class="game-selection">
+            <!-- ゲームカード1: 高校野球シミュレーション -->
+            <div class="game-card">
+                <h2>高校野球シミュレーション</h2>
+                <img src="baseball/img/p_normal.png" alt="高校野球シミュレーション サムネイル" class="game-thumbnail">
+                <p>高校球児として3年間を過ごし、甲子園を目指そう！</p>
+                <div class="mode-buttons">
+                    <a href="baseball/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
+                    <a href="baseball/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    
+                    <button id="home-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
+                    <button id="home-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
+                </div>
+            </div>
+            <!-- ゲームカード2: 視聴者参加型世論調査 -->
+            <div class="game-card">
+                <h2>視聴者参加型世論調査</h2>
+                <div class="thumbnail-placeholder">
+                    <p>陣取り合戦<br>サムネイル</p>
+                </div>
+                <p>コメント数で勢力を拡大せよ！<br>視聴者参加型の陣取りゲーム。</p>
+                <div class="mode-buttons">
+                    <a href="war/index.html?mode=demo" class="game-link-btn btn-green">デモプレイ（個人）</a>
+                    <a href="war/index.html?mode=stream" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    
+                    <button id="war-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
+                    <button id="war-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
+                </div>
+            </div>
+            <!-- ゲームカード3: Coming Soon -->
+            <div class="game-card is-coming-soon">
+                <h2>???</h2>
+                <div class="thumbnail-placeholder">
+                    <span>?</span>
+                </div>
+                <p>新しいゲームを開発中...！</p>
+                <div class="mode-buttons">
+                    <div class="coming-soon-label">Coming Soon...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ▼▼▼ 配信設定モーダル ▼▼▼ -->
+    <div id="global-api-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>配信設定（API & Video ID）</h2>
+            
+            <div class="warning-box">
+                <h3>⚠️ 配信者の皆様へ</h3>
+                <p>
+                    ここにキーを入力する際はGoogle Cloud Console画面を含め、<br>
+                    <strong>必ず配信画面から隠す（待機画面にする）などして、</strong><br>
+                    <strong>視聴者にキーが見られないようにしてください。</strong>
+                </p>
+            </div>
+
+            <p class="modal-desc">
+                ここで設定した内容はブラウザに一時保存され、<br>
+                各ゲームの配信モードで自動的に適用されます。<br>
+                <small>※ブラウザを閉じるとリセットされます。</small>
+            </p>
+
+            <div class="input-group">
+                <label>YouTube API Key</label>
+                <input type="password" id="global-api-key" placeholder="APIキーを入力" autocomplete="off">
+            </div>
+
+            <div class="input-group">
+                <label>Video ID (または配信URL)</label>
+                <input type="text" id="global-video-id" placeholder="例: jNQXAC9IVRw または URL" autocomplete="off">
+                <p style="font-size: 0.8em; color: #a0aec0; margin-top: 5px;">
+                    ※URLを入力した場合、自動でID部分を抽出します。
+                </p>
+            </div>
+
+            <!-- 取得方法の説明アコーディオン -->
+            <div style="text-align: left; margin-top: 15px;">
+                <button id="toggle-help-btn" class="btn-gray" style="width: 100%; font-size: 0.9em; padding: 8px;">
+                    💡 キーの取得方法を見る
+                </button>
+                <div id="api-help-content" style="display: none; background: #222; padding: 15px; border-radius: 5px; margin-top: 10px; font-size: 0.85em; color: #ddd; line-height: 1.6;">
+                    <strong>🔑 YouTube API Key の取得方法:</strong>
+                    <ol style="padding-left: 20px; margin: 5px 0;">
+                        <li><a href="https://console.cloud.google.com/" target="_blank" style="color:#63b3ed;">Google Cloud Console</a> にアクセス</li>
+                        <li>新しいプロジェクトを作成</li>
+                        <li>「APIとサービス」>「ライブラリ」で「YouTube Data API v3」を有効化</li>
+                        <li>「認証情報」>「認証情報を作成」>「APIキー」を選択</li>
+                    </ol>
+                    <br>
+                    <strong>📺 Video ID の取得方法:</strong>
+                    <ul style="padding-left: 20px; margin: 5px 0;">
+                        <li>配信枠のURLの末尾（v=の後ろ）の文字列です。</li>
+                        <li>例: youtube.com/watch?v=<strong>XXXXXXXXXXX</strong></li>
+                        <li>※上の欄にURLをそのまま貼り付けてもOKです。</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button id="save-api-btn" class="btn-green">設定を保存して閉じる</button>
+                <button id="close-api-btn" class="btn-gray">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ▼▼▼ 遊び方モーダル (トップページ用) ▼▼▼ -->
+    <div id="home-help-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content help-content">
+            <h2>ゲームの遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>⚾ ゲームの目的</h3>
+                <p>高校球児として3年間練習に励み、甲子園優勝とプロ入り（ドラフト指名）を目指す育成シミュレーションゲームです。</p>
+                <h3>🎮 基本的な流れ</h3>
+                <ul>
+                    <li><strong>コマンド選択:</strong> 「筋トレ」「練習」などを選び、能力を上げます。</li>
+                    <li><strong>イベント:</strong> 季節ごとのイベントや、ランダムイベントが発生します。</li>
+                    <li><strong>試合:</strong> 自動試合ですが、チャンスの場面では操作が必要になります。</li>
+                </ul>
+                <h3>📡 配信者モードについて</h3>
+                <p>YouTubeのライブチャットと連携し、視聴者のコメント投票で行動を決定できます。</p>
+                <h3>🎵 素材提供・クレジット</h3>
+                <p>本ゲームでは、以下の素晴らしい素材を使用させていただいております。</p>
+                <ul>
+                    <li><strong>BGM:</strong> MusMus<br><a href="https://musmus.main.jp/" target="_blank" style="color:#63b3ed;">https://musmus.main.jp/</a></li>
+                    <li><strong>キャラクター画像:</strong> CHARAT (キャラット)<br><a href="https://charat.me/" target="_blank" style="color:#63b3ed;">https://charat.me/</a></li>
+                </ul>
+            </div>
+            <button id="close-home-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
+        </div>
+    </div>
+
+    <!-- ▼▼▼ 陣取りゲーム用 遊び方モーダル ▼▼▼ -->
+    <div id="war-help-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content help-content">
+            <h2>陣取り合戦の遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>🚩 ゲームの目的</h3>
+                <p>2つの派閥に分かれて日本全国の都道府県を奪い合うゲームです。制限時間内により多くの地域を支配したチームの勝利です。</p>
+                <h3>💬 参加方法</h3>
+                <p>YouTubeライブのコメント欄で<strong>「都道府県名 派閥名」</strong>とコメントすることで、その地域に戦力を送ることができます。</p>
+                <p>例：「東京 A」「大阪 B」など</p>
+                <h3>⚔️ イベント</h3>
+                <p>ゲーム中、ランダムで「確変タイム」や「裏切り」などのイベントが発生し、戦況が大きく変わることがあります。</p>
+            </div>
+            <button id="close-war-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
+        </div>
+    </div>
+
+    <!-- ▼▼▼ 支援モーダル (共通) ▼▼▼ -->
+    <div id="home-support-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="text-align: center;">
+            <h2>開発者を支援する</h2>
+            <p>プレイしていただきありがとうございます！<br>ご支援いただけると今後の開発の励みになります。</p>
+            <div class="support-links">
+                <a href="https://ko-fi.com/" target="_blank" class="support-link-btn">Ko-fi で支援</a>
+            </div>
+            <button id="close-home-support-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="terms.html">利用規約</a>
+            <a href="privacy.html">プライバシーポリシー</a>
+            <a href="contact.html">お問い合わせ</a>
+        </div>
+        <p>&copy; 2024 Your Name. All Rights Reserved.</p>
+    </footer>
+
+    <!-- ▼▼▼ スクリプト ▼▼▼ -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- API設定モーダルの処理 ---
+            const apiModal = document.getElementById('global-api-modal');
+            const apiOpenBtn = document.getElementById('api-settings-btn');
+            const apiSaveBtn = document.getElementById('save-api-btn');
+            const apiCloseBtn = document.getElementById('close-api-btn');
+            const apiInput = document.getElementById('global-api-key');
+            const videoInput = document.getElementById('global-video-id');
+
+            apiOpenBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const savedKey = sessionStorage.getItem('youtube_api_key');
+                const savedVideoId = sessionStorage.getItem('youtube_target_video_id');
+                if (savedKey) apiInput.value = savedKey;
+                if (savedVideoId) videoInput.value = savedVideoId;
+                apiModal.style.display = 'flex';
+            });
+
+            apiSaveBtn.addEventListener('click', () => {
+                const apiKey = apiInput.value.trim();
+                let videoId = videoInput.value.trim();
+
+                if (videoId.includes('v=')) {
+                    videoId = videoId.split('v=')[1].split('&')[0];
+                } else if (videoId.includes('youtu.be/')) {
+                    videoId = videoId.split('youtu.be/')[1].split('?')[0];
+                } else if (videoId.includes('youtube.com/live/')) {
+                    videoId = videoId.split('/live/')[1].split('?')[0];
+                }
+
+                if (apiKey && videoId) {
+                    sessionStorage.setItem('youtube_api_key', apiKey);
+                    sessionStorage.setItem('youtube_target_video_id', videoId);
+                    alert('設定を保存しました。\n各ゲームの配信モードが有効になります。');
+                    apiModal.style.display = 'none';
+                } else {
+                    alert('APIキーとVideo IDの両方を入力してください。\n（設定を削除したい場合は、ブラウザを閉じてください）');
+                }
+            });
+
+            apiCloseBtn.addEventListener('click', () => { apiModal.style.display = 'none'; });
+            apiModal.addEventListener('click', (e) => { if (e.target === apiModal) apiModal.style.display = 'none'; });
+
+            // ▼▼▼ 追加: ヘルプの開閉処理 ▼▼▼
+            const helpToggleBtn = document.getElementById('toggle-help-btn');
+            const helpContent = document.getElementById('api-help-content');
+            
+            if (helpToggleBtn) {
+                helpToggleBtn.addEventListener('click', () => {
+                    if (helpContent.style.display === 'none') {
+                        helpContent.style.display = 'block';
+                        helpToggleBtn.textContent = '🔽 閉じる';
+                    } else {
+                        helpContent.style.display = 'none';
+                        helpToggleBtn.textContent = '💡 キーの取得方法を見る';
+                    }
+                });
+            }
+            // ▲▲▲ 追加ここまで ▲▲▲
+
+            // --- 野球ゲーム用モーダル処理 ---
+            const helpModal = document.getElementById('home-help-modal');
+            const helpBtn = document.getElementById('home-how-to-play-btn');
+            const closeHelpBtn = document.getElementById('close-home-help-btn');
+
+            if (helpBtn) {
+                helpBtn.addEventListener('click', () => { helpModal.style.display = 'flex'; });
+                closeHelpBtn.addEventListener('click', () => { helpModal.style.display = 'none'; });
+                helpModal.addEventListener('click', (e) => { if (e.target === helpModal) helpModal.style.display = 'none'; });
+            }
+
+            const supportModal = document.getElementById('home-support-modal');
+            const supportBtn = document.getElementById('home-support-btn');
+            const closeSupportBtn = document.getElementById('close-home-support-btn');
+
+            if (supportBtn) {
+                supportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
+                closeSupportBtn.addEventListener('click', () => { supportModal.style.display = 'none'; });
+                supportModal.addEventListener('click', (e) => { if (e.target === supportModal) supportModal.style.display = 'none'; });
+            }
+
+            // --- 陣取りゲーム用モーダル処理 ---
+            const warHelpModal = document.getElementById('war-help-modal');
+            const warHelpBtn = document.getElementById('war-how-to-play-btn');
+            const closeWarHelpBtn = document.getElementById('close-war-help-btn');
+            
+            const warSupportBtn = document.getElementById('war-support-btn'); // 支援モーダルは共通のものを使う
+
+            if (warHelpBtn) {
+                warHelpBtn.addEventListener('click', () => { warHelpModal.style.display = 'flex'; });
+                closeWarHelpBtn.addEventListener('click', () => { warHelpModal.style.display = 'none'; });
+                warHelpModal.addEventListener('click', (e) => { if(e.target === warHelpModal) warHelpModal.style.display = 'none'; });
+            }
+
+            if (warSupportBtn) {
+                warSupportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
+            }
+        });
+    </script>
+
+</body>
+</html>

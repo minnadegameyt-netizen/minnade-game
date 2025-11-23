@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>視聴者参加型育成ゲーム</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="img/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- ▼▼▼ ロード画面を追加 ▼▼▼ -->
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-text">Now Loading...</div>
+            <progress id="loading-progress" value="0" max="100"></progress>
+        </div>
+    </div>
+
+    <!-- ホームページ (最初は非表示) -->
+    <div id="home-page" class="hidden">
+        <h1>視聴者参加型育成ゲーム</h1>
+        <div class="game-selection">
+            <div class="game-card">
+                <h2>高校野球シミュレーション</h2>
+                <img src="img/p_normal.png" alt="高校野球シミュレーション サムネイル">
+                <p>高校球児として3年間を過ごし、甲子園を目指そう！</p>
+                <div class="mode-buttons">
+                    <button id="start-solo-btn">個人で遊ぶ</button>
+                    <button id="start-streamer-btn">配信で遊ぶ</button>
+                <button id="how-to-play-btn">遊び方・機能説明</button>
+    <button id="support-btn">開発者を支援する</button>
+                </div>
+            </div>
+            <!-- 今後ゲームが増えたらここに .game-card を追加 -->
+        </div>
+    </div>
+
+<div id="help-modal" class="modal-overlay hidden">
+    <div class="modal-content help-content">
+        <h2>ゲームの遊び方</h2>
+        <div class="help-scroll-area">
+            <h3>⚾ ゲームの目的</h3>
+            <p>高校球児として3年間練習に励み、甲子園優勝とプロ入り（ドラフト指名）を目指す育成シミュレーションゲームです。</p>
+            
+            <h3>🎮 基本的な流れ</h3>
+            <ul>
+                <li><strong>コマンド選択:</strong> 「筋トレ」「練習」「デート」などを選び、能力を上げたり体力を管理します。</li>
+                <li><strong>イベント:</strong> 季節ごとのイベントや、ランダムイベントが発生します。選択肢によって結果が変わります。</li>
+                <li><strong>試合:</strong> 夏と春の大会は自動試合ですが、チャンスの場面ではあなたの操作（タイミング押し・ルーレット）が必要になります。</li>
+            </ul>
+
+            <h3>📡 配信者モードについて</h3>
+            <p>YouTubeのライブチャットと連携し、視聴者のコメント投票（「1」「2」などの数字）で主人公の行動を決定できます。リスナーと一緒に最強選手を育てましょう。</p>
+
+            <h3>💾 セーブ・機能について</h3>
+            <ul>
+                <li><strong>セーブ機能:</strong> 画面上部の「セーブ」ボタンでいつでも保存できます（ブラウザに保存されます）。</li>
+                <li><strong>オートセーブではありません:</strong> こまめなセーブを推奨します。</li>
+                <li><strong>ログ機能:</strong> 会話を見逃した場合は「ログ」ボタンで履歴を確認できます。</li>
+                <li><strong>カレンダー:</strong> 現在の日付や、今後のイベント予定を確認できます。</li>
+            </ul>
+        </div>
+        <button id="close-help-btn" class="start-game-btn" style="background-color: #718096;">閉じる</button>
+    </div>
+</div>
+
+<div id="support-modal" class="modal-overlay hidden">
+    <div class="modal-content help-content" style="text-align: center;">
+        <h2>開発者を支援する</h2>
+        <p>プレイしていただきありがとうございます！<br>もしこのゲームを気に入っていただけたら、<br>ご支援いただけると今後の開発の励みになります。</p>
+        
+        <div class="support-links">
+            <!-- ※ご自身の実際のリンクに書き換えてください -->
+            <a href="https://ko-fi.com/" target="_blank" class="support-link-btn">Ko-fi で支援</a>
+        </div>
+
+        <button id="close-support-btn" class="start-game-btn" style="background-color: #718096; margin-top: 20px;">閉じる</button>
+    </div>
+</div>
+
+    <!-- ゲーム画面全体 (最初は非表示) -->
+    <div id="game-wrapper" class="hidden">
+        
+        <!-- ゲーム開始時の選択モーダル -->
+        <div id="start-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h2>ゲームを開始します</h2>
+                <div class="save-data-buttons">
+                    <button id="new-game-btn">はじめから</button>
+                    <button id="load-game-btn" class="hidden">続きから</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 初期設定モーダル (API関連の項目を削除) -->
+        <div id="setup-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h2>初期設定</h2>
+                <div class="setup-item">
+                    <label for="player-name-input">主人公の名前</label>
+                    <input type="text" id="player-name-input" placeholder="7文字まで" maxlength="7">
+                    <p id="name-validation-msg" class="error-message"></p>
+                </div>
+                <div class="setup-item">
+                    <label>BGM設定</label>
+                    <div id="bgm-setup-buttons">
+                        <button id="bgm-on-btn" class="setup-btn selected">BGM ON</button>
+                        <button id="bgm-off-btn" class="setup-btn">BGM OFF</button>
+                    </div>
+                </div>
+        <div class="setup-item" id="vote-duration-setup" style="display: none;">
+            <label>投票時間（秒）</label>
+            <div id="vote-duration-buttons">
+                <button class="setup-btn duration-btn" data-duration="10">10秒</button>
+                <button class="setup-btn duration-btn selected" data-duration="15">15秒</button>
+                <button class="setup-btn duration-btn" data-duration="20">20秒</button>
+            </div>
+    <p class="setup-note">※ゲーム開始後、まずはコメントが集計に反映されているかご確認ください。F5を押すとトップ画面に戻ります。</p>
+        </div>
+                <button id="confirm-setup-btn" class="start-game-btn">ゲーム開始</button>
+            </div>
+        </div>
+
+        <!-- 一時中断モーダル -->
+        <div id="pause-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h2>一時中断中</h2>
+                <p>ゲームは現在中断しています。※タイマーなどは中断しません</p>
+                <button id="resume-btn" style="padding: 12px 25px; font-size: 1.2em; cursor: pointer; border-radius: 5px; border: none; background-color: #48bb78; color: white;">再開する</button>
+            </div>
+        </div>
+        
+        <!-- バックログモーダル -->
+        <div id="backlog-modal" class="modal-overlay hidden">
+            <div class="modal-content backlog-content">
+                <h2>会話ログ</h2>
+                <ul id="backlog-list" class="backlog-list">
+                    <!-- ログがここに挿入されます -->
+                </ul>
+                <button id="close-backlog-btn">閉じる</button>
+            </div>
+        </div>
+
+        <div id="calendar-modal" class="modal-overlay hidden">
+            <div class="modal-content calendar-content">
+                <h2>カレンダー</h2>
+                <div id="calendar-grid" class="calendar-grid"></div>
+                <button id="close-calendar-btn">閉じる</button>
+            </div>
+        </div>
+
+        <!-- ヘッダー -->
+        <header class="main-header">
+            <div class="header-left">
+                <button id="pause-btn">一時中断</button>
+                <button id="save-btn">セーブ</button>
+                <button id="backlog-btn">ログ</button>
+                <button id="calendar-btn">カレンダー</button>
+                <button id="mute-btn">BGM ON</button>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5">
+                <button id="toggle-audience-mode-btn" class="hidden">視聴者参加 ON</button>
+            </div>
+            <div class="header-center">
+                <div id="date-display">1年目 4月 1週</div>
+            </div>
+            <div class="header-right">
+                <div id="turn-display">残り: 108ターン</div>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <div class="game-container">
+            <!-- 左パネル -->
+            <div class="left-panel">
+                <div class="vote-status">
+                    <h3>現在の投票状況 (<span id="vote-timer">10</span>秒)</h3>
+                    <ul id="vote-list"></ul>
+                </div>
+                <div class="mission-panel">
+                    <h4>今週の目標</h4>
+                    <ul id="mission-list"></ul>
+                </div>
+                <div class="community-panel">
+                    <h4>ライブコメント</h4>
+                    <ul id="live-chat-list"></ul>
+                </div>
+            </div>
+
+            <!-- 中央パネル -->
+            <div class="center-panel">
+                <div class="upcoming-events-panel">
+                    <h4>今後の重要イベント</h4>
+                    <p id="upcoming-event-text">--</p>
+                </div>
+
+                <!-- ★ここから試合用UI（普段は非表示）★ -->
+                <div id="match-ui" class="hidden">
+                    <div class="team-power-display">
+                        <div class="team-info">
+                            <span id="away-team-name-power"></span>
+                            <span>総合力: <span id="away-team-power"></span></span>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="team-info">
+                            <span id="home-team-name-power"></span>
+                            <span>総合力: <span id="home-team-power"></span></span>
+                        </div>
+                    </div>
+                    <div class="scoreboard">
+                        <div class="team-name" id="away-team-name"></div>
+                        <div class="inning-scores" id="away-inning-scores">
+                            <span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span>
+                        </div>
+                        <div class="total-score" id="away-team-score">0</div>
+                        <div class="team-name" id="home-team-name"></div>
+                        <div class="inning-scores" id="home-inning-scores">
+                            <span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span>
+                        </div>
+                        <div class="total-score" id="home-team-score">0</div>
+                    </div>
+                    <div id="match-interaction-window"></div>
+                    <div class="info-panels-container">
+                        <div class="match-log-window"><ul id="match-log-list"></ul></div>
+                        <div class="ability-table">
+                            <h4>主人公の能力と成功マス数</h4>
+                            <table>
+                                <thead><tr><th>能力平均</th><th>成功マス(全10個中)</th></tr></thead>
+                                <tbody>
+                                    <tr><td>20未満</td><td>2個</td></tr><tr><td>20～39</td><td>3個</td></tr>
+                                    <tr><td>40～59</td><td>4個</td></tr><tr><td>60～74</td><td>5個</td></tr>
+                                    <tr><td>75～89</td><td>6個</td></tr><tr><td>90以上</td><td>7個</td></tr>
+                                </tbody>
+                            </table>
+                            <p>※タイミングゲームの結果で最大+2個</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- ★ここまで試合用UI★ -->
+
+                <div id="event-choices-window" class="event-choices-window"></div>
+                
+                <div class="log-window">
+                    <img id="character-sprite" class="character-sprite hidden" src="" alt="Character">
+                    <p id="log-text">ゲームを選択してください</p>
+                </div>
+            </div>
+
+            <!-- 右パネル -->
+            <div class="right-panel">
+                <div class="team-status-panel">
+                    <div class="team-status-item"><span>チーム総合力</span><progress id="team-total-bar" value="0" max="100"></progress></div>
+                    <div class="team-status-item"><span>監督の評価</span><progress id="coach-eval-bar" value="0" max="100"></progress></div>
+                    <div class="team-status-item"><span>恋人の評価</span><progress id="gf-eval-bar" value="0" max="100"></progress></div>
+                </div>
+                <div class="character-display">
+                    <video id="character-video" class="hidden" autoplay loop muted playsinline></video>
+                </div>
+                <div class="status-panel">
+                    <h2>選手能力</h2>
+                    <div class="player-info">
+                        <span id="player-name">名前</span>
+                            <span id="player-condition">調子: 普通</span>
+                            <span id="girlfriend-status">彼女: なし</span>
+                            <span id="red-mark-display">赤点: 0回</span>
+                    </div>
+                    <div class="status-item health-status">
+                        <label>体力:</label>
+                        <progress id="health-bar" value="100" max="100"></progress>
+                    </div>
+                    <div class="status-grid">
+                        <div class="status-item"><label>学力:</label><span id="status-intelligence">F (10)</span></div>
+                        <div class="status-item"><label>パワー:</label><span id="status-power">F (1)</span></div>
+                        <div class="status-item"><label>ミート:</label><span id="status-meet">F (1)</span></div>
+                        <div class="status-item"><label>走力:</label><span id="status-speed">F (1)</span></div>
+                        <div class="status-item"><label>肩力:</label><span id="status-shoulder">F (1)</span></div>
+                        <div class="status-item"><label>守備力:</label><span id="status-defense">F (1)</span></div>
+                    </div>
+                    <h3 class="special-ability-header">特殊能力</h3>
+                    <div class="special-ability-grid">
+                        <span>-</span><span>-</span><span>-</span><span>-</span>
+                        <span>-</span><span>-</span><span>-</span><span>-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
