@@ -3,7 +3,7 @@ import { ui } from '../ui.js';
 import { processEndOfTurn } from '../game-loop.js';
 import { setTournamentState } from '../state.js';
 import { runRoulette, runJanken, runShuttleRun, runSelectionQuiz, runTestRoulette, runSenkyuganChallenge } from './minigames.js';
-import { createDateEvent, createConfessionEvent } from './girlfriend-events.js';
+import { createDateEvent, createConfessionEvent, createConfessionSetupEvent } from './girlfriend-events.js';
 import { playSfx } from '../sound.js';
 
 // 未来のターンが何年何月何週になるか計算する関数
@@ -116,10 +116,10 @@ export const allEvents = [
         id: "tanaka_lecture_1", title: "チーム総合力", type: "date", year: 1, month: 4, week: 2, executed: false,
         scenes: [
             { character: "田中", image: "img/tanaka_normal.png", text: "なあ主人公、監督が言ってたんだけどさ、俺たち個人の能力が上がると、それが『チーム総合力』ってのに反映されるらしいぜ。" },
-            { character: "主人公", image: "img/p_normal.png", text: "へぇ、そうなのか。じゃあ、俺が強くなればチームも強くなるってことか！" },
-            { character: "田中", image: "img/tanaka_smile.png", text: "そういうこと！オレの華麗な守備と、お前の打撃でガンガン総合力上げて、他の部員も引っ張っていこうぜ！" },
+            { character: "主人公", image: "img/p_sad.png", text: "…？何言ってんだ？練習したら強くなるのは当たり前だろ？" },
+            { character: "田中", image: "img/tanaka_smile.png", text: "まあ気にすんなって！オレの華麗な守備と、お前の打撃でガンガン総合力上げて、他の部員も引っ張っていこうぜ！" },
             { 
-                character: "主人公", image: "img/p_smile.png", text: "（なるほどな…自分の成長がチームの勝利に直結するんだな。よし、俄然やる気が出てきたぞ！）", 
+                character: "主人公", image: "img/p_sad.png", text: "（…よく分からないが、俺が強くなったら周りのみんなも強くなるんだな）", 
                 action: () => { 
                     state.player.condition = "絶好調";
                     state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 1);
@@ -140,11 +140,11 @@ export const allEvents = [
                 }
                 return null;
             }},
-            { text: "（ゲームセンターの隅で、UFOキャッチャーをしていた女の子に、ガラの悪い男たちが絡んでいる…）" },
+            { text: "（…あれって…ゲームセンターの隅で、UFOキャッチャーをしていた女の子に、ガラの悪い男たちが絡んでいる…）" },
             { character: "不良A", image: "img/mysterious_man.png", text: "お嬢ちゃん一人？俺らが取り方教えてやろうか？" },
-            { character: "桜井さん", image: "img/sakurai_surprised.png", text: "いえ、大丈夫です…。" },
+            { character: "？？？", image: "img/sakurai_surprised.png", text: "いえ、大丈夫です…。" },
             { character: "主人公", image: "img/p_sad.png", text: "（どう見ても怖がってるじゃないか…でも、直接割って入るのは危険すぎる…）" },
-            { text: "どうする？", choices: ["こっそり店員を呼ぶ", "関わらない"], action: c => c === "こっそり店員を呼ぶ" ? (state.player.girlfriendFlag.gw = 1, "勇気を出して店員に事情を話し、事なきを得た…。女の子はぺこりとお辞儀をして去っていった。") : (state.player.girlfriendRoute = "rikujo", state.player.health = Math.min(state.player.maxHealth, state.player.health + 5), "見て見ぬふりをした…。情けない…。") }
+            { text: "どうする？", choices: ["こっそり店員を呼ぶ", "関わらない"], action: c => c === "こっそり店員を呼ぶ" ? (state.player.girlfriendFlag.gw = 1, "勇気を出して店員に事情を話し、事なきを得た…。僕たちに気づいた女の子は、ぺこりとお辞儀をして去っていった。") : (state.player.girlfriendRoute = "rikujo", state.player.health = Math.min(state.player.maxHealth, state.player.health + 5), "見て見ぬふりをした…。情けない…。") }
         ]
     },
     {
@@ -169,7 +169,7 @@ export const allEvents = [
     {
         id: "fitness_test_1", title: "体力測定", type: "date", year: 1, month: 6, week: 3, executed: false,
         scenes: [
-            { character: "監督", image: "img/kantoku.png", text: "よし、次は体力測定の花形、シャトルランだ！" },
+            { character: "監督", image: "img/kantoku.png", text: "今日は体力測定、まずはシャトルランだ！" },
             { character: "鈴木くん", image: "img/suzuki_confident.png", text: "フン、野球部なんかに負けるかよ。持久力ならサッカー部が上だってこと、見せてやるぜ！" },
             { character: "主人公", image: "img/p_normal.png", text: "（なんだあいつ…見てろよ、絶対負けないからな！）" },
             {
@@ -202,7 +202,7 @@ export const allEvents = [
             { text: "（田中がトイレに行った、その時だった）" },
             { character: "不良A", image: "img/mysterious_man.png", text: "よぉ、また会ったな、お嬢ちゃん。今日は邪魔者もいねぇみたいだし、俺らと遊ぼうぜ？" },
             { text: "（まずい！この前の不良たちが、再び女の子に絡み始めた！）" },
-            { character: "桜井さん", image: "img/sakurai_surprised.png", text: "…！" },
+            { character: "？？？", image: "img/sakurai_surprised.png", text: "…！" },
             { text: "（恐怖に固まる女の子と、目が合ってしまった…！彼女は俺を覚えているようだ！）" },
             {
                 character: "主人公", image: "img/p_sad.png", text: "（どうする！？今度は俺一人だ…！）",
@@ -218,9 +218,9 @@ export const allEvents = [
                 }
             },
             { text: "（俺は無我夢中で彼女の手を取り、ゲームセンターの外へ走り出した！）" },
-            { character: "桜井さん", image: "img/sakurai_shy.png", text: "はぁ…はぁ…。あ、ありがとう…。また助けてもらっちゃったね。" },
+            { character: "？？？", image: "img/sakurai_shy.png", text: "はぁ…はぁ…。あ、ありがとう…。また助けてもらっちゃったね。" },
             { character: "主人公", image: "img/p_smile.png", text: "いや、無事でよかったよ。" },
-            { character: "桜井さん", image: "img/sakurai_smile.png", text: "ごめんなさい、私のためにこんなことして…" },
+            { character: "？？？", image: "img/sakurai_smile.png", text: "ごめんなさい、私のためにこんなことして…" },
             {
                 text: "（少し話した後に別れた。って言うかあの制服うちの学校と同じだよな。…あ、田中を忘れてた）",
                 action: () => {
@@ -228,7 +228,7 @@ export const allEvents = [
                     state.player.girlfriendFlag.gw = 2;
                     state.player.girlfriendEval = Math.min(state.maxStats.teamStats, state.player.girlfriendEval + 5);
                     state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 2);
-                    return `桜井さんと少し親しくなった！\n彼女評価が <span style="color: #ecc94b;">5</span>、走力が <span style="color: #ecc94b;">2</span> 上がった。`;
+                    return `？？？さんと少し親しくなった！\n彼女評価が <span style="color: #ecc94b;">5</span>、走力が <span style="color: #ecc94b;">2</span> 上がった。`;
                 }
             }
         ]
@@ -241,7 +241,7 @@ export const allEvents = [
             { text: "どうする？", choices: ["取りに戻る", "諦める"], action: c => c === "諦める" ? { log: "まあ、いいか…。明日でいっか。", endsEvent: true } : null },
             { text: "（部室に戻る途中、日が落ちかけたグラウンドで誰かが何かを探しているのが見えた）" },
             { character: "？？？", image: "img/kazami_sad.png", text: "はぁ…どこにもない…。どうしよう…" },
-            { character: "主人公", image: "img/p_normal.png", text: "（陸上部のジャージ…？ずいぶん長い時間探しているみたいだ。なんだかすごく困ってるみたいだけど…）" },
+            { character: "主人公", image: "img/p_surprised.png", text: "（陸上部のジャージ…？ずいぶん長い時間探しているみたいだ。なんだかすごく困ってるみたいだけど…）" },
             {
                 text: "どうする？",
                 choices: ["声をかけてみる", "関わらないでおこう"],
@@ -253,9 +253,9 @@ export const allEvents = [
                 }
             },
             { character: "主人公", image: "img/p_shy.png", text: "あの…何か探し物？" },
-            { character: "風見さん", image: "img/kazami_surprised.png", text: "えっ！？あ、はい…。家の鍵を落としちゃったみたいで…。" },
+            { character: "？？？", image: "img/kazami_surprised.png", text: "…うん、家の鍵落としちゃって…" },
             { character: "主人公", image: "img/p_normal.png", text: "そっか、大変だ。俺も一緒に探すよ。二人の方が早いでしょ？" },
-            { character: "風見さん", image: "img/kazami_smile.png", text: "本当！？ありがとう！助かります！" },
+            { character: "？？？", image: "img/kazami_smile.png", text: "本当！？ありがとう！助かる！" },
             {
                 text: "（こうして俺は、陸上部の彼女と一緒に鍵を探すことになった）",
                 action: () => {
@@ -274,32 +274,32 @@ export const allEvents = [
             { text: "（放課後、廊下を歩いていると、見覚えのある姿が目に入った）" },
             { character: "主人公", image: "img/p_normal.png", text: "（あ、ゲームセンターの時の子だ。やっぱりうちの学校だったんだな）" },
             { text: "（俺に気づいた彼女が、駆け寄ってきた）" },
-            { character: "桜井さん", image: "img/sakurai_smile.png", text: "あ、この前の！やっぱり同じ学校だったんだね！私、桜井っていいます。" },
+            { character: "？？？", image: "img/sakurai_smile.png", text: "あ、この前の！やっぱり同じ学校だったんだね！私、桜井っていいます。" },
             { character: "主人公", image: "img/p_shy.png", text: "俺は野球部の主人公。この前は災難だったね。" },
-            { character: "桜井さん", image: "img/sakurai_shy.png", text: "ううん、助けてくれて本当にありがとう。あの時、すごく心強かったから…。" },
-            { text: "（彼女の言葉に、なんだか胸が熱くなった）" },
-            { character: "桜井さん", image: "img/sakurai_smile.png", text: "ちゃんとお礼がしたいんだけど、練習とかで忙しいよね？" },
-            { character: "主人公", image: "img/p_smile.png", text: "（ここで断るわけにはいかない！連絡先を聞く絶好のチャンスだ！）" },
+            { character: "桜井さん", image: "img/sakurai_shy.png", text: "ううん、助けてくれて本当にありがとう。ゲーム好きな友達がいなくて、一人でいるからああなっちゃうんだよね…" },
+            { text: "（…！これって…）" },
+            { character: "桜井さん", image: "img/sakurai_smile.png", text: "主人公くんって…その…ゲームとか好き…？" },
+            { character: "主人公", image: "img/p_smile.png", text: "（…！連絡先を聞く絶好のチャンスだ！）" },
             {
                 text: "どうする？",
-                choices: ["「連絡先教えてくれたら、空いてる日教えるよ」", "「気にしないで」"],
+                choices: ["「今度一緒に行こうよ！」", "「野球以外はあんまり興味ないかな…」"],
                 action: (choice) => {
-                    if (choice === "「気にしないで」") {
+                    if (choice === "「野球以外はあんまり興味ないかな…」") {
                         state.player.girlfriendFlag.gw = 0;
                         return { log: "俺は照れ隠しにそう言って、その場を後にしてしまった。\n桜井さんは少し寂しそうに見えた…。", endsEvent: true };
                     }
                     return null;
                 }
             },
-            { character: "桜井さん", image: "img/sakurai_blush.png", text: "えっ…！うん、わかった…！" },
+            { character: "桜井さん", image: "img/sakurai_happy.png", text: "…！うん、わかった…！" },
             {
                 text: "（こうして俺は、桜井さんと連絡先を交換することができた！）",
                 action: () => {
                     playSfx('point');
                     state.player.hasPhoneNumber = true;
                     state.player.girlfriendRoute = "game_center";
-                    state.player.girlfriendEval = Math.min(state.maxStats.teamStats, state.player.girlfriendEval + 10);
-                    return `桜井さんとの関係が一歩前進した！\n彼女評価が <span style="color: #ecc94b;">10</span> 上がった！`;
+                    state.player.girlfriendEval = Math.min(state.maxStats.teamStats, state.player.girlfriendEval + 12);
+                    return `桜井さんとの関係が一歩前進した！\n彼女評価が <span style="color: #ecc94b;">12</span> 上がった！`;
                 }
             }
         ]
@@ -310,20 +310,20 @@ export const allEvents = [
         scenes: [
             { text: "（昼休み、教室で弁当を食べていると、クラスの入口が少し騒がしい…）" },
             { character: "クラスメイトA", text: "野球部の主人公くんに用だってさ。えーっと…" },
-            { character: "？？？", image: "img/kazami_shy.png", text: "あ、あの、ごめんなさい、お昼休み中に…" },
+            { character: "？？？", image: "img/kazami_smile.png", text: "やっほー！同じ学年だったのねー！" },
             { character: "主人公", image: "img/p_surprised.png", text: "（え、俺？って、この前の陸上部の子だ！）" },
-            { text: "（彼女は少し恥ずかしそうに、クラスメイトたちの間を抜けて俺の席までやってきた）" },
-            { character: "風見さん", image: "img/kazami_smile.png", text: "この前は、鍵を探すの手伝ってくれてありがとう。これ、お礼に作ったの。良かったら食べて！" },
+            { text: "（彼女はすごい勢いでクラスメイトたちの間を抜けて俺の席までやってきた）" },
+            { character: "？？？", image: "img/kazami_smile.png", text: "この前は、鍵を探すの手伝ってくれてありがとう。これ、お礼に作ったの。良かったら食べて！" },
             { character: "主人公", image: "img/p_smile.png", text: "手作りクッキーだ！わざわざありがとう。すごくいい匂いがする！" },
-            { character: "風見さん", image: "img/kazami_smile.png", text: "うん！私の名前は風見。陸上部で長距離やってるんだ。あなたは…主人公くん、だよね？" },
+            { character: "風見さん", image: "img/kazami_smile.png", text: "うん！私の名前は風見。陸上部で短距離やってるんだ。きみは…主人公くん、だよね？" },
             { character: "主人公", image: "img/p_smile.png", text: "ああ、そうだよ。よろしくな、風見さん。" },
             { 
-                text: "（クラスメイトたちの羨むような視線を感じながら、俺はクッキーを受け取った）",
+                text: "（俺はクッキーを受け取った、どうやら風見さんは男子から人気みたいで、殺伐とした雰囲気が流れている）",
                 action: () => { 
                     state.player.health = Math.min(state.player.maxHealth, state.player.health + 15); 
                     state.player.girlfriendFlag.rikujo = 2; 
                     state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 1);
-                    return "手作りクッキーはとてもおいしくて、体力が回復した！\nクラスでの評判が少し上がり、監督の評価もなぜか上がった。";
+                    return "手作りクッキーはとてもおいしくて、体力が回復した！\n田中は今日一日話しを聞いてくれなかったが、監督の評価はなぜか上がった。";
                 }
             }
         ]
@@ -354,7 +354,7 @@ export const allEvents = [
             { text: "（勝負はアンカー対決にもつれ込んだ。ほぼ同時にバトンを受け取る！デッドヒートの末、わずかに俺が先にゴールテープを切った！）" },
             { character: "風見さん", image: "img/kazami_angry.png", text: "くぅぅ…！本気で走ったのに…負けた…。" },
             { character: "主人公", image: "img/p_smile.png", text: "俺の勝ちだな、風見さん。じゃあ、約束通りお願いを聞いてもらおうか。" },
-            { character: "風見さん", image: "img/kazami_shy.png", text: "…うん。何でもどうぞ…。" },
+            { character: "風見さん", image: "img/kazami_shy.png", text: "はいはい…で、何？" },
             {
                 text: "（よっしゃ！ここで決めるしかない！）",
                 choices: ["「じゃあ…連絡先、教えてよ」", "「ジュース奢って！」"],
@@ -373,6 +373,8 @@ export const allEvents = [
                 }
             },
             { character: "風見さん", image: "img/kazami_blush.png", text: "仕方ない！勝負に負けたしねー" },
+            { character: "田中", image: "img/tanaka_surprised.png", text: "…これが青春か…" },
+
             {
                 text: "（こうして俺は、勝負に勝ち、風見さんの連絡先をゲットした！）",
                 action: () => {
@@ -385,7 +387,7 @@ export const allEvents = [
     {
         id: "senkyugan_1", title: "選球眼トレーニング", type: "date", year: 1, month: 11, week: 2, executed: false,
         scenes: [
-            { text: "動体視力を鍛えるぞ！" },
+            { text: "動体視力を鍛えるぞ！（表示された文字を記憶してください）" },
             {
                 miniGame: "senkyugan",
                 action: result => {
@@ -412,7 +414,7 @@ export const allEvents = [
                     playSfx('negative');
                     state.player.condition = "不調";
                     state.player.health = Math.max(1, state.player.health - 10);
-                    return "一人で素振りをして過ごした…<br>寂しさで調子が悪くなり、体力が10下がった。";
+                    return "クリスマスは一人で素振りをして過ごした…<br>寂しさで調子が悪くなり、体力が10下がった。";
                 }
             },
             { 
@@ -427,7 +429,7 @@ export const allEvents = [
             { 
                 condition: () => state.player.isGirlfriend,
                 character: "主人公", image: "img/p_smile.png", 
-                text: "ああ、本当にきれいだな。君と見られて良かったよ。" 
+                text: "ああ、本当にきれいだな。一緒に見れて良かったよ。" 
             },
             {
                 condition: () => state.player.isGirlfriend,
@@ -481,7 +483,7 @@ export const allEvents = [
                     playSfx('negative');
                     state.player.condition = "不調";
                     state.player.health = Math.max(1, state.player.health - 10);
-                    return "誰からもチョコをもらえなかった…<br>悲しさで調子が悪くなり、体力が10下がった。";
+                    return "バレンタイン…誰からもチョコをもらえなかった…<br>悲しさで調子が悪くなり、体力が10下がった。";
                 }
             },
             { 
@@ -631,8 +633,11 @@ export const allEvents = [
             },
             { character: "主人公", image: "img/p_shy.png", text: "お、おう…！こちらこそ！" },
             { text: "（二人で息を合わせて練習するうちに、自然と会話も弾んだ）" },
+            { character: "田中", image: "img/tanaka_normal.png", text: "俺はどの女子とペアかな～" },
+            { character: "鈴木くん", image: "suzuki_confident.png", text: "よっ、田中、俺と青春しようぜ" },
+            { character: "田中", image: "img/tanaka_normal.png", text: "…" },
             {
-                text: "本番、俺たちは息の合った走りを見せ、見事1位でゴールした！",
+                text: "本番、俺と彼女は息の合った走りを見せ、見事1位でゴールした！",
                 action: () => {
                     playSfx('point');
                     state.player.girlfriendEval = Math.min(state.maxStats.teamStats, state.player.girlfriendEval + 8);
@@ -649,7 +654,7 @@ export const allEvents = [
         scenes: [
             { text: "親「この前のアレ、また手に入ったぞ」" },
             { text: "どうする？", choices: ["飲む", "飲まない"], action: c => "飲まない" === c ? { log: "もうこりごりだ…", endsEvent: true } : { onComplete: () => { state.player.girlfriendFlag.mysteriousMan = true; } , log: null } },
-            { miniGame: "roulette", options: ["当たり", "はずれ", "はずれ", "はずれ"], action: r => {
+            { miniGame: "roulette", options: ["当たり", "はずれ", "当たり", "はずれ"], action: r => {
                 if ("当たり" === r) {
                     playSfx('point');
                     Object.keys(state.player).forEach(k => { if (typeof state.player[k] === 'number' && ["power", "meet", "speed", "shoulder", "defense", "intelligence"].includes(k)) { state.player[k] = Math.min(state.maxStats.playerStats, state.player[k] + 3); } });
@@ -668,9 +673,9 @@ export const allEvents = [
         id: "mystery_drink_3", title: "謎の飲み物③", type: "date", year: 2, month: 11, week: 4, executed: false,
         condition: () => state.player.girlfriendFlag.mysteriousMan === true,
         scenes: [
-            { text: "親「これが最後の一本だ…」<br><span style='color:red'>警告：得体のしれない成分が含まれています。はずれを引くとよくないことが起こります。</span>" },
+            { text: "親「これが最後の一本だ…」<br><span style='color:red'>警告：得体のしれない成分が含まれています。はずれを引くと、野球人生に関わるよくないことが起こります。</span>" },
             { text: "どうする？", choices: ["飲む", "飲まない"], action: c => "飲まない" === c ? { log: "さすがに危険すぎる…", endsEvent: true } : null },
-            { miniGame: "roulette", options: ["大当たり", "入院", "入院", "入院"], action: r => {
+            { miniGame: "roulette", options: ["大当たり", "入院", "大当たり", "入院"], action: r => {
                 if ("大当たり" === r) {
                     playSfx('point');
                     Object.keys(state.player).forEach(k => { if (typeof state.player[k] === 'number' && ["power", "meet", "speed", "shoulder", "defense", "intelligence"].includes(k)) { state.player[k] = Math.min(state.maxStats.playerStats, state.player[k] + 7); } });
@@ -692,7 +697,7 @@ export const allEvents = [
                     playSfx('negative');
                     state.player.condition = "不調";
                     state.player.health = Math.max(1, state.player.health - 10);
-                    return "今年も一人か…<br>寂しさで調子が悪くなり、体力が10下がった。";
+                    return "クリスマス…今年も一人か…<br>寂しさで調子が悪くなり、体力が10下がった。";
                 }
             },
             { 
@@ -707,7 +712,7 @@ export const allEvents = [
             { 
                 condition: () => state.player.isGirlfriend,
                 character: "主人公", image: "img/p_smile.png", 
-                text: "ありがとう！君といられるだけで、最高のプレゼントだよ。" 
+                text: "ありがとう！はい、俺からもこれどうぞ…でも、君といられるだけで、最高のプレゼントだよ。" 
             },
             {
                 condition: () => state.player.isGirlfriend,
@@ -780,7 +785,7 @@ export const allEvents = [
                     playSfx('negative');
                     state.player.condition = "不調";
                     state.player.health = Math.max(1, state.player.health-10);
-                    return "もう慣れたよ…<br>調子が悪くなり、体力が10下がった。";
+                    return "バレンタイン…もう慣れたよ…<br>調子が悪くなり、体力が10下がった。";
                 }
             },
             { 
@@ -944,9 +949,9 @@ export const allEvents = [
                     return null;
                 }
             },
-            { character: "星川さん", image: "img/hoshikawa_blush.png", text: "えっ…！うん、嬉しい！でも、ごめん、今日は家の用事が…。" },
-            { character: "主人公", image: "img/p_sad.png", text: "そっか、急に誘ってごめんな。" },
-            { character: "星川さん", image: "img/hoshikawa_smile.png", text: "ううん！埋め合わせは絶対させてほしいから…その、良かったら連絡先、交換しない？" },
+            { character: "星川さん", image: "img/hoshikawa_blush.png", text: "えっ…でも、ごめん、このあと家の用事があってさ…。" },
+            { character: "主人公", image: "img/p_sad.png", text: "そっか、急に誘ってごめんな。（…だめか）" },
+            { character: "星川さん", image: "img/hoshikawa_smile.png", text: "ううん！ほんとにタイミングが悪かったから…その、良かったら連絡先、交換しない？" },
             {
                 text: "（最高の展開だ！俺は頷き、星川さんと連絡先を交換した）",
                 action: () => {
@@ -1155,16 +1160,24 @@ ui.hideCharacter();
 export function checkEvent() {
     if (!allEvents) return null;
 
+    // --- デート当日の処理（ここはそのまま） ---
     if (state.player.girlfriendFlag.isDateScheduled && state.gameState.currentTurn === state.player.girlfriendFlag.scheduledDateTurn) {
         if (state.player.girlfriendFlag.confessionReady) {
-            return createConfessionEvent('date');
+            return createConfessionEvent(); // 引数なしでOK
         } else {
             return createDateEvent();
         }
     }
     
-    if (state.gameState.lastCommand === "電話する" && state.player.girlfriendFlag.confessionReady && !state.gameState.phoneConfessionAttemptedThisTurn) {
-        return createConfessionEvent('phone');
+    // --- ★ここを修正（電話での呼び出し処理） ---
+    // 告白条件を満たしている かつ まだデートの約束をしていない状態で電話をした場合
+    if (state.gameState.lastCommand === "電話する" && 
+        state.player.girlfriendFlag.confessionReady && 
+        !state.player.girlfriendFlag.isDateScheduled && // 既にデートの約束があるなら二重に発生させない
+        !state.gameState.phoneConfessionAttemptedThisTurn) {
+            
+        // いきなり告白イベントではなく「呼び出しイベント」を返す
+        return createConfessionSetupEvent();
     }
 
     const currentYear = state.gameState.year;

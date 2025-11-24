@@ -478,12 +478,15 @@ async function executeCommand(command) {
             await statUp('学力', 'intelligence', 3);
             healthChange = -5; break;
         case "気分転換": 
+             // ▼▼▼ 追加した処理 ▼▼▼
              if(state.player.specialAbilities["すれ違い"]) {
                 delete state.player.specialAbilities["すれ違い"];
-                state.player.noDateTurnCount = 0;
+                state.player.noDateTurnCount = 0; // カウントもリセット
                 await ui.typeWriter("気分転換して、彼女とのすれ違いが解消された！");
                 await ui.waitForUserAction();
             }
+            // ▲▲▲ ここまで ▲▲▲
+            
             healthChange = 10; state.player.condition = "絶好調"; 
             await ui.typeWriter("体力が回復し、やる気が絶好調になった！");
             playSfx('point'); 

@@ -126,9 +126,11 @@ function showCharacter(imagePath) {
             hideCharacterTimeout = null;
         }
 
-        uiElements.characterSprite.src = imagePath;
-        uiElements.characterSprite.classList.remove('hidden');
-        uiElements.logWindow.style.alignItems = 'flex-start';
+        const img = new Image();
+        img.onload = () => {
+            uiElements.characterSprite.src = imagePath;
+            uiElements.characterSprite.classList.remove('hidden');
+            uiElements.logWindow.style.alignItems = 'flex-start';
         
         // 少し待ってからフェードインクラスをつける（CSSトランジション用）
         setTimeout(() => uiElements.characterSprite.classList.add('fade-in'), 10);

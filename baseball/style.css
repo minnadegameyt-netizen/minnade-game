@@ -120,9 +120,9 @@ html, body {
 #game-wrapper {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 100vh; /* 画面の高さ一杯に */
+    overflow: hidden; /* 全体スクロール禁止 */
 }
-
 
 /* --- ヘッダー --- */
 .main-header {
@@ -168,7 +168,13 @@ html, body {
 
 
 /* --- メインコンテンツ --- */
-.game-container { display: flex; width: 100%; flex-grow: 1; overflow: hidden; }
+.game-container {
+    display: flex;
+    width: 100%;
+    flex: 1; /* ヘッダー以外の残りの高さを埋める */
+    overflow: hidden; /* コンテナ自体はスクロールさせない */
+    padding-bottom: 10px; /* 下部に少し余白 */
+}
 
 /* --- 3カラムレイアウト --- */
 .left-panel, .right-panel { background-color: #2d3748; padding: 20px; display: flex; flex-direction: column; box-sizing: border-box; }
@@ -225,35 +231,74 @@ html, body {
 .roulette-result { transform: scale(1.2); border-color: #ecc94b; color: #ecc94b; text-shadow: 0 0 8px #ecc94b; }
 
 /* --- 右パネル --- */
-.right-panel { overflow-y: auto; }
-.team-status-panel { display: flex; flex-direction: column; gap: 12px; background-color: #1a202c; padding: 15px; border-radius: 4px; margin-bottom: 15px; }
-.team-status-item { text-align: left; }
-.team-status-item span { font-size: 0.9em; color: #a0aec0; margin-bottom: 4px; }
-.team-status-item progress { width: 100%; -webkit-appearance: none; appearance: none; height: 12px;}
-.team-status-item progress::-webkit-progress-bar { background-color: #4a5568; border-radius: 5px; }
-#team-total-bar::-webkit-progress-value { background-color: #63b3ed; }
-#coach-eval-bar::-webkit-progress-value { background-color: #f6ad55; }
-#gf-eval-bar::-webkit-progress-value { background-color: #f687b3; }
-.character-display { flex-grow: 1; display: flex; justify-content: center; align-items: center; min-height: 150px; }
-.character-display img, .character-display video {
+.right-panel {
+    width: 30%;
+    background-color: #2d3748;
+    padding: 15px; /* パディングを少し減らす */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    overflow: hidden; /* パネル自体のスクロールを禁止（中身を収めるため） */
+    gap: 10px; /* 要素間の隙間 */
+}
+
+/* 上部のチームステータス（固定高さ） */
+.team-status-panel {
+    flex-shrink: 0; /* 縮めない */
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* 間隔を詰める */
+    background-color: #1a202c;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 0; /* marginは親のgapに任せる */
+}
+
+/* 動画エリア（ここを伸縮させる） */
+.character-display {
+    flex: 1; /* 余ったスペースを埋める */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 0; /* 重要: flexアイテムが潰れることを許可 */
+    background: #000; /* 動画の背景 */
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.character-display video {
     max-width: 100%;
-    max-height: 90%;
+    max-height: 100%; /* 親要素の高さに合わせる */
     object-fit: contain;
 }
-.status-panel { background-color: #4a5568; padding: 15px; border-radius: 5px; flex-shrink: 0; }
-.status-panel h2 { margin-top: 0; text-align: center; padding-bottom: 10px; border-bottom: 1px solid #718096; }
-.player-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
-#red-mark-display.is-danger { color: #f56565; font-weight: bold; }
-.status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; font-size: 1.1em; }
-.status-item { display: flex; justify-content: space-between; align-items: center; }
-.status-item.health-status { margin-bottom: 15px; }
-.status-item label { color: #cbd5e0; }
-.status-item span { font-weight: bold; }
-.health-status progress { width: 70%; height: 10px; }
-.health-status progress::-webkit-progress-value { background-color: #48bb78; }
-.special-ability-header { margin: 20px 0 10px; text-align: center; color: #a0aec0; }
-.special-ability-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; background-color: #2d3748; padding: 10px; border-radius: 4px; }
-.special-ability-grid span { background-color: #1a202c; color: #718096; text-align: center; padding: 5px; border-radius: 3px; font-size: 0.9em; cursor: help; }
+
+/* 下部の選手能力パネル（固定または内容に応じて） */
+.status-panel {
+    flex-shrink: 0; /* 縮めない */
+    background-color: #4a5568;
+    padding: 12px;
+    border-radius: 5px;
+    overflow-y: auto; /* 万が一中身が多い場合だけスクロール */
+    max-height: 50%; /* 画面の半分以上は占有しない */
+}
+
+/* ステータスグリッドの調整 */
+.status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px 15px; /* 縦の隙間を詰める */
+    font-size: 1.0em; /* 文字サイズを少し調整 */
+}
+
+.special-ability-header {
+    margin: 10px 0 5px; /* 余白を詰める */
+    font-size: 0.9em;
+}
+
+.special-ability-grid {
+    padding: 5px;
+    gap: 5px;
+}
 
 /* --- ランクごとの文字色 --- */
 .rank-s { color: #f687b3; text-shadow: 0 0 5px #f687b3; }
