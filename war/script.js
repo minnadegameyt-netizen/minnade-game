@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- 1. グローバル変数・定数定義 ---
     const factions = {
-        player: { id: 'faction1', name: '派閥A', armyName: 'A軍', color: '#3fb950' },
-        ai: { id: 'faction2', name: '派閥B', armyName: 'B軍', color: '#2f81f7' }
+        player: { id: 'faction1', name: 'きのこ', armyName: 'A軍', color: '#3fb950' },
+        ai: { id: 'faction2', name: 'たけのこ', armyName: 'B軍', color: '#2f81f7' }
     };
     
     // 制圧（拡散開始）に必要な最低戦力
@@ -297,6 +297,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    const backToSetupBtn = document.getElementById('back-to-setup-btn');
+    if (backToSetupBtn) {
+        backToSetupBtn.addEventListener('click', () => {
+            // 待機画面を隠す
+            document.getElementById('ready-screen').style.display = 'none';
+            // 設定画面を表示する
+            document.getElementById('start-screen').style.display = 'flex';
+        });
+    }
+
     const startButton = document.getElementById('start-button');
     const realStartBtn = document.getElementById('real-start-btn');
     
@@ -329,8 +339,8 @@ document.addEventListener('DOMContentLoaded', function() {
         isSeOn = document.getElementById('se-on-btn').classList.contains('selected');
         isEventOn = document.getElementById('event-on-btn').classList.contains('selected');
 
-        const name1 = document.getElementById('faction1-name-input').value.trim() || '派閥A';
-        const name2 = document.getElementById('faction2-name-input').value.trim() || '派閥B';
+        const name1 = document.getElementById('faction1-name-input').value.trim() || 'きのこ';
+        const name2 = document.getElementById('faction2-name-input').value.trim() || 'たけのこ';
         
         if (name1 === name2) { setText('error-message', '派閥名は異なるものを設定してください。'); return; }
 
@@ -650,8 +660,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (!targetPref) return null;
 
-        const keywordsA = ['A', 'a', 'Ａ', 'ａ', '派閥A', factions.player.name];
-        const keywordsB = ['B', 'b', 'Ｂ', 'ｂ', '派閥B', factions.ai.name];
+        const keywordsA = ['A', 'a', 'Ａ', 'ａ', 'きのこ', factions.player.name];
+        const keywordsB = ['B', 'b', 'Ｂ', 'ｂ', 'たけのこ', factions.ai.name];
 
         let targetFactionId = null;
         if (keywordsA.some(k => comment.includes(k))) {
@@ -1053,6 +1063,15 @@ document.addEventListener('DOMContentLoaded', function() {
     setupGradients(); 
     setupBattleArrows();
     setupInitialUI();
+
+    const backToHomeBtn = document.getElementById('back-to-home-btn');
+    if (backToHomeBtn) {
+        backToHomeBtn.addEventListener('click', () => {
+            // トップページ（../index.html）へ戻る
+            // ※ファイルの配置構成に合わせてパスは調整してください
+            window.location.href = "../index.html";
+        });
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');

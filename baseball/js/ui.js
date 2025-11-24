@@ -34,6 +34,7 @@ const uiElements = {
     saveDataButtons: document.querySelector('.save-data-buttons'),
     newGameBtn: document.getElementById('new-game-btn'),
     loadGameBtn: document.getElementById('load-game-btn'),
+    backToHomeFromStartBtn: document.getElementById('back-to-home-from-start-btn'),
     
     setupModal: document.getElementById('setup-modal'),
     playerNameInput: document.getElementById('player-name-input'),
@@ -616,6 +617,17 @@ function setupEventListeners(){
             btn.classList.add('selected');
         });
     });
+
+    const backHomeBtn = document.getElementById('back-to-home-from-start-btn');
+
+    if (backHomeBtn) {
+        backHomeBtn.addEventListener('click', () => {
+            // サイトのトップページ（1段階目のインデックス）へ移動する
+            // フォルダ構成に合わせてパスを調整してください
+            // 例: 現在が /baseball/index.html なら、一つ上の ../index.html へ
+            window.location.href = "../index.html"; 
+        });
+    }
 }
 
 function updateShuttleRunScore(score) {

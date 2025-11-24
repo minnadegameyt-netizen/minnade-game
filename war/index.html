@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>FACTION WARS</title>
+    <title>視聴者参加型世論調査</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,8 +13,8 @@
       <div class="modal-content">
           <h2 id="start-title">FACTION WARS</h2>
           <p class="prologue">
-              国内世論は二分された。<br>
-              あなたの支持が、この国の行く末を決定する。
+              ○○対○○で<br>
+              視聴者はどっち派か決めよう！
           </p>
           
           <div class="setup-section">
@@ -86,16 +86,19 @@
           </div>
           
           <p id="error-message" class="error-text" style="color: #ff6b6b;"></p>
-          <button id="start-button">設定完了</button>
+<div class="setup-footer-buttons">
+    <button id="back-to-home-btn" class="secondary-btn">ホームに戻る</button>
+    <button id="start-button">設定完了</button>
+</div>
       </div>
   </div>
 
-  <!-- ▼▼▼ 待機＆演出画面（説明追加） ▼▼▼ -->
+<!-- ▼▼▼ 待機＆演出画面（説明追加） ▼▼▼ -->
   <div id="ready-screen" class="modal-overlay" style="display: none; background: rgba(0,0,0,0.85);">
       <div style="text-align:center; width: 80%; max-width: 700px;">
           <h2 style="font-family: var(--font-display); font-size: 3em; color: #fff; text-shadow: 0 0 20px var(--highlight); margin-bottom: 30px;">準備はいいですか？</h2>
           
-          <!-- 追加: 遊び方説明 -->
+          <!-- 遊び方説明 -->
           <div class="ready-instruction-box">
               <h3>視聴者参加型 勢力争いゲーム</h3>
               <p>コメント投稿で、あなたの推し派閥に援軍を送れます。</p>
@@ -104,13 +107,22 @@
               </div>
               <p style="font-size: 0.9em; color: #bbb; margin-top:10px;">
                   例：「東京 A」「大阪 B」<br>
-                  ※「A」や「B」だけでも投票可能です
+                  「東京　きのこ」や「大阪　たけのこ」でも投票可能です
               </p>
           </div>
 
+          <!-- 投票開始ボタン -->
           <button id="real-start-btn" style="margin-top: 30px; padding: 15px 60px; font-size: 1.5em; font-weight: bold; color: #000; background: var(--highlight); border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px var(--highlight); transition: transform 0.1s;">投票開始</button>
-      </div>
-  </div>
+
+          <!-- 設定に戻るボタン -->
+          <div style="margin-top: 20px;">
+              <button id="back-to-setup-btn" style="background: transparent; border: 1px solid #555; color: #aaa; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 0.9em;">
+                  設定に戻る
+              </button>
+          </div>
+
+      </div> <!-- ここで中の箱（text-align:centerのdiv）を閉じる -->
+  </div> <!-- ここで待機画面モーダル全体を閉じる -->
 
   <div id="countdown-overlay" class="modal-overlay hidden" style="background: rgba(0,0,0,0.2); pointer-events: none;">
       <div id="countdown-text" style="font-family: var(--font-display); font-size: 10em; font-weight: bold; color: #fff; text-shadow: 0 0 30px rgba(255,255,255,0.8);"></div>

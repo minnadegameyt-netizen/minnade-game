@@ -1,5 +1,3 @@
-/* style.css */
-
 html, body {
     height: 100%; margin: 0; overflow: hidden;
     background-color: #1a202c; color: #e2e8f0;
@@ -716,4 +714,20 @@ html, body {
     font-size: 0.85em;    /* 小さめの文字 */
     margin-top: 20px;
     line-height: 1.6;     /* 読みやすく行間を空ける */
+}
+
+/* 戻るボタン（サブボタン）のデザイン */
+.secondary-btn {
+    padding: 10px 20px;
+    background-color: #718096; /* グレー */
+    color: #fff;
+    border: 1px solid #4a5568;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.0em;
+    margin-top: 10px;
+}
+
+.secondary-btn:hover {
+    background-color: #4a5568;
 }

@@ -93,15 +93,24 @@
     <div id="game-wrapper" class="hidden">
         
         <!-- ゲーム開始時の選択モーダル -->
-        <div id="start-modal" class="modal-overlay hidden">
-            <div class="modal-content">
-                <h2>ゲームを開始します</h2>
-                <div class="save-data-buttons">
-                    <button id="new-game-btn">はじめから</button>
-                    <button id="load-game-btn" class="hidden">続きから</button>
-                </div>
-            </div>
+<div id="start-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h2 style="margin-bottom: 20px; color: #fff;">ゲームを開始します</h2>
+        
+        <!-- メインの選択ボタン -->
+        <div class="save-data-buttons">
+            <button id="new-game-btn">はじめから</button>
+            <button id="load-game-btn" class="hidden">続きから</button>
         </div>
+        <!-- ▲▲▲ ここで一旦 div を閉じる ▲▲▲ -->
+        
+        <!-- ▼▼▼ 下のボタン（別ブロックにする） ▼▼▼ -->
+        <div style="margin-top: 20px;"> <!-- さらに余白を追加 -->
+            <button id="back-to-home-from-start-btn" class="secondary-btn">ホームに戻る</button>
+        </div>
+        <!-- ▲▲▲▲▲▲▲▲▲▲ -->
+    </div>
+</div>
 
         <!-- 初期設定モーダル (API関連の項目を削除) -->
         <div id="setup-modal" class="modal-overlay hidden">
