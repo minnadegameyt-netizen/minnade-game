@@ -2,14 +2,34 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TS77Z86Q2V"></script>
+<!-- Google Analytics Control Script -->
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  (function() {
+    var GA_ID = 'G-TS77Z86Q2V';
 
-  gtag('config', 'G-TS77Z86Q2V');
+    // 1. ローカル環境かどうか判定
+    var isLocal = window.location.hostname === 'localhost' || 
+                  window.location.hostname === '127.0.0.1' || 
+                  window.location.hostname.startsWith('192.168.') ||
+                  window.location.protocol === 'file:';
+
+    var isAdmin = localStorage.getItem('analytics_ignore') === 'true';
+
+    // ローカルでも管理者でもない場合のみGAを読み込む
+    if (!isLocal && !isAdmin) {
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+      document.head.appendChild(script);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', GA_ID);
+    } else {
+      console.log('Google Analytics blocked (Local or Admin)');
+    }
+  })();
 </script>
     <title>みんなでクイズ</title>
     <link rel="stylesheet" href="style.css">
