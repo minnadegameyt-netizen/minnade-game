@@ -2,17 +2,19 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Orbitron:wght@700&display=swap');
 
-html, body {
-    height: 100%; 
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100%; /* height ではなく min-height にする */
     margin: 0;
     background-color: #1a202c; 
     color: #e2e8f0;
     font-family: 'Noto Sans JP', sans-serif;
     display: flex;
     flex-direction: column;
-    /* 画面からはみ出たらスクロールさせる */
-    overflow-y: auto; 
-    overflow-x: hidden;
+    overflow-y: visible; /* スクロールバーを強制的に消す */
 }
 
 /* --- ヘッダーとナビゲーション --- */
@@ -81,7 +83,6 @@ html, body {
     padding: 20px;
     box-sizing: border-box;
     width: 100%;
-    overflow-y: auto; /* コンテンツが多い場合はここがスクロールする */
 }
 
 /* --- 3列レイアウト --- */

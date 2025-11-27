@@ -1393,9 +1393,9 @@ playSE('dialog_spawn');
                 <div style="border-left: 2px solid red; padding-left: 10px; margin: 20px 0; color: #ff5555; line-height: 1.6;">
                     > SECURITY QUESTION:<br>
                     "・[遖ｾ]  ｭ謫ｾ菴阪＃$%"''()*+,-./fs0a"<br>
-                    (この数■■■単■から全■1■引■■検■■ろ)<br>
+                    (この数■■英単■から全■1■引■■検■■ろ)<br>
                     <br>
-                    > HINT: 6846-82 ebn.
+                    > HINT: 6846-82 ebn
                 </div>
                 
                 <p>Enter the passkey to decrypt the final log.</p>
