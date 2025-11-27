@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- トップページ -->
+  <url>
+    <loc>https://minnade-game.vercel.app/</loc>
+    <lastmod>2025-11-27</lastmod>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://minnade-game.vercel.app/index.html</loc>
+    <lastmod>2025-11-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 情報ページ -->
+  <url>
+    <loc>https://minnade-game.vercel.app/about.html</loc>
+    <lastmod>2025-11-27</lastmod>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://minnade-game.vercel.app/terms.html</loc>
+    <lastmod>2025-11-27</lastmod>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://minnade-game.vercel.app/privacy.html</loc>
+    <lastmod>2025-11-27</lastmod>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://minnade-game.vercel.app/contact.html</loc>
+    <lastmod>2025-11-27</lastmod>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- ゲームコンテンツ -->
+  <url>
+    <loc>https://minnade-game.vercel.app/baseball/index.html</loc>
+    <lastmod>2025-11-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://minnade-game.vercel.app/war/index.html</loc>
+    <lastmod>2025-11-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://minnade-game.vercel.app/quiz/index.html</loc>
+    <lastmod>2025-11-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://minnade-game.vercel.app/kanji/index.html</loc>
+    <lastmod>2025-11-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://minnade-game.vercel.app/mystery/index.html</loc>
+    <lastmod>2025-11-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+</urlset>
