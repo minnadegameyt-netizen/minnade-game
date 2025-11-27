@@ -318,7 +318,19 @@ function initializeGame(mode) {
 
 function updateDayIndicator() {
     const el = document.getElementById('day-indicator');
-    el.textContent = `Day ${currentDay} - 02:59 AM`;
+    
+    // Dayごとの時間設定
+    let timeString = "02:59 AM"; // デフォルト
+
+    switch(currentDay) {
+        case 1: timeString = "02:59 AM"; break; // 開始直前
+        case 2: timeString = "03:05 AM"; break; // 侵入成功、調査中
+        case 3: timeString = "03:33 AM"; break; // 深夜、怪奇現象
+        case 4: timeString = "03:59 AM"; break; // 夜明け前、焦り
+        case 5: timeString = "--:-- --"; break; // システム外
+    }
+
+    el.textContent = `Day ${currentDay} - ${timeString}`;
     el.classList.remove('hidden');
     el.style.color = '#00ff41';
     el.style.borderColor = '#00ff41';
@@ -922,6 +934,12 @@ else if (pageId === 'd2_noise') {
         playSE('alert');
         playSE('glitch');
         document.body.classList.add('danger-mode'); 
+
+        if (AUDIO_FILES.alert) {
+            AUDIO_FILES.alert.loop = true; // ループをONにする
+            AUDIO_FILES.alert.currentTime = 0;
+            AUDIO_FILES.alert.play().catch(()=>{});
+        }
         
         // タイマーIDを保持するための変数を宣言
         let escapeTimerId;
@@ -949,6 +967,13 @@ else if (pageId === 'd2_noise') {
         // クリック成功時の処理を関数として定義
         window.succeedEscape = () => {
             clearInterval(escapeTimerId); // タイマーを止める
+
+            if (AUDIO_FILES.alert) {
+                AUDIO_FILES.alert.pause();
+                AUDIO_FILES.alert.currentTime = 0;
+                AUDIO_FILES.alert.loop = false; // 重要: 他のシーンのためにFalseに戻す
+            }
+
             playSE('success');
             document.body.classList.remove('danger-mode');
             playScenario('novel_d3_end');
@@ -985,6 +1010,12 @@ else if (pageId === 'd2_noise') {
                 // 時間切れでゲームオーバー
                 if (timeLeft <= 0) {
                     clearInterval(escapeTimerId);
+
+                    if (AUDIO_FILES.alert) {
+                        AUDIO_FILES.alert.pause();
+                        AUDIO_FILES.alert.loop = false; 
+                    }
+
                     button.disabled = true;
                     button.classList.remove('enabled');
                     button.textContent = "TOO LATE...";
@@ -1103,7 +1134,7 @@ else if (pageId === 'd4_sound') {
         pageArea.innerHTML = `
             <div class="site-center">
                 <h1 style="color:red; font-size:4em; animation:blink 0.2s infinite;">SYSTEM HACKED</h1>
-                <p style="margin-top: 50px; color:#888;">"おめでとう！お前たちのPCは完全に掌握した！おめでとう！おめでとう！おめでとう！おめでとう！おめでとう！"</p>
+                <p style="margin-top: 50px; color:#888;">"おめでとう！お前のPCは完全に掌握した！おめでとう！おめでとう！おめでとう！おめでとう！おめでとう！"</p>
                 <div class="input-group">
                     <input type="text" placeholder="おめでとう！" disabled>
                     <button disabled>9煉ァ</button>
@@ -1140,7 +1171,7 @@ else if (pageId === 'd4_sound') {
         function startEnemyTyping() {
             enemyTypingInterval = setInterval(() => {
                 const p = document.createElement('p');
-                p.textContent = "> " + Array(40).fill(0).map(() => junkCode[Math.floor(Math.random() * junkCode.length)]).join('');
+                p.textContent = "> " + Array(45).fill(0).map(() => junkCode[Math.floor(Math.random() * junkCode.length)]).join('');
                 logArea.appendChild(p);
                 logArea.scrollTop = logArea.scrollHeight;
             }, 100);
@@ -1507,6 +1538,11 @@ function handleRefresh() {
             isRefreshCleared = true; 
             setTimeout(() => {
                 playSE('success');
+                
+                // ★追加: 繋がった瞬間に時間を3:00に進める
+                const indicator = document.getElementById('day-indicator');
+                if (indicator) indicator.textContent = "Day 1 - 03:00 AM";
+                
                 playScenario('chat_d1_files'); 
             }, 800);
         }
@@ -1566,12 +1602,12 @@ tcp    0.0.0.0:3306           CLOSE`
             { 
                 hashes: ['open 2023_11_01_thedoorbell.txt'], 
                 type: 'hint', 
-                text: '【2023/11/01 - 訪問者】\nチャイムが鳴った。何度も。\n「荷物です」と言っていたけど、私は何も頼んでいない。\nドアチェーン越しに見えた作業服の男。\n目が笑っていなかった。\n……小鳥が、怖がって歌うのをやめてしまった。' 
+                text: '【2023/11/01 - 訪問者】\nチャイムが鳴った。何度も。\n「荷物です」と言っていたけど、私は何も頼んでいない。\nドアチェーン越しに見えた作業服の男。\n目が笑っていなかった。' 
             },
             { 
                 hashes: ['open 2023_11_07_whereami.txt'], 
                 type: 'hint', 
-                text: '【2023/11/07 - 暗闇】\n連れてこられた。ここは暗い。\n男が笑いながらパスワードを設定していた。\n「お前の友達の種類名（Species Name）にしてやったぞ」\n「俺たちに危険を知らせてくれる、黄色い警報機の名前だ」\n……助けて。' 
+                text: '【2023/11/07 - 暗闇】\n連れてこられた。ここは暗い。\n男が笑いながらパスワードを設定していた。\n「お前の友達にしてやったぞ」\n「俺たちに危険を知らせてくれる、黄色い警報機」' 
             },
             {
                 hashes: ['open data_log_corrupted.bin'],

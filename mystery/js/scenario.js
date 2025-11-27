@@ -196,8 +196,8 @@ const SCENARIO = [
         id: 'chat_d2_noise', type: 'chat',
         messages: [
             { name: 'System', text: 'Decryption Key Accepted.', type: 'alert' },
-            { name: 'OccultGirl', text: '画像が出てきました……CAN YOU SEE ME？ ノイズ？ 何も見えません。' },
-            { name: 'NetStalker', text: 'ただの画像ファイルじゃないな。裏に何か隠されている。' },
+            { name: 'OccultGirl', text: '画像が出てきました……CAN YOU SEE ME？ なんですかこれ？' },
+            { name: 'NetStalker', text: 'ただの画像ファイルじゃないな。' },
             { name: 'LogicMaster', text: 'また何かギミックが隠されてそうだ。色々調べてみろ。' }
         ],
         next: 'load_d2_noise'
@@ -222,7 +222,7 @@ const SCENARIO = [
         id: 'chat_d2_cmd_intro', type: 'chat',
         messages: [
             { name: 'LogicMaster', text: '落ち着け！こんな時のために強制的にコマンドプロンプトを立ち上げるシステムにしてやっただろ。' },
-            { name: 'LogicMaster', text: '奴のプログラム（tracker.exe）を強制終了させろ。コマンドはこれだ。' },
+            { name: 'LogicMaster', text: '奴のプログラム（tracker.exe）を強制終了させろ。コマンドはこれだ。打て！' },
             { name: 'LogicMaster', text: '`taskkill /f /im tracker.exe` ……急げ！' }
         ],
         // ★修正1: 先に画面を表示するIDへ飛ばす
@@ -383,7 +383,7 @@ const SCENARIO = [
         messages: [
             { name: 'System', text: 'Signal Identified: S.O.S.', type: 'alert' },
             { name: 'OccultGirl', text: 'SOS……！' },
-            { name: 'NetStalker', text: 'これは…そういえば昨日の女性の映像に背景がかすかに映っていたが…' },
+            { name: 'NetStalker', text: 'これは…そういえば昨日、女性の映像に背景がかすかに映っていたが…' },
             { name: 'NetStalker', text: '駅名…難しいな。景色は山頂からのようだが、建物は特定できないな。何かのサイトで探す必要がありそうだな…' },
             { name: 'LogicMaster', text: 'よし、その座標に最も近い鉄道駅を特定しろ。そこから絞り込めるはずだ。' }
         ],
@@ -440,7 +440,7 @@ const SCENARIO = [
         type: 'novel',
         text: [
             "やった…！犯人の妨害を凌ぎきった…！",
-            "LogicMasterからの通信だ…『よくやった！すまん！犯人に逃げられた！』",
+            "LogicMasterからの通信だ…『よくやった！だがすまん！犯人に逃げられた！』",
             "『まだ終わっていない！最後のロックを解除しろ！時間は残されていないぞ！』",
             "そうだ、俺がやるべきことは一つ…ルームナンバー…！"
         ],

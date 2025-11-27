@@ -114,10 +114,12 @@
                 <p>深夜2時、そのサイトは現れる。<br>都市伝説の謎を解き明かせ。</p>
                 <div class="mode-buttons">
                     <a href="mystery/index.html" class="game-link-btn btn-purple" style="background-color: #6b46c1;">PLAY START</a>
+                    <button id="mystery-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
+                    <button id="mystery-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
 
-            <!-- ゲームカード6: Coming Soon (新規追加) -->
+            <!-- ゲームカード6: Coming Soon -->
             <div class="game-card">
                 <h2>Coming Soon</h2>
                 <div class="thumbnail-placeholder" style="border-color: #718096; color: #718096; border-style: dashed;">
@@ -289,13 +291,34 @@
         </div>
     </div>
 
+    <!-- ミステリーゲーム用 -->
+    <div id="mystery-help-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content help-content">
+            <h2>The Secret Site の遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>🕵️ ゲームの目的</h3>
+                <p>「深夜2時59分にだけ繋がる」と噂される都市伝説のサイトを調査し、隠された謎を解き明かす短編ホラーアドベンチャーです。</p>
+                <h3>🎮 操作方法</h3>
+                <ul>
+                    <li>画面内の怪しい箇所をクリックしたり、キーボードでコマンドを入力して調査を進めます。</li>
+                    <li>ゲーム内の「ブラウザ」を操作して謎を解きます。</li>
+                    <li><strong>検索エンジン（Googleなど）や外部ツールを使って情報を調べることもあります。</strong></li>
+                </ul>
+                <h3>⚠️ ご注意</h3>
+                <p>本作には<strong>ホラー表現、ジャンプスケア（突然の驚かし要素）</strong>が含まれています。</p>
+                <p>心臓の弱い方や、ホラーが苦手な方はご注意ください。</p>
+            </div>
+            <button id="close-mystery-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
+        </div>
+    </div>
+
     <!-- 支援モーダル (共通) -->
     <div id="home-support-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="text-align: center;">
             <h2>開発者を支援する</h2>
             <p>プレイしていただきありがとうございます！<br>ご支援いただけると今後の開発の励みになります。</p>
             <div class="support-links">
-                <a href="https://ko-fi.com/" target="_blank" class="support-link-btn">Ko-fi で支援</a>
+                <a href="https://ko-fi.com/dontokoi_games" target="_blank" class="support-link-btn">Ko-fi で支援</a>
             </div>
             <button id="close-home-support-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
         </div>
@@ -420,6 +443,21 @@
             }
             if (kanjiSupportBtn) {
                 kanjiSupportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
+            }
+
+            // --- ミステリーゲーム用 ---
+            const mysteryHelpModal = document.getElementById('mystery-help-modal');
+            const mysteryHelpBtn = document.getElementById('mystery-how-to-play-btn');
+            const closeMysteryHelpBtn = document.getElementById('close-mystery-help-btn');
+            const mysterySupportBtn = document.getElementById('mystery-support-btn');
+
+            if (mysteryHelpBtn) {
+                mysteryHelpBtn.addEventListener('click', () => { mysteryHelpModal.style.display = 'flex'; });
+                closeMysteryHelpBtn.addEventListener('click', () => { mysteryHelpModal.style.display = 'none'; });
+                mysteryHelpModal.addEventListener('click', (e) => { if(e.target === mysteryHelpModal) mysteryHelpModal.style.display = 'none'; });
+            }
+            if (mysterySupportBtn) {
+                mysterySupportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
             }
 
             // --- 共通支援モーダル ---
