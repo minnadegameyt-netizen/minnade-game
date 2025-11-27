@@ -5,6 +5,27 @@
     <title>視聴者参加型：みんなでゲーム</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="baseball/img/favicon.ico" type="image/x-icon">
+    <style>
+        /* カードが増えた時のためのレイアウト調整 */
+        .game-selection {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            max-width: 1400px; /* 幅を少し広げる */
+            margin: 0 auto;
+            padding-bottom: 40px; /* 下部に余裕を持たせる */
+        }
+        
+        /* スマホや狭い画面での見切れ防止 */
+        #home-page {
+            overflow-y: auto; /* 縦スクロールを許可 */
+            min-height: calc(100vh - 100px); /* ヘッダー・フッター分を引いた高さ確保 */
+            align-items: flex-start; /* 上寄せにしてスクロールしやすくする */
+            padding-top: 40px;
+        }
+    </style>
 </head>
 <body>
 
@@ -35,6 +56,7 @@
                     <button id="home-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
+            
             <!-- ゲームカード2: 視聴者参加型世論調査 -->
             <div class="game-card">
                 <h2>視聴者参加型世論調査</h2>
@@ -50,17 +72,63 @@
                     <button id="war-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
-            <!-- ゲームカード3: Coming Soon -->
-            <div class="game-card is-coming-soon">
-                <h2>???</h2>
-                <div class="thumbnail-placeholder">
-                    <span>?</span>
+            
+            <!-- ゲームカード3: クイズ・ミリオネア -->
+            <div class="game-card">
+                <h2>クイズ・ミリオネア</h2>
+                <div class="thumbnail-placeholder" style="border-color: #f6ad55; color: #f6ad55;">
+                    <span style="font-size: 2em;">Q</span>
                 </div>
-                <p>新しいゲームを開発中...！</p>
+                <p>全問正解を目指せ！<br>視聴者の投票で答えを決めるクイズ番組。</p>
                 <div class="mode-buttons">
-                    <div class="coming-soon-label">Coming Soon...</div>
+                    <a href="quiz/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
+                    <a href="quiz/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    
+                    <button id="quiz-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
+                    <button id="quiz-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
+
+            <!-- ゲームカード4: 難読漢字クイズ -->
+            <div class="game-card">
+                <h2>難読漢字クイズ</h2>
+                <div class="thumbnail-placeholder" style="border-color: #e53e3e; color: #e53e3e;">
+                    <span style="font-size: 2em;">漢</span>
+                </div>
+                <p>読めたら天才！？<br>視聴者と一緒に難読漢字に挑戦しよう。</p>
+                <div class="mode-buttons">
+                    <a href="kanji/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
+                    <a href="kanji/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    
+                    <button id="kanji-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
+                    <button id="kanji-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
+                </div>
+            </div>
+
+            <!-- ゲームカード5: The Secret Site -->
+            <div class="game-card">
+                <h2>The Secret Site</h2>
+                <div class="thumbnail-placeholder" style="border-color: #000; color: #fff; background: #222;">
+                    <span style="font-size: 2em; font-family: 'Courier New', monospace;">404</span>
+                </div>
+                <p>深夜2時、そのサイトは現れる。<br>都市伝説の謎を解き明かせ。</p>
+                <div class="mode-buttons">
+                    <a href="mystery/index.html" class="game-link-btn btn-purple" style="background-color: #6b46c1;">PLAY START</a>
+                </div>
+            </div>
+
+            <!-- ゲームカード6: Coming Soon (新規追加) -->
+            <div class="game-card">
+                <h2>Coming Soon</h2>
+                <div class="thumbnail-placeholder" style="border-color: #718096; color: #718096; border-style: dashed;">
+                    <span style="font-size: 2em;">?</span>
+                </div>
+                <p>新しいゲームを準備中です。<br>次回アップデートをお楽しみに！</p>
+                <div class="mode-buttons">
+                    <button class="game-link-btn btn-gray" disabled style="cursor: default; opacity: 0.6;">制作中</button>
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -143,7 +211,9 @@
         </div>
     </div>
 
-    <!-- ▼▼▼ 遊び方モーダル (トップページ用) ▼▼▼ -->
+    <!-- ▼▼▼ 遊び方モーダル群 ▼▼▼ -->
+    
+    <!-- 野球ゲーム用 -->
     <div id="home-help-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content help-content">
             <h2>ゲームの遊び方</h2>
@@ -169,7 +239,7 @@
         </div>
     </div>
 
-    <!-- ▼▼▼ 陣取りゲーム用 遊び方モーダル ▼▼▼ -->
+    <!-- 陣取りゲーム用 -->
     <div id="war-help-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content help-content">
             <h2>陣取り合戦の遊び方</h2>
@@ -186,7 +256,40 @@
         </div>
     </div>
 
-    <!-- ▼▼▼ 支援モーダル (共通) ▼▼▼ -->
+    <!-- クイズゲーム用 -->
+    <div id="quiz-help-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content help-content">
+            <h2>クイズの遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>💡 ゲームの目的</h3>
+                <p>4択クイズに連続正解し、設定された目標（10問〜50問）のクリアを目指します。</p>
+                <h3>🎮 配信者モード</h3>
+                <p>YouTubeライブのコメント欄と連携し、視聴者がコメントした番号（「1」「2」など）を集計して、一番多い選択肢を回答とします。</p>
+                <p>※多数決で進むため、一体感が生まれます！</p>
+                <h3>❤️ ライフ制</h3>
+                <p>間違えても大丈夫！設定したライフの回数だけ失敗できます。</p>
+            </div>
+            <button id="close-quiz-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
+        </div>
+    </div>
+
+    <!-- 漢字ゲーム用 -->
+    <div id="kanji-help-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content help-content">
+            <h2>難読漢字クイズの遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>💡 ゲームの目的</h3>
+                <p>表示される難読漢字の正しい読み方を4択から選びます。</p>
+                <h3>🎮 配信者モード</h3>
+                <p>YouTubeライブのコメント欄と連携し、視聴者の投票で回答を決定します。</p>
+                <h3>📚 レベル分け</h3>
+                <p>初級（日常）から特級（漢検1級レベル）まで、幅広い難易度を用意しています。</p>
+            </div>
+            <button id="close-kanji-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
+        </div>
+    </div>
+
+    <!-- 支援モーダル (共通) -->
     <div id="home-support-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="text-align: center;">
             <h2>開発者を支援する</h2>
@@ -252,10 +355,9 @@
             apiCloseBtn.addEventListener('click', () => { apiModal.style.display = 'none'; });
             apiModal.addEventListener('click', (e) => { if (e.target === apiModal) apiModal.style.display = 'none'; });
 
-            // ▼▼▼ 追加: ヘルプの開閉処理 ▼▼▼
+            // ヘルプアコーディオン
             const helpToggleBtn = document.getElementById('toggle-help-btn');
             const helpContent = document.getElementById('api-help-content');
-            
             if (helpToggleBtn) {
                 helpToggleBtn.addEventListener('click', () => {
                     if (helpContent.style.display === 'none') {
@@ -267,44 +369,67 @@
                     }
                 });
             }
-            // ▲▲▲ 追加ここまで ▲▲▲
 
-            // --- 野球ゲーム用モーダル処理 ---
+            // --- 野球ゲーム用 ---
             const helpModal = document.getElementById('home-help-modal');
             const helpBtn = document.getElementById('home-how-to-play-btn');
             const closeHelpBtn = document.getElementById('close-home-help-btn');
-
             if (helpBtn) {
                 helpBtn.addEventListener('click', () => { helpModal.style.display = 'flex'; });
                 closeHelpBtn.addEventListener('click', () => { helpModal.style.display = 'none'; });
                 helpModal.addEventListener('click', (e) => { if (e.target === helpModal) helpModal.style.display = 'none'; });
             }
 
-            const supportModal = document.getElementById('home-support-modal');
-            const supportBtn = document.getElementById('home-support-btn');
-            const closeSupportBtn = document.getElementById('close-home-support-btn');
-
-            if (supportBtn) {
-                supportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
-                closeSupportBtn.addEventListener('click', () => { supportModal.style.display = 'none'; });
-                supportModal.addEventListener('click', (e) => { if (e.target === supportModal) supportModal.style.display = 'none'; });
-            }
-
-            // --- 陣取りゲーム用モーダル処理 ---
+            // --- 陣取りゲーム用 ---
             const warHelpModal = document.getElementById('war-help-modal');
             const warHelpBtn = document.getElementById('war-how-to-play-btn');
             const closeWarHelpBtn = document.getElementById('close-war-help-btn');
-            
-            const warSupportBtn = document.getElementById('war-support-btn'); // 支援モーダルは共通のものを使う
-
+            const warSupportBtn = document.getElementById('war-support-btn');
             if (warHelpBtn) {
                 warHelpBtn.addEventListener('click', () => { warHelpModal.style.display = 'flex'; });
                 closeWarHelpBtn.addEventListener('click', () => { warHelpModal.style.display = 'none'; });
                 warHelpModal.addEventListener('click', (e) => { if(e.target === warHelpModal) warHelpModal.style.display = 'none'; });
             }
-
             if (warSupportBtn) {
                 warSupportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
+            }
+
+            // --- クイズゲーム用 ---
+            const quizHelpModal = document.getElementById('quiz-help-modal');
+            const quizHelpBtn = document.getElementById('quiz-how-to-play-btn');
+            const closeQuizHelpBtn = document.getElementById('close-quiz-help-btn');
+            const quizSupportBtn = document.getElementById('quiz-support-btn');
+            if (quizHelpBtn) {
+                quizHelpBtn.addEventListener('click', () => { quizHelpModal.style.display = 'flex'; });
+                closeQuizHelpBtn.addEventListener('click', () => { quizHelpModal.style.display = 'none'; });
+                quizHelpModal.addEventListener('click', (e) => { if(e.target === quizHelpModal) quizHelpModal.style.display = 'none'; });
+            }
+            if (quizSupportBtn) {
+                quizSupportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
+            }
+
+            // --- 漢字ゲーム用 ---
+            const kanjiHelpModal = document.getElementById('kanji-help-modal');
+            const kanjiHelpBtn = document.getElementById('kanji-how-to-play-btn');
+            const closeKanjiHelpBtn = document.getElementById('close-kanji-help-btn');
+            const kanjiSupportBtn = document.getElementById('kanji-support-btn');
+            if (kanjiHelpBtn) {
+                kanjiHelpBtn.addEventListener('click', () => { kanjiHelpModal.style.display = 'flex'; });
+                closeKanjiHelpBtn.addEventListener('click', () => { kanjiHelpModal.style.display = 'none'; });
+                kanjiHelpModal.addEventListener('click', (e) => { if(e.target === kanjiHelpModal) kanjiHelpModal.style.display = 'none'; });
+            }
+            if (kanjiSupportBtn) {
+                kanjiSupportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
+            }
+
+            // --- 共通支援モーダル ---
+            const supportModal = document.getElementById('home-support-modal');
+            const supportBtn = document.getElementById('home-support-btn');
+            const closeSupportBtn = document.getElementById('close-home-support-btn');
+            if (supportBtn) {
+                supportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
+                closeSupportBtn.addEventListener('click', () => { supportModal.style.display = 'none'; });
+                supportModal.addEventListener('click', (e) => { if (e.target === supportModal) supportModal.style.display = 'none'; });
             }
         });
     </script>

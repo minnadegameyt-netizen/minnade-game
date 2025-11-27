@@ -1,5 +1,3 @@
-// js/game-loop.js
-
 import * as state from './state.js';
 import { ui, abilityDescriptions } from './ui.js';
 import { checkEvent, runEvent, allEvents } from './events/events.js'; 
@@ -202,7 +200,8 @@ async function runTournamentSequence() {
         return;
     }
 
-    const roundName = (tournamentName === 'koshien') ? `${currentRound}回戦` : `${currentRound}回戦`;
+// 甲子園の4戦目は「決勝」と表示する
+    const roundName = (tournamentName === 'koshien' && currentRound === 4) ? "決勝" : `${currentRound}回戦`;
     await ui.typeWriter(`${roundName}の相手は ${opponent.name} だ！`);
     await ui.waitForUserAction();
 
@@ -252,7 +251,7 @@ async function runTournamentSequence() {
                 await nextTurn();
                 return;
             } else {
-                 await ui.typeWriter(`見事、大会を勝ち抜いた！`);
+                 await ui.typeWriter(`試合に勝利した！…次の試合、惜しくも試合に負けてしまった。敗北を糧に次に活かすぞ。`);
             }
         }
     } else {
@@ -289,6 +288,7 @@ async function runTournamentSequence() {
 export async function nextTurn() {
     if (state.gameState.isGameOver || state.gameState.isEventRunning) return;
     state.gameState.phoneConfessionAttemptedThisTurn = false;
+    state.gameState.dateInviteAttemptedThisTurn = false;
     
     state.gameState.currentTurn++;
     if (state.gameState.currentTurn > 1) {
@@ -350,6 +350,28 @@ async function startVoting() {
         await ui.waitForUserAction();
         await processEndOfTurn();
         return;
+    }
+
+    if (state.gameState.week === 1) {
+        const stats = ["power", "meet", "speed", "shoulder", "defense", "intelligence"];
+        
+        // 神の啓示
+        if (state.player.specialAbilities["神の啓示"]) {
+            const target = stats[Math.floor(Math.random() * stats.length)];
+            state.player[target] = Math.min(state.maxStats.playerStats, state.player[target] + 1);
+            await ui.typeWriter(`【神の啓示】不思議な力が湧いてくる… ${target}が 1 上がった！`);
+            playSfx('point');
+            await ui.waitForUserAction();
+        }
+
+        // 監督の秘蔵っ子
+        if (state.player.specialAbilities["監督の秘蔵っ子"]) {
+            const target = stats[Math.floor(Math.random() * stats.length)];
+            state.player[target] = Math.min(state.maxStats.playerStats, state.player[target] + 1);
+            await ui.typeWriter(`【監督の秘蔵っ子】監督との朝練の成果だ！ ${target}が 1 上がった！`);
+            playSfx('point');
+            await ui.waitForUserAction();
+        }
     }
     
     if (state.player.specialAbilities["お弁当"] && state.player.isGirlfriend && state.gameState.month !== state.player.bentoEventLastMonth) {
@@ -492,6 +514,13 @@ async function executeCommand(command) {
             playSfx('point'); 
             break;
         case "デート": 
+            if(state.player.specialAbilities["すれ違い"]) {
+                delete state.player.specialAbilities["すれ違い"];
+                state.player.noDateTurnCount = 0;
+                await ui.typeWriter("彼女とデートして、すれ違いが解消された！");
+                await ui.waitForUserAction();
+            }
+
             state.player.dateCount++;
             state.player.girlfriendEval = Math.min(state.maxStats.teamStats, state.player.girlfriendEval + 5); 
             healthChange = 10; 
@@ -550,7 +579,11 @@ async function checkSpecialAbilities(command) {
     if (state.player.commandHistory.length > 10) state.player.commandHistory.shift();
     if(command === "勉強") state.player.studyCount++;
 
+    // 勉強10回でデータ野球
     if (state.player.studyCount >= 10) await acquireAbility("データ野球");
+    
+    // ★追加案: 勉強20回で自己分析
+    if (state.player.studyCount >= 20) await acquireAbility("自己分析");
 
     if (state.player.girlfriendEval >= 40 && state.player.isGirlfriend && !state.player.specialAbilities["すれ違い"]) await acquireAbility("お弁当");
 

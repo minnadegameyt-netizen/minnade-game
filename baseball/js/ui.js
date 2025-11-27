@@ -1,5 +1,3 @@
-// baseball/js/ui.js
-
 import * as state from './state.js';
 import { initializeGame, saveGame, loadGame, togglePause } from './game-loop.js';
 import { toggleMute, setVolume, playSfx, setInitialMuteState } from './sound.js';
@@ -12,6 +10,8 @@ export const abilityDescriptions = {
     "お弁当": "彼女評価が40以上になると、月に一度体力が回復することがある。",
     "野球鬱": "20ターン以上気分転換しないと習得。練習効果が下がる。",
     "すれ違い": "彼女と8ターン以上交流しないと習得。ターン開始時やる気が下がり、彼女評価が毎週7下がる。お弁当イベントが発生しなくなる。",
+    "神の啓示": "野球の神様のご加護。月に一度、ランダムな能力が勝手に上がる。",
+    "監督の秘蔵っ子": "監督からの期待の証。月に一度、特別メニューで能力が上がる。",
 };
 
 const uiElements = {
@@ -27,9 +27,6 @@ const uiElements = {
     closeHelpBtn: document.getElementById('close-help-btn'),
     missionList: document.getElementById('mission-list'),
     
-    // --- 削除: API設定モーダル関連の要素 ---
-    // apiSetupModal, youtubeApiKeyInput, liveChatIdInput, apiValidationMsg, confirmApiSetupBtn, toggleApiDetailsBtn, apiDetails は削除済み
-
     startModal: document.getElementById('start-modal'),
     saveDataButtons: document.querySelector('.save-data-buttons'),
     newGameBtn: document.getElementById('new-game-btn'),
@@ -132,8 +129,10 @@ function showCharacter(imagePath) {
             uiElements.characterSprite.classList.remove('hidden');
             uiElements.logWindow.style.alignItems = 'flex-start';
         
-        // 少し待ってからフェードインクラスをつける（CSSトランジション用）
-        setTimeout(() => uiElements.characterSprite.classList.add('fade-in'), 10);
+            // 少し待ってからフェードインクラスをつける（CSSトランジション用）
+            setTimeout(() => uiElements.characterSprite.classList.add('fade-in'), 10);
+        }; // ★修正: ここに閉じ括弧とセミコロンを追加
+        img.src = imagePath; // ★追加: 画像の読み込みを開始するためにsrcを設定（onloadの後が良い）
     }
 }
 
@@ -316,7 +315,27 @@ function updatePlayerStatusDisplay(){
     uiElements.playerCondition.textContent = `調子: ${state.player.condition}`;
     uiElements.playerCondition.classList.remove("is-injured");
     
-    uiElements.healthBar.value=state.player.health;const getRankInfo=(val)=>{if(val>=90)return{rank:'S',className:'rank-s'};if(val>=75)return{rank:'A',className:'rank-a'};if(val>=60)return{rank:'B',className:'rank-b'};if(val>=50)return{rank:'C',className:'rank-c'};if(val>=35)return{rank:'D',className:'rank-d'};if(val>=15)return{rank:'E',className:'rank-e'};return{rank:'F',className:'rank-f'};};for(const key in uiElements.statuses){const value=state.player[key];if(value===undefined)continue;const rankInfo=getRankInfo(value);const element=uiElements.statuses[key];element.textContent=`${rankInfo.rank} (${value})`;element.className=rankInfo.className;}
+    uiElements.healthBar.value=state.player.health;
+    
+    const getRankInfo=(val)=>{
+        if(val>=90)return{rank:'S',className:'rank-s'};
+        if(val>=75)return{rank:'A',className:'rank-a'};
+        if(val>=60)return{rank:'B',className:'rank-b'};
+        if(val>=50)return{rank:'C',className:'rank-c'};
+        if(val>=35)return{rank:'D',className:'rank-d'};
+        if(val>=15)return{rank:'E',className:'rank-e'};
+        return{rank:'F',className:'rank-f'};
+    };
+    
+    for(const key in uiElements.statuses){
+        const value=state.player[key];
+        if(value===undefined)continue;
+        const rankInfo=getRankInfo(value);
+        const element=uiElements.statuses[key];
+        element.textContent=`${rankInfo.rank} (${value})`;
+        element.className=rankInfo.className;
+    }
+    
     const gridItems=uiElements.specialAbilityGrid.children;
     const abilities=Object.keys(state.player.specialAbilities);
     for(let i=0;i<gridItems.length;i++){
@@ -328,7 +347,9 @@ function updatePlayerStatusDisplay(){
             gridItems[i].title = "";
         }
     }
-    uiElements.girlfriendStatus.textContent=`彼女: ${state.player.isGirlfriend?"あり":"なし"}`;uiElements.redMarkDisplay.textContent=`赤点: ${state.player.redMarkCount}回`;state.player.redMarkCount>=2?uiElements.redMarkDisplay.classList.add("is-danger"):uiElements.redMarkDisplay.classList.remove("is-danger");
+    uiElements.girlfriendStatus.textContent=`彼女: ${state.player.isGirlfriend?"あり":"なし"}`;
+    uiElements.redMarkDisplay.textContent=`赤点: ${state.player.redMarkCount}回`;
+    state.player.redMarkCount>=2?uiElements.redMarkDisplay.classList.add("is-danger"):uiElements.redMarkDisplay.classList.remove("is-danger");
 }
 
 function updateDateDisplay(){uiElements.dateDisplay.textContent=`${state.gameState.year}年目 ${state.gameState.month}月 ${state.gameState.week}週`;uiElements.turnDisplay.textContent=`残り: ${state.gameState.totalTurns - state.gameState.currentTurn}ターン`;}

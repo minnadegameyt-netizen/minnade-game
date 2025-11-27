@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>真夜中の鳥籠</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="loading-screen" style="
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #000; z-index: 9999;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        color: #00ff41; font-family: 'Share Tech Mono', monospace;
+        transition: opacity 0.5s;">
+        <h1 style="font-size: 3em; margin-bottom: 20px;">SYSTEM BOOT</h1>
+        <div style="width: 300px; height: 4px; background: #333;">
+            <div id="loading-bar" style="width: 0%; height: 100%; background: #00ff41; transition: width 0.2s;"></div>
+        </div>
+        <p id="loading-text" style="margin-top: 10px;">INITIALIZING... 0%</p>
+    </div>
+
+    <!-- スタート画面 -->
+    <div id="title-screen" class="title-screen" style="display: none;">
+        <div class="title-content">
+            <h1 class="game-logo">真夜中の鳥籠</h1>
+            <p class="game-sub">- 4日間の調査記録 -</p>
+            <div class="title-buttons">
+                <button id="btn-game-start" class="title-btn start">はじめから</button>
+                <button id="btn-game-continue" class="title-btn continue hidden">つづきから</button>
+                <button id="btn-game-exit" class="title-btn exit">ホームに戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- チュートリアル -->
+    <div id="tutorial-overlay" class="tutorial-overlay hidden">
+        <div class="tutorial-box">
+            <h2 class="tutorial-title">SYSTEM INSTRUCTION</h2>
+            
+            <div class="tutorial-item">
+                <h3>💾 セーブ機能について</h3>
+                <p>本システムは<span class="highlight">「Day（1日）」終了時</span>に自動保存されます。</p>
+                <p class="sub-text">※調査の途中でブラウザを閉じると、その日の最初からやり直しになります。</p>
+            </div>
+
+            <div class="tutorial-item warning">
+                <h3>⚠️ 更新（リロード）について</h3>
+                <p>調査中はブラウザの更新ボタン（F5）を<br>押さないでください。</p>
+                <p>画面の再読み込みが必要な場合は、<br>必ず<span class="highlight">ゲーム内の [ ↻ ] ボタン</span>を使用してください。</p>
+                <div class="icon-sample">
+                    <span class="bad">× ブラウザの更新</span>
+                    <span class="good">○ ゲーム内の [ ↻ ]</span>
+                </div>
+            </div>
+
+            <div class="tutorial-item caution">
+                <h3>⚠️ ご注意</h3>
+                <p>本作にはホラー、ジャンプスケア（大きな音や突然の演出）および、不安を煽る表現が含まれています。</p>
+                <p>心臓の弱い方、怖いものが苦手な方はご注意ください。</p>
+                <p class="sub-text" style="margin-top:10px;">※この物語はフィクションであり、実在の人物・団体とは一切関係ありません。</p>
+            </div>
+
+            <button id="btn-tutorial-ok" class="tutorial-btn">システム起動</button>
+        </div>
+    </div>
+
+    <!-- ゲーム画面 -->
+    <div class="game-container">
+        <!-- 左側: ブラウザ -->
+        <div class="browser-window" id="browser-window">
+            <div class="browser-bar">
+                <div class="browser-nav">
+                    <button id="btn-back" class="nav-btn">←</button>
+                    <button id="btn-forward" class="nav-btn" disabled>→</button>
+                    <button id="btn-refresh" class="nav-btn">↻</button>
+                </div>
+                <div class="url-container">
+                    <div id="tor-icon" class="tor-icon hidden">🧅</div>
+<input type="text" class="url-input" id="url-input" value="http://unknown-server.onion/404" readonly autocomplete="off">
+                </div>
+                <button id="btn-devtools" class="nav-btn tool-btn">🛠</button>
+            </div>
+            
+            <!-- Day表示 -->
+            <div id="day-indicator" class="day-indicator hidden">Day 1 - 02:59 AM</div>
+
+            <div class="browser-content" id="site-content">
+                <div id="page-area"></div>
+            </div>
+
+            <div id="devtools-panel" class="devtools-panel hidden">
+                <div class="devtools-header">
+                    <span class="dt-tab active">Elements</span>
+                    <span class="dt-tab">Console</span>
+                    <span class="dt-tab">Network</span>
+                    <span class="dt-close" id="btn-devtools-close">×</span>
+                </div>
+                <div class="devtools-body" id="devtools-body"></div>
+            </div>
+        </div>
+
+        <!-- 右側: チャット -->
+        <div class="chat-window">
+            <div class="chat-header">
+                <h3>Enigma - Private Channel</h3>
+                <span class="live-badge">ONLINE</span>
+            </div>
+            <div class="chat-log" id="chat-log"></div>
+        </div>
+    </div>
+
+    <!-- ノベルパート用テキストボックス -->
+    <div id="novel-box" class="novel-box">
+        <div class="novel-text" id="novel-text"></div>
+        <div class="novel-cursor">▼</div>
+    </div>
+    
+    <!-- 日付変更演出 -->
+    <div id="day-transition" class="day-transition hidden">
+        <h2 id="day-title">Day 1 Completed</h2>
+        <p>Data Saved...</p>
+    </div>
+
+    <!-- クリア画面 (兼 隠しルート入り口) -->
+    <div id="result-overlay" class="reset-overlay hidden">
+        <div class="reset-content">
+            <h2 id="result-title" style="color: #00ff41; text-shadow: 0 0 10px #00ff41;">MISSION COMPLETED</h2>
+            
+            <!-- ホームページ風リザルト画像ボックス -->
+            <div id="result-image-box" style="margin: 20px auto; width: 400px; height: 250px; background: #111; border: 1px solid #333; position: relative;">
+                <div style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#555; font-family:'Share Tech Mono';">
+                    <div style="font-size: 3em;">✅</div>
+                    <div style="margin-top: 10px;">CASE #404</div>
+                    <div style="color: #00ff41;">STATUS: CLOSED</div>
+                </div>
+            </div>
+            
+            <p id="result-text" style="color: #ddd; margin-bottom: 30px;">謎のサイトの正体を明かし、監禁されていた女性を助けた。</p>
+            
+            <div class="reset-buttons">
+                <button id="btn-result-title" class="reset-btn">タイトルへ</button>
+                <button id="btn-result-home" class="reset-btn home">ホームへ</button>
+            </div>
+
+            <!-- ▼ 隠しコンソールボタン（気づいた人だけクリック） -->
+            <div id="btn-secret-console" style="
+                position: absolute; bottom: 20px; right: 20px; 
+                color: #222; font-family: monospace; cursor: pointer; 
+                font-size: 1.2em; transition: color 0.3s;"
+                onmouseover="this.style.color='#00ff41'" 
+                onmouseout="this.style.color='#222'">
+                >_ Console
+            </div>
+        </div>
+    </div>
+
+    <!-- ゲームオーバー/リセット用画面 (Bad/Normal End用) -->
+    <div id="reset-overlay" class="reset-overlay hidden">
+        <!-- ※ script.jsでID重複を避けるため、こちらはクラス制御のみで使用するか、IDを変える必要があるが、
+             今回は上のresult-overlayをメインで使い、失敗時はボタンだけ出す形にするため、
+             既存のreset-overlayは消すか、そのままにしておいてもよい（ただしID重複注意）。
+             ここでは安全のため、失敗時用のIDを変更しておきます。 -->
+    </div>
+    <!-- 失敗時用の簡易オーバーレイ -->
+    <div id="gameover-overlay" class="reset-overlay hidden">
+        <div class="reset-content">
+            <h2 style="color: #ff3333;">CONNECTION LOST</h2>
+            <div class="reset-buttons">
+                <button id="btn-retry" class="reset-btn">最初から</button>
+                <button id="btn-home" class="reset-btn home">ホームへ</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="glitch-overlay" class="glitch-overlay hidden"></div>
+
+    <script src="js/chat.js"></script>
+    <script src="js/scenario.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>

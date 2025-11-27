@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700&display=swap');
+
+body {
+    margin: 0;
+    background: radial-gradient(circle, #1a237e 0%, #000000 100%);
+    color: white;
+    font-family: 'Noto Sans JP', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* モーダル */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+}
+.modal-content {
+    background: #0d1b2a;
+    border: 2px solid #4cc9f0;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    width: 500px;
+    max-width: 90%;
+    box-shadow: 0 0 20px #4cc9f0;
+}
+.hidden { display: none !important; }
+
+/* 設定画面 */
+.setup-group { margin-bottom: 15px; text-align: left; }
+.setup-group label { font-size: 0.9em; color: #ccc; display: block; margin-bottom: 5px; }
+.btn-group { display: flex; gap: 5px; }
+.setup-btn {
+    background: #111; border: 1px solid #555; color: #aaa;
+    padding: 10px; cursor: pointer; flex: 1; border-radius: 4px;
+    transition: all 0.2s;
+}
+.setup-btn:hover { background: #222; }
+.setup-btn.selected {
+    background: #4cc9f0; color: #000; border-color: #4cc9f0; font-weight: bold;
+    box-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+}
+
+/* ゲーム画面 */
+#game-container {
+    width: 90%; max-width: 1000px; height: 90%;
+    display: flex; flex-direction: column;
+}
+
+header {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 1.5em; margin-bottom: 20px;
+    text-shadow: 0 0 10px #4cc9f0;
+    background: rgba(0,0,0,0.5);
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid #333;
+}
+
+.main-area { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 20px; }
+
+.question-box {
+    background: linear-gradient(90deg, rgba(13, 71, 161, 0.5), rgba(13, 71, 161, 0.8), rgba(13, 71, 161, 0.5));
+    border-top: 2px solid #42a5f5;
+    border-bottom: 2px solid #42a5f5;
+    padding: 30px;
+    text-align: center;
+    font-size: 2em;
+    min-height: 120px;
+    display: flex; align-items: center; justify-content: center;
+    text-shadow: 2px 2px 4px #000;
+}
+
+.options-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+
+.option-btn {
+    position: relative;
+    background: #000;
+    border: 2px solid #888;
+    border-radius: 50px;
+    padding: 20px 30px;
+    text-align: left;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+}
+
+.option-btn:hover { border-color: #4cc9f0; background: #0a1525; }
+.option-btn.selected { background: #f77f00; border-color: #ffaa00; color: #000; }
+.option-btn.correct { background: #2ecc71 !important; border-color: #2ecc71; color: #000; animation: flash 0.5s; }
+.option-btn.wrong { background: #e74c3c !important; opacity: 0.6; }
+
+@keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+.opt-label { color: #f77f00; margin-right: 15px; font-weight: bold; }
+
+.vote-bar {
+    position: absolute; top: 0; left: 0; height: 100%;
+    background: rgba(76, 201, 240, 0.4);
+    width: 0%; transition: width 0.5s; z-index: 0; pointer-events: none;
+}
+.opt-text, .opt-label { position: relative; z-index: 1; }
+
+/* ボタン類 */
+.action-btn {
+    padding: 15px 30px; font-size: 1.2em; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;
+    transition: transform 0.1s;
+}
+.action-btn:active { transform: translateY(2px); }
+.primary { background: #4cc9f0; color: #000; }
+.secondary { background: #333; color: #fff; }
+
+#voting-status { text-align: center; color: #f77f00; font-weight: bold; animation: blink 1s infinite; font-size: 1.2em; }
+@keyframes blink { 50% { opacity: 0.5; } }
+
+/* カウントダウンアニメーション */
+#countdown-text {
+    font-size: 10em; color: #f77f00; font-weight: bold;
+    text-shadow: 0 0 30px #f77f00;
+    /* 初期状態ではアニメーションさせない */
+}
+
+/* JSから付与するアニメーション用クラス */
+.anim {
+    animation: countZoom 0.8s ease-out forwards;
+}
+
+@keyframes countZoom {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1.0); opacity: 0; }
+}

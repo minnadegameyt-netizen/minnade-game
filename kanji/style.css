@@ -1,0 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700&display=swap');
+
+body {
+    margin: 0;
+    /* 和風っぽい焦げ茶〜黒のグラデーション */
+    background: radial-gradient(circle, #3e2723 0%, #000000 100%);
+    color: white;
+    font-family: "HiraMinProN-W6", "YuMincho", serif; /* 明朝体優先 */
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* モーダル */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+}
+.modal-content {
+    background: #1a1a1a;
+    border: 2px solid #e53e3e; /* 赤枠 */
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    width: 500px;
+    max-width: 90%;
+    box-shadow: 0 0 20px #e53e3e;
+}
+.hidden { display: none !important; }
+
+/* 設定画面 */
+.setup-group { margin-bottom: 15px; text-align: left; }
+.setup-group label { font-size: 0.9em; color: #ccc; display: block; margin-bottom: 5px; }
+.btn-group { display: flex; gap: 5px; }
+.setup-btn {
+    background: #111; border: 1px solid #555; color: #aaa;
+    padding: 10px; cursor: pointer; flex: 1; border-radius: 4px;
+    transition: all 0.2s;
+    font-family: sans-serif; /* 設定画面は読みやすさ重視でゴシック */
+}
+.setup-btn:hover { background: #222; }
+.setup-btn.selected {
+    background: #e53e3e; color: #fff; border-color: #e53e3e; font-weight: bold;
+    box-shadow: 0 0 10px rgba(229, 62, 62, 0.5);
+}
+
+/* ゲーム画面 */
+#game-container {
+    width: 90%; max-width: 1000px; height: 90%;
+    display: flex; flex-direction: column;
+}
+
+header {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 1.5em; margin-bottom: 20px;
+    text-shadow: 0 0 10px #e53e3e;
+    background: rgba(0,0,0,0.5);
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid #555;
+}
+
+.main-area { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 20px; }
+
+.question-box {
+    /* 和紙風の茶色グラデーション */
+    background: linear-gradient(90deg, rgba(62, 39, 35, 0.8), rgba(93, 64, 55, 0.9), rgba(62, 39, 35, 0.8));
+    border-top: 2px solid #e53e3e;
+    border-bottom: 2px solid #e53e3e;
+    padding: 30px;
+    text-align: center;
+    min-height: 200px; /* 漢字を大きく出すため少し広げる */
+    display: flex; align-items: center; justify-content: center;
+    text-shadow: 2px 2px 4px #000;
+}
+
+/* 漢字表示用スタイル */
+#question-text {
+    font-size: 5em; /* かなり大きく */
+    font-weight: bold;
+    margin: 0;
+    letter-spacing: 10px;
+}
+
+.options-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+
+.option-btn {
+    position: relative;
+    background: #000;
+    border: 2px solid #888;
+    border-radius: 5px; /* 丸みを減らして和風っぽく */
+    padding: 20px 30px;
+    text-align: left;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+    font-family: sans-serif; /* 読み仮名は読みやすく */
+}
+
+.option-btn:hover { border-color: #e53e3e; background: #1a0505; }
+.option-btn.selected { background: #ff9800; border-color: #ffc107; color: #000; }
+.option-btn.correct { background: #e53e3e !important; border-color: #e53e3e; color: #fff; animation: flash 0.5s; }
+.option-btn.wrong { background: #555 !important; opacity: 0.6; }
+
+@keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+.opt-label { color: #e53e3e; margin-right: 15px; font-weight: bold; font-family: serif; }
+
+.vote-bar {
+    position: absolute; top: 0; left: 0; height: 100%;
+    background: rgba(229, 62, 62, 0.4); /* 赤系のバー */
+    width: 0%; transition: width 0.5s; z-index: 0; pointer-events: none;
+}
+.opt-text, .opt-label { position: relative; z-index: 1; }
+
+/* ボタン類 */
+.action-btn {
+    padding: 15px 30px; font-size: 1.2em; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;
+    transition: transform 0.1s;
+    font-family: sans-serif;
+}
+.action-btn:active { transform: translateY(2px); }
+.primary { background: #e53e3e; color: #fff; }
+.secondary { background: #333; color: #fff; }
+
+#voting-status { text-align: center; color: #fc8181; font-weight: bold; animation: blink 1s infinite; font-size: 1.2em; }
+@keyframes blink { 50% { opacity: 0.5; } }
+
+/* カウントダウンアニメーション */
+#countdown-text {
+    font-size: 10em; color: #e53e3e; font-weight: bold;
+    text-shadow: 0 0 30px #e53e3e;
+    /* 初期状態はアニメなし */
+}
+
+/* JSから付与するクラス */
+.anim {
+    animation: countZoom 0.8s ease-out forwards;
+}
+
+@keyframes countZoom {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1.0); opacity: 0; }
+}

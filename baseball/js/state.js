@@ -38,7 +38,8 @@ export function setInitialState(state) {
             gw: 0, rikujo: 0, manager: 0, gotJuice: false, mysteriousMan: false,
             isDateScheduled: false,
             scheduledDateTurn: -1,
-            confessionReady: false
+            confessionReady: false,
+            gotIcedTea: false,
         },
         noDateTurnCount: 0,
         bentoEventLastMonth: -1,

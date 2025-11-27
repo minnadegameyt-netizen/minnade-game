@@ -85,8 +85,8 @@ export const opponents = {
         { name: "ワールド高校", shortName: "ワールド", strength: 88 },
     ],
     koshien: [ // 甲子園
-        { name: "西の強豪・いてこませ大阪", shortName: "いて学", strength: 90 },
-        { name: "北の覇者・北極学園", shortName: "マン乳", strength: 92 },
+        { name: "西の強豪・いてこませ大阪", shortName: "いて大", strength: 90 },
+        { name: "北の覇者・北極学園", shortName: "北極", strength: 92 },
         { name: "王者・超有流虎牌派学園", shortName: "牌派学園", strength: 95 },
         { name: "伝説のチーム・ぴね", shortName: "ぴね", strength: 100 },
     ],

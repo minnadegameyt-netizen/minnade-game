@@ -36,7 +36,7 @@ const testEventScene = {
             state.team.coachEval -= 1;
             log += "赤点を取ってしまった…<br>学力と監督評価が 1 ダウンした。";
             if (state.player.redMarkCount > 1) {
-                log += `<br><span style="color:red;">連続赤点 ${state.player.redMarkCount}回目…</span>`;
+                log += `<br><span style="color:red;">連続赤点 ${state.player.redMarkCount}回目…（注意：3回連続でゲームオーバーになります、勉強しましょう）</span>`;
             }
             if (state.player.redMarkCount >= 3) {
                 return { gameOver: true };
@@ -498,7 +498,7 @@ export const allEvents = [
             { 
                 condition: () => state.player.isGirlfriend,
                 character: "主人公", image: "img/p_smile.png", 
-                text: "ありがとう！すごく嬉しいよ。大事に食べるな。" 
+                text: "ありがとう！すごく嬉しいよ。大事に食べるよ。" 
             },
             {
                 condition: () => state.player.isGirlfriend,
@@ -522,6 +522,40 @@ export const allEvents = [
             }}
         ]
     },
+    // --- 2年目5月1週: 田中とじゃんけん ---
+    {
+        id: "janken_juice_2", title: "ジュースじゃんけん", type: "date", year: 2, month: 5, week: 1, executed: false,
+        scenes: [
+            { character: "田中", image: "img/tanaka_smile.png", text: "練習終わりは喉が渇くなぁ！おい主人公、ジュース賭けてじゃんけんしようぜ！" },
+            { character: "主人公", image: "img/p_normal.png", text: "いいぜ、負けないぞ！" },
+            { 
+                miniGame: "janken", 
+                action: (result) => {
+                    if (result === 'win') {
+                        playSfx('point');
+                        const juices = ["炭酸", "コーヒー", "アイスティー"];
+                        const juice = juices[Math.floor(Math.random() * juices.length)];
+                        
+                        let logText = `じゃんけんに勝った！田中から「${juice}」を奢ってもらった！<br>体力が15回復した！`;
+                        state.player.health = Math.min(state.player.maxHealth, state.player.health + 15);
+
+                        // アイスティーだった場合、フラグを立てる
+                        if (juice === "アイスティー") {
+                            state.player.girlfriendFlag.gotIcedTea = true;
+                            logText += "<br>（…なんだか甘い匂いがするアイスティーだな）";
+                        }
+                        return logText;
+                    } else if (result === 'lose') {
+                        playSfx('negative');
+                        return "負けてしまった…。自分の分は自分で買おう。";
+                    } else {
+                        // あいこ（ゲームシステム上、決着がつくまでやるか、引き分けとするかですが、今回は引き分け扱い）
+                        return "引き分けだ。まあ、割り勘で飲むか。";
+                    }
+                }
+            }
+        ]
+    },
     {
         id: "mid_term_test_2", title: "中間テスト (2年)", type: "date", year: 2, month: 5, week: 3, executed: false,
         scenes: [{ text: "中間テストだ！" }, { miniGame: "generalQuiz", action: c => c > 0 ? (state.player.intelligence = Math.min(state.maxStats.playerStats, state.player.intelligence + 1), "正解！ 学力が 1 アップした！") : (state.team.coachEval--, "不正解… 監督の評価が 1 ダウンした…") }]
@@ -535,6 +569,7 @@ export const allEvents = [
                 if ("こっそり見る" === c) {
                     return "見ていると、親が部屋に入ってきた！";
                 } else {
+                    playSfx('point');
                     state.player.meet = Math.min(state.maxStats.playerStats, state.player.meet + 3);
                     state.player.defense = Math.min(state.maxStats.playerStats, state.player.defense + 3);
                     return { log: "誘惑に打ち勝った！<br>集中力が高まり、ミートと守備力が3上がった！", endsEvent: true };
@@ -552,6 +587,40 @@ export const allEvents = [
     { id: "fitness_test_2", title: "体力測定 (2年)", type: "date", year: 2, month: 6, week: 3, executed: false, scenes: [{ character: "監督", image: "img/kantoku.png", text: "よし、2回目の体力測定だ！去年より成長した姿を見せてみろ！" }, { text: "【シャトルラン勝負！】<br>目標は20回だ！", miniGame: "shuttleRun", action: s => { const t = 20; return s >= t ? (state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 3), `記録は <span style="color:#ecc94b;">${s}</span> 回！目標達成！<br>走力が 3 アップした！`) : (state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 1), `記録は <span style="color:#ecc94b;">${s}</span> 回…。目標未達…<br>悔しさをバネに走力が 1 アップした。`) } }] },
     { id: "summer_tournament_2", title: "夏の地方大会 (2年)", type: "date", year: 2, month: 7, week: 1, executed: false, scenes: [{ action: () => { setTournamentState('summer_2', 1); return "2年目の夏！今年こそ甲子園に行くぞ！" } }] },
     { id: "test_2_1", title: "期末テスト", type: "date", year: 2, month: 7, week: 3, executed: false, scenes: [testEventScene] },
+    // --- 2年目8月2週: 謎の男（アイスティー派生） ---
+    {
+        id: "summer_park_icedtea", title: "真夏の公園", type: "date", year: 2, month: 8, week: 2, executed: false,
+        condition: () => state.player.girlfriendFlag.gotIcedTea === true, // アイスティーフラグが立っている時のみ
+        scenes: [
+            { text: "（暑い…。練習の帰りに公園のベンチで休んでいると、見知らぬ男が声をかけてきた）" },
+            { character: "謎の男", text: "いい体してるねぇ。喉、乾かない？飲み物、奢ろうか？" },
+            { 
+                text: "どうする？", 
+                choices: ["「はい」", "逃げる"], 
+                action: (choice) => {
+                    if (choice === "逃げる") {
+                        playSfx('negative');
+                        state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 2);
+                        state.player.health = Math.max(1, state.player.health - 20);
+                        return { log: "（なんかヤバい気がする…！）<br>俺は全力で逃げ出した。<br>走力が2上がったが、体力が20減った。", endsEvent: true };
+                    }
+                    return null; // 「はい」の場合は次のシーンへ
+                }
+            },
+            { character: "謎の男", text: "そうかそうか。じゃあ…アイスティーでも、いいかな？" },
+            { character: "主人公", image: "img/p_surprised.png", text: "（…！？ このシチュエーション、どこかで…）" },
+            { 
+                text: "どうする！？", 
+                choices: ["「はい」", "逃げる"], 
+                action: (choice) => {
+                    playSfx('negative');
+                    state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 5);
+                    state.player.health = Math.max(1, state.player.health - 20);
+                    return "（やっぱりヤバい！！）<br>俺は本能に従って、死に物狂いでダッシュして逃げた！<br>火事場の馬鹿力で走力が <span style='color:#ecc94b;'>5</span> 上がったが、精神的に疲弊して体力が20減った…。";
+                }
+            }
+        ]
+    },
     {
         id: "mystery_drink_1", title: "謎の飲み物①", type: "date", year: 2, month: 8, week: 3, executed: false,
         scenes: [
@@ -575,8 +644,8 @@ export const allEvents = [
     { // ★★★ 新規イベント ★★★
         id: "reading_autumn_2", title: "読書の秋", type: "date", year: 2, month: 9, week: 3, executed: false,
         scenes: [
-            { character: "田中", image: "img/tanaka_normal.png", text: "秋の大会も終わって、少し落ち着いたな。秋の夜長ってやつは、どうも退屈だぜ。" },
-            { character: "主人公", image: "img/p_normal.png", text: "じゃあ、この前買った野球雑誌でも一緒に読まないか？次の春に向けて、他校のデータでも研究しようぜ。" },
+            { character: "田中", image: "img/tanaka_normal.png", text: "夏も終わって、少し落ち着いたな。秋の夜長ってやつは、どうも退屈だぜ。" },
+            { character: "主人公", image: "img/p_normal.png", text: "じゃあ、この前買った野球雑誌でも一緒に読まないか？次の大会に向けて、他校のデータでも研究しようぜ。" },
             { character: "田中", image: "img/tanaka_smile.png", text: "お、いいなそれ！オレ、そういうの結構好きなんだよな。" },
             { text: "（二人で雑誌を読みふけり、野球談義に花を咲かせた…）" },
             { 
@@ -669,23 +738,36 @@ export const allEvents = [
             }}
         ]
     },
-    {
-        id: "mystery_drink_3", title: "謎の飲み物③", type: "date", year: 2, month: 11, week: 4, executed: false,
-        condition: () => state.player.girlfriendFlag.mysteriousMan === true,
+{
+        id: "ob_visit_2", title: "伝説のOB", type: "date", year: 2, month: 11, week: 4, executed: false,
         scenes: [
-            { text: "親「これが最後の一本だ…」<br><span style='color:red'>警告：得体のしれない成分が含まれています。はずれを引くと、野球人生に関わるよくないことが起こります。</span>" },
-            { text: "どうする？", choices: ["飲む", "飲まない"], action: c => "飲まない" === c ? { log: "さすがに危険すぎる…", endsEvent: true } : null },
-            { miniGame: "roulette", options: ["大当たり", "入院", "大当たり", "入院"], action: r => {
-                if ("大当たり" === r) {
+            { character: "田中", image: "img/tanaka_surprised.png", text: "おい主人公！見ろよ、あの人…この高校からプロ入りした伝説のOB、豪田先輩だぞ！" },
+            { character: "主人公", image: "img/p_surprised.png", text: "えっ、本当に！？なんで学校に…？" },
+            { text: "豪田先輩「よう、後輩たち。近くまで来たから顔を出してみたんだが、いい練習してるな。」" },
+            { character: "主人公", image: "img/p_normal.png", text: "（すごい…体がめちゃくちゃ大きい…。プロの選手に直接アドバイスをもらえるチャンスだ！）" },
+            { 
+                text: "何について教わろうか？",
+                choices: ["打撃の極意", "守備・走塁の極意", "プロの心構え"],
+                action: (choice) => {
                     playSfx('point');
-                    Object.keys(state.player).forEach(k => { if (typeof state.player[k] === 'number' && ["power", "meet", "speed", "shoulder", "defense", "intelligence"].includes(k)) { state.player[k] = Math.min(state.maxStats.playerStats, state.player[k] + 7); } });
-                    state.player.health = state.player.maxHealth;
-                    return "大当たり！超人的な力を手に入れた！<br>全能力+7、体力全回復！";
-                } else {
-                    return { gameOver: true };
+                    if (choice === "打撃の極意") {
+                        state.player.power = Math.min(state.maxStats.playerStats, state.player.power + 3);
+                        state.player.meet = Math.min(state.maxStats.playerStats, state.player.meet + 3);
+                        return "「バッティングは腰の回転と、インパクトの瞬間の押し込みだ！」\n熱心な指導を受け、パワーとミートが <span style=\"color:#ecc94b;\">3</span> 上がった！";
+                    } else if (choice === "守備・走塁の極意") {
+                        state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 3);
+                        state.player.defense = Math.min(state.maxStats.playerStats, state.player.defense + 3);
+                        state.player.shoulder = Math.min(state.maxStats.playerStats, state.player.shoulder + 3);
+                        return "「一歩目の出し方と、捕球の姿勢で世界が変わるぞ。」\n実演を交えた指導を受け、走力・肩力・守備力が <span style=\"color:#ecc94b;\">3</span> 上がった！";
+                    } else {
+                        state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 5);
+                        state.player.condition = "絶好調";
+                        state.player.intelligence = Math.min(state.maxStats.playerStats, state.player.intelligence + 3);
+                        return "「一番大事なのは、誰よりも野球を楽しむこと。そして準備を怠らないことさ。」\n深い言葉に感銘を受けた。\n監督評価が5、学力が3上がり、やる気が絶好調になった！";
+                    }
                 }
-            }, gameOverText: "謎の飲み物を飲んだ後、意識を失い、病院に運ばれた。<br>野球ができる体ではなくなってしまった…<br>GAME OVER"
-        }]
+            }
+        ]
     },
     { id: "test_2_2", title: "期末テスト", type: "date", year: 2, month: 12, week: 2, executed: false, scenes: [testEventScene] },
     {
@@ -891,6 +973,7 @@ export const allEvents = [
             {
                 text: "ここは真面目なところを見せるべきか…？", choices: ["「バッティング理論の本を探してる」", "「新作の漫画でも見ようかなって…」"],
                 action: (choice) => {
+                    ui.showCharacter("img/hoshikawa_smile.png");
                     if (choice === "「バッティング理論の本を探してる」") {
                         state.player.girlfriendFlag.manager = 2;
                         state.player.intelligence = Math.min(state.maxStats.playerStats, state.player.intelligence + 1);
@@ -963,16 +1046,24 @@ export const allEvents = [
             }
         ]
     },
+/* --- events.js の ask_for_a_date_1 イベント --- */
+
     {
         id: "ask_for_a_date_1", title: "デートに誘う", type: "command", command: "電話する", chance: 1.0, executed: false,
-        condition: () => state.player.hasPhoneNumber && state.player.phoneCallCount === 3 && !state.player.girlfriendFlag.isDateScheduled && !state.player.isGirlfriend && !state.gameState.phoneConfessionAttemptedThisTurn,
+        // ▼▼▼ 修正: 最後に && !state.gameState.dateInviteAttemptedThisTurn を追加 ▼▼▼
+        condition: () => state.player.hasPhoneNumber && state.player.phoneCallCount >= 3 && !state.player.girlfriendFlag.isDateScheduled && !state.player.isGirlfriend && !state.gameState.phoneConfessionAttemptedThisTurn && !state.gameState.dateInviteAttemptedThisTurn,
         scenes: [
-            { character: "主人公", image: "img/p_normal.png", text: "（電話も3回目か…そろそろデートに誘ってみようかな…）" },
+            { character: "主人公", image: "img/p_normal.png", text: "（…そろそろデートに誘ってみようかな…）" },
             { character: "DYNAMIC_GF_NAME", image: "DYNAMIC_GF_SMILE", text: "もしもし、主人公くん？" },
             {
                 text: "どうする？", choices: ["デートに誘う", "やっぱりやめる"],
                 action: async (choice) => {
+                    // ▼▼▼ 追加: 「このターンはもう試行した」というフラグを立ててループ防止 ▼▼▼
+                    state.gameState.dateInviteAttemptedThisTurn = true;
+                    // ▲▲▲ 追加ここまで ▲▲▲
+
                     if (choice === "デートに誘う") {
+                        // (デート予約処理... 省略)
                         let targetTurn = state.gameState.currentTurn + 1;
                         while (true) {
                             const { year, month, week } = calculateDateForTurn(targetTurn);
@@ -984,7 +1075,14 @@ export const allEvents = [
                         state.player.girlfriendFlag.scheduledDateTurn = targetTurn;
                         const { year, month, week } = calculateDateForTurn(targetTurn);
                         return { log: `「うん、いいよ！楽しみにしてるね！」\nデートの約束を取り付けた！(${year}年${month}月${week}週)`, endsEvent: true };
-                    } else { return { log: "（…やっぱりまだ早いか）\n今回は世間話だけにしておいた。", endsEvent: true }; }
+
+                    } else { 
+                        // ▼▼▼ ここで「未実行」に戻すが、上のフラグのおかげでこのターンは再発生しない ▼▼▼
+                        const thisEvent = allEvents.find(e => e.id === "ask_for_a_date_1");
+                        if(thisEvent) thisEvent.executed = false;
+
+                        return { log: "（…やっぱりまだ早いか）\n今回は世間話だけにしておいた。", endsEvent: true }; 
+                    }
                 }
             }
         ]
@@ -993,6 +1091,42 @@ export const allEvents = [
     { id: "ground_duty", title: "グラウンド整備", type: "random", chance: .05, scenes: [{ character: "監督", image: "img/kantoku.png", text: "おい、主人公！そこのグラウンド整備を手伝え！" }, { text: "どうする？", choices: ["真面目にやる", "サボる"], action: c => "真面目にやる" === c ? (playSfx('point'), state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 2), "監督の評価が 2 上がった！") : (playSfx('point'), state.player.health = Math.min(state.player.maxHealth, state.player.health + 5), "サボって体力が 5 回復した。") }] },
     { id: "ufo", title: "UFO目撃？", type: "random", chance: .01, scenes: [{ character: "主人公", image: "img/p_surprised.png", text: "（ん？夜のグラウンドに妙な光が…まさか…！）" }, { text: "追いかけるか？", choices: ["追いかける", "気のせいだ"], action: c => "追いかける" === c ? (playSfx('point'), state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 10), state.player.health -= 20, `光を追いかけて全力疾走！走力が <span style="color:#ecc94b;">10</span> アップしたが、体力が <span style="color:red;">20</span> ダウンした…`) : "見間違いだろう…" }] },
     { id: "cat", title: "猫の恩返し？", type: "random", chance: .03, scenes: [{ character: "主人公", image: "img/p_normal.png", text: "（道端で猫が弱ってる…。かわいそうに。よし、助けてやるか。）" }, { action: () => (playSfx('point'), state.player.power = Math.min(state.maxStats.playerStats, state.player.power + 1), state.player.meet = Math.min(state.maxStats.playerStats, state.player.meet + 1), state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 1), state.player.shoulder = Math.min(state.maxStats.playerStats, state.player.shoulder + 1), state.player.defense = Math.min(state.maxStats.playerStats, state.player.defense + 1), "数日後、なぜか絶好調に！猫のおかげ…？<br>野球の基本能力がすべて 1 ずつ上がった！") }] },
+/* events.js の allEvents 配列内に追加 */
+
+    // --- 特殊能力取得イベント ---
+    {
+        id: "god_dream", title: "夢のお告げ", type: "random", chance: 0.01, // 1%の確率
+        condition: () => !state.player.specialAbilities["神の啓示"],
+        scenes: [
+            { text: "（…ふわぁ、なんだか不思議な夢を見たぞ）" },
+            { character: "神様", text: "「野球を愛する若者よ…汝に力を授けよう…」" },
+            { character: "主人公", image: "img/p_surprised.png", text: "（枕元にボールが置いてある…これは夢じゃないのか！？）" },
+            { 
+                action: () => {
+                    playSfx('point');
+                    state.player.specialAbilities["神の啓示"] = true;
+                    return "特殊能力「神の啓示」を習得した！<br>毎月不思議な力が湧いてくる気がする…";
+                }
+            }
+        ]
+    },
+    {
+        id: "kantoku_secret_training", title: "監督の特別指導", type: "command", command: "チーム練習", chance: 0.2, // 条件を満たせば20%で発生
+        condition: () => state.team.coachEval >= 70 && !state.player.specialAbilities["監督の秘蔵っ子"],
+        scenes: [
+            { character: "監督", image: "img/kantoku.png", text: "おい、主人公。少し残れ。" },
+            { character: "主人公", image: "img/p_surprised.png", text: "（えっ、何か怒られるようなことしたっけ…？）" },
+            { character: "監督", image: "img/kantoku.png", text: "お前の最近の頑張りは目を見張るものがある。…どうだ、俺とお前で専用のメニューを組んでみないか？" },
+            { character: "主人公", image: "img/p_smile.png", text: "はい！ぜひお願いします！" },
+            { 
+                action: () => {
+                    playSfx('point');
+                    state.player.specialAbilities["監督の秘蔵っ子"] = true;
+                    return "特殊能力「監督の秘蔵っ子」を習得した！<br>これから毎月、監督が付きっきりで指導してくれるようだ！";
+                }
+            }
+        ]
+    },
     
     // --- エンディング関連イベント ---
     {

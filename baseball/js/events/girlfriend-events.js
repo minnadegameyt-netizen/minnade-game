@@ -1,5 +1,3 @@
---- START OF FILE girlfriend-events.js ---
-
 import * as state from '../state.js';
 import { playSfx } from '../sound.js';
 
@@ -63,6 +61,7 @@ export function createConfessionSetupEvent() {
             {
                 text: "どうする？", choices: ["電話して呼び出す", "まだ心の準備が…"],
                 action: (choice) => {
+                    state.gameState.phoneConfessionAttemptedThisTurn = true;
                     if (choice === "まだ心の準備が…") {
                         return { log: "（…やっぱり、もう少し勇気が出てからにしよう）", endsEvent: true };
                     }
@@ -123,7 +122,7 @@ export function createConfessionEvent() {
     let girlArrivalLine = "ううん、大丈夫だよ。…で、電話で言ってた「大事な話」ってなに？ ちょっとドキドキしちゃった。";
 
     // 告白のセリフ（デフォルト）
-    let heroConfessionLine = "その…君が一人でいるのを見て放っておけなくて…でも、今は俺が君と一緒にいたいんだ。";
+    let heroConfessionLine = "その…桜井さんと一緒にいるのが楽しくてさ…好きなんだ！気持ちが抑えきれなくて…だから、付き合ってください！";
     let girlReactionPre = "えっ…主人公くん…？";
     let successMessage = "…っ！はい、喜んで…！私で、いいの…？";
 
@@ -135,12 +134,12 @@ export function createConfessionEvent() {
             
             // 会った直後
             meetingLine = "来てくれてありがとう。練習、疲れてないか？";
-            girlArrivalLine = "平気よ。それより、わざわざ裏に呼び出すなんて珍しいじゃない。…で、何があったの？";
+            girlArrivalLine = "平気。それより、わざわざ裏に呼び出すなんて珍しいじゃない。…で、何があったの？";
             
             // 告白
-            heroConfessionLine = "最初はただの友達だと思ってた。でも、お前と過ごす時間がすごく楽しくて…いつの間にか、友達のままじゃ嫌になってたんだ。";
-            girlReactionPre = "…な、なによ急に…真面目な顔して…。";
-            successMessage = "…ははっ、負けたよ。ま、まあ…その…私も好き…だよ";
+            heroConfessionLine = "好きだ！付き合ってくれ！";
+            girlReactionPre = "わっ、いっいきなり…もうっ…";
+            successMessage = "…うん、よろしくね。全く…もうちょっとムードとか作ってよー。";
             break;
 
         case 'manager':
@@ -194,7 +193,7 @@ export function createConfessionEvent() {
                     return { log: null }; 
                 }
             },
-            { character: "主人公", image: "img/p_smile.png", text: `「${heroConfessionLine}\n好きです。俺と、付き合ってください！」` },
+            { character: "主人公", image: "img/p_smile.png", text: `${heroConfessionLine}\n好きです。俺と、付き合ってください！` },
             { character: "彼女", image: characterImageNormal, text: girlReactionPre },
             { text: "（ドクン…ドクン…）" },
             { character: "彼女", image: characterImageBlush, text: successMessage, action: () => playSfx('point') },

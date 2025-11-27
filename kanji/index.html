@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>難読漢字クイズ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 設定モーダル -->
+    <div id="setup-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>GAME SETTINGS</h2>
+            
+            <div class="setup-group">
+                <label>難易度</label>
+                <div class="btn-group" id="diff-select">
+                    <button class="setup-btn" data-val="1">初級</button>
+                    <button class="setup-btn selected" data-val="2">中級</button>
+                    <button class="setup-btn" data-val="3">上級</button>
+                    <button class="setup-btn" data-val="4" style="color:#e74c3c;">特級</button>
+                </div>
+            </div>
+
+            <!-- 他の設定項目は quiz/index.html と同じ -->
+            <div class="setup-group">
+                <label>ライフ (許容ミス数)</label>
+                <div class="btn-group" id="life-select">
+                    <button class="setup-btn" data-val="1">1回</button>
+                    <button class="setup-btn selected" data-val="3">3回</button>
+                    <button class="setup-btn" data-val="5">5回</button>
+                </div>
+            </div>
+
+            <div class="setup-group">
+                <label>目標問題数</label>
+                <div class="btn-group" id="goal-select">
+                    <button class="setup-btn selected" data-val="10">10問</button>
+                    <button class="setup-btn" data-val="30">30問</button>
+                    <button class="setup-btn" data-val="50">50問</button>
+                </div>
+            </div>
+
+            <div class="setup-group">
+                <label>投票時間（秒）</label>
+                <div class="btn-group" id="time-select">
+                    <button class="setup-btn" data-val="15">15秒</button>
+                    <button class="setup-btn selected" data-val="30">30秒</button>
+                    <button class="setup-btn" data-val="60">60秒</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; gap: 10px;">
+                <button id="back-btn" class="action-btn secondary">ホームへ</button>
+                <button id="setup-done-btn" class="action-btn primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 待機画面、カウントダウン、ゲーム画面、結果モーダルは quiz/index.html と全く同じ -->
+    <!-- ... (中略) ... -->
+    
+    <!-- ゲームメイン画面 (中身は同じ) -->
+    <div id="game-container" class="hidden">
+        <header>
+            <div class="status-box">
+                <span>Q. <span id="current-q-num">1</span> / <span id="total-q-num">10</span></span>
+                <span style="margin-left: 20px; color: #e74c3c;">LIFE: <span id="life-display">❤️❤️❤️</span></span>
+            </div>
+            <div class="timer-box">
+                TIME: <span id="timer">00</span>
+            </div>
+        </header>
+
+        <div class="main-area">
+            <!-- 問題文 -->
+            <div class="question-box">
+                <!-- 漢字を大きく表示するためのスタイル調整 -->
+                <p id="question-text" style="font-size: 4em; font-family: serif;">漢字</p>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-grid" id="options-container">
+                <button class="option-btn" id="btn-1"><span class="opt-label">1</span> <span class="opt-text">A</span><div class="vote-bar"></div></button>
+                <button class="option-btn" id="btn-2"><span class="opt-label">2</span> <span class="opt-text">B</span><div class="vote-bar"></div></button>
+                <button class="option-btn" id="btn-3"><span class="opt-label">3</span> <span class="opt-text">C</span><div class="vote-bar"></div></button>
+                <button class="option-btn" id="btn-4"><span class="opt-label">4</span> <span class="opt-text">D</span><div class="vote-bar"></div></button>
+            </div>
+            
+            <!-- 投票ステータス -->
+            <div id="voting-status" class="hidden">
+                投票受付中... (計: <span id="vote-count">0</span>票)
+            </div>
+        </div>
+    </div>
+    
+    <!-- 待機画面、カウントダウン、結果モーダル等のHTMLも忘れずにコピーしてください -->
+    <div id="ready-screen" class="modal-overlay hidden" style="background: rgba(0,0,0,0.9);">
+        <div class="modal-content" style="border-color: #e53e3e; box-shadow: 0 0 30px #e53e3e;">
+            <h2 style="color: #e53e3e; font-size: 2.5em;">いざ、勝負！</h2>
+            <p style="color: #fff;">心の準備はいいですか？</p>
+            <button id="game-start-btn" class="action-btn primary" style="font-size: 1.5em; margin-top: 20px; background-color: #e53e3e;">START</button>
+            <div style="margin-top:15px;">
+                <button id="back-to-setup-btn" style="background:transparent; border:none; color:#888; cursor:pointer; text-decoration:underline;">設定に戻る</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="countdown-overlay" class="modal-overlay hidden" style="background: transparent; pointer-events: none;">
+        <div id="countdown-text" style="color: #e53e3e; text-shadow: 0 0 30px #e53e3e;">3</div>
+    </div>
+
+    <div id="result-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 id="result-title">終了</h2>
+            <p id="result-msg">結果...</p>
+            <button onclick="location.reload()" class="action-btn primary" style="background-color: #e53e3e;">タイトルに戻る</button>
+        </div>
+    </div>
+
+    <!-- JSファイルの読み込み -->
+    <script src="js/kanji-data.js"></script> <!-- ここを変更 -->
+    <script src="js/script.js"></script>
+</body>
+</html>

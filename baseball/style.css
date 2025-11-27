@@ -213,8 +213,35 @@ html, body {
 .event-choices-window { width: 90%; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; }
 .choice-btn { position: relative; padding: 15px 30px 15px 50px; font-size: 1.2em; background-color: #4a5568; color: white; border: 1px solid #718096; border-radius: 4px; cursor: pointer; width: 80%; text-align: center; transition: background-color 0.2s; }
 .choice-btn:hover { background-color: #718096; }
-.command-choices-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 90%; }
-.choice-btn.is-voting { cursor: not-allowed; background-color: #2d3748; color: #a0aec0; }
+.command-choices-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; }
+.choice-btn {
+    position: relative;
+    width: 100%;
+    min-height: 80px; 
+    
+    display: flex;
+    align-items: center;
+    
+    /* ★変更: テキストを中央揃えにする */
+    justify-content: center; 
+    
+    /* ★変更: 左右の余白を50pxで統一し、完全に中央に見えるようにする */
+    /* (左側の絶対配置された番号と重ならないよう確保しつつ、右にも同じ余白を入れる) */
+    padding: 10px 50px;
+    
+    font-size: 1.2em;
+    background-color: #4a5568;
+    color: white;
+    border: 1px solid #718096;
+    border-radius: 4px;
+    cursor: pointer;
+    
+    /* テキスト自体の揃え位置も中央に */
+    text-align: center;
+    
+    transition: background-color 0.2s;
+    box-sizing: border-box;
+}
 .choice-btn.is-voting:hover { background-color: #2d3748; }
 .choice-btn.is-selected { background-color: #3182ce; border-color: #63b3ed; transform: scale(1.05); transition: transform 0.2s ease-in-out, background-color 0.2s; }
 .choice-number {
@@ -230,74 +257,232 @@ html, body {
 .roulette-display { padding: 40px 60px; font-size: 2.5em; font-weight: bold; border: 3px solid #718096; border-radius: 8px; background-color: #1a202c; min-width: 200px; text-align: center; transition: all 0.1s; }
 .roulette-result { transform: scale(1.2); border-color: #ecc94b; color: #ecc94b; text-shadow: 0 0 8px #ecc94b; }
 
-/* --- 右パネル --- */
+/* --- 右パネル全体 --- */
 .right-panel {
     width: 30%;
     background-color: #2d3748;
-    padding: 15px; /* パディングを少し減らす */
+    padding: 15px;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    overflow: hidden; /* パネル自体のスクロールを禁止（中身を収めるため） */
-    gap: 10px; /* 要素間の隙間 */
+    overflow: hidden;
+    gap: 15px; /* 要素間の隙間を少し広げて見やすく */
 }
 
-/* 上部のチームステータス（固定高さ） */
+/* --- 上部：チーム評価パネル --- */
 .team-status-panel {
-    flex-shrink: 0; /* 縮めない */
+    flex-shrink: 0;
+    background-color: #1a202c; /* 暗めの背景で引き締める */
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #4a5568;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
-    gap: 8px; /* 間隔を詰める */
-    background-color: #1a202c;
-    padding: 12px;
-    border-radius: 4px;
-    margin-bottom: 0; /* marginは親のgapに任せる */
+    gap: 10px;
 }
 
-/* 動画エリア（ここを伸縮させる） */
-.character-display {
-    flex: 1; /* 余ったスペースを埋める */
+.team-status-item {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 0; /* 重要: flexアイテムが潰れることを許可 */
-    background: #000; /* 動画の背景 */
-    border-radius: 4px;
+    flex-direction: column;
+}
+
+.team-status-item span {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #cbd5e0;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between; /* ラベルと数値を左右に配置したい場合に備えて */
+}
+
+/* プログレスバーの見た目をリッチに */
+.team-status-item progress {
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    appearance: none;
+    background-color: #4a5568; /* バーの背景 */
+}
+
+.team-status-item progress::-webkit-progress-bar {
+    background-color: #4a5568;
+    border-radius: 5px;
+}
+
+.team-status-item progress::-webkit-progress-value {
+    border-radius: 5px;
+    transition: width 0.5s ease;
+}
+
+/* 各バーの色分け */
+#team-total-bar::-webkit-progress-value { background-color: #d6bcfa; box-shadow: 0 0 5px #d6bcfa; } /* 紫＆発光 */
+#coach-eval-bar::-webkit-progress-value { background-color: #68d391; box-shadow: 0 0 5px #68d391; } /* 緑＆発光 */
+#gf-eval-bar::-webkit-progress-value { background-color: #f687b3; box-shadow: 0 0 5px #f687b3; } /* ピンク＆発光 */
+
+
+/* --- 中部：動画エリア（修正箇所） --- */
+.character-display {
+    flex-shrink: 0; /* 勝手に縮ませない */
+    width: 100%;
+    
+    /* ★重要: 動画のアスペクト比(16:9)に合わせて高さを自動決定し、黒帯を消す */
+    aspect-ratio: 16 / 9;
+    
+    /* ★重要: 大きくなりすぎないように高さを制限 */
+    max-height: 200px;
+    
+    background: #000;
+    border-radius: 8px;
+    border: 2px solid #4a5568;
     overflow: hidden;
+    margin: 0 auto;
+    position: relative;
 }
 
 .character-display video {
-    max-width: 100%;
-    max-height: 100%; /* 親要素の高さに合わせる */
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 枠いっぱいに表示して黒帯を消す */
 }
 
-/* 下部の選手能力パネル（固定または内容に応じて） */
+
+/* --- 下部：選手能力パネル（ここをメインに大きくする） --- */
 .status-panel {
-    flex-shrink: 0; /* 縮めない */
-    background-color: #4a5568;
-    padding: 12px;
-    border-radius: 5px;
-    overflow-y: auto; /* 万が一中身が多い場合だけスクロール */
-    max-height: 50%; /* 画面の半分以上は占有しない */
+    flex: 1; /* ★残りのスペースを全て使う */
+    background-color: #1a202c;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #4a5568;
+    overflow-y: auto; /* 中身が多い時だけスクロール */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-/* ステータスグリッドの調整 */
+.status-panel h2 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #ecc94b;
+    border-bottom: 2px solid #4a5568;
+    padding-bottom: 8px;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+.player-info {
+    background-color: #2d3748;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+/* 名前を大きく目立たせる */
+#player-name {
+    display: inline-block;       /* ブロック要素から変更して横並びにする */
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #fff;
+    
+    /* 下線スタイルを削除 */
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    
+    /* 右側に区切り線と余白を追加 */
+    margin-right: 12px;
+    padding-right: 15px;
+    border-right: 2px solid #718096;
+    
+    /* 隣の要素と垂直位置を合わせる */
+    vertical-align: middle;
+    line-height: 1;
+}
+
+#player-condition, #girlfriend-status, #red-mark-display {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 0.9em;
+    color: #cbd5e0;
+    vertical-align: middle; /* 追加 */
+}
+.is-danger { color: #f56565 !important; font-weight: bold; }
+
+/* 体力バー */
+.health-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px; /* 追加: 名前・ステータス行との間に少し隙間を作る */
+}
+.health-status label {
+    font-weight: bold;
+    color: #fc8181;
+    min-width: 40px;
+}
+#health-bar {
+    flex-grow: 1;
+    height: 12px;
+    border-radius: 6px;
+}
+#health-bar::-webkit-progress-value {
+    background-color: #f56565;
+    background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+    background-size: 1rem 1rem;
+}
+
+/* 能力グリッドを見やすく */
 .status-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5px 15px; /* 縦の隙間を詰める */
-    font-size: 1.0em; /* 文字サイズを少し調整 */
+    grid-template-columns: 1fr 1fr; /* 2列 */
+    gap: 8px 15px;
+    background-color: #2d3748;
+    padding: 12px;
+    border-radius: 6px;
 }
 
-.special-ability-header {
-    margin: 10px 0 5px; /* 余白を詰める */
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #4a5568;
+    padding-bottom: 4px;
+}
+.status-item label {
     font-size: 0.9em;
+    color: #a0aec0;
+}
+.status-item span {
+    font-weight: bold;
+    font-family: monospace; /* 数字を揃える */
+    font-size: 1.1em;
+}
+
+/* 特殊能力エリア */
+.special-ability-header {
+    margin: 5px 0 0;
+    font-size: 0.95em;
+    color: #63b3ed;
+    font-weight: bold;
 }
 
 .special-ability-grid {
-    padding: 5px;
-    gap: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 5px 0;
+}
+
+.special-ability-grid span {
+    background-color: #2c5282;
+    color: #bee3f8;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    border: 1px solid #4299e1;
+    box-shadow: 0 2px 2px rgba(0,0,0,0.2);
 }
 
 /* --- ランクごとの文字色 --- */

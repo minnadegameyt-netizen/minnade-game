@@ -1,4 +1,3 @@
-// js/main.js
 import { ui } from './ui.js';
 import * as youtube from './youtube.js';
 
