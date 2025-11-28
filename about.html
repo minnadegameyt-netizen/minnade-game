@@ -7,7 +7,6 @@
   (function() {
     var GA_ID = 'G-TS77Z86Q2V';
 
-    // 1. ローカル環境かどうか判定
     var isLocal = window.location.hostname === 'localhost' || 
                   window.location.hostname === '127.0.0.1' || 
                   window.location.hostname.startsWith('192.168.') ||
@@ -15,7 +14,6 @@
 
     var isAdmin = localStorage.getItem('analytics_ignore') === 'true';
 
-    // ローカルでも管理者でもない場合のみGAを読み込む
     if (!isLocal && !isAdmin) {
       var script = document.createElement('script');
       script.async = true;
@@ -40,6 +38,7 @@
         <h1><a href="index.html" style="color: inherit; text-decoration: none;">視聴者参加型ゲーム</a></h1>
         <nav>
             <a href="index.html">ホーム</a>
+            <a href="help.html">よくある質問</a>
             <a href="about.html">このサイトについて</a>
         </nav>
     </header>
@@ -90,7 +89,7 @@
         </p>
 
         <p class="text-right">
-            最終更新日: 2025年12月1日
+            最終更新日: 2025年5月21日
         </p>
     </main>
 

@@ -3,61 +3,76 @@
   <!-- トップページ -->
   <url>
     <loc>https://minnade-game.vercel.app/</loc>
-    <lastmod>2025-11-27</lastmod>
+    <lastmod>2025-12-1</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://minnade-game.vercel.app/index.html</loc>
-    <lastmod>2025-11-27</lastmod>
+    <lastmod>2025-12-1</lastmod>
     <priority>0.8</priority>
   </url>
 
   <!-- 情報ページ -->
   <url>
     <loc>https://minnade-game.vercel.app/about.html</loc>
-    <lastmod>2025-11-27</lastmod>
+    <lastmod>2025-12-1</lastmod>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://minnade-game.vercel.app/help.html</loc>
+    <lastmod>2025-12-1</lastmod>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://minnade-game.vercel.app/terms.html</loc>
-    <lastmod>2025-11-27</lastmod>
+    <lastmod>2025-12-1</lastmod>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://minnade-game.vercel.app/privacy.html</loc>
-    <lastmod>2025-11-27</lastmod>
+    <lastmod>2025-12-1</lastmod>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://minnade-game.vercel.app/contact.html</loc>
-    <lastmod>2025-11-27</lastmod>
+    <lastmod>2025-12-1</lastmod>
     <priority>0.3</priority>
   </url>
 
   <!-- ゲームコンテンツ -->
   <url>
     <loc>https://minnade-game.vercel.app/baseball/index.html</loc>
-    <lastmod>2025-11-27</lastmod>
+    <lastmod>2025-12-1</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://minnade-game.vercel.app/war/index.html</loc>
-    <lastmod>2025-11-27</lastmod>
+    <lastmod>2025-12-1</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://minnade-game.vercel.app/quiz/index.html</loc>
-    <lastmod>2025-11-27</lastmod>
+    <lastmod>2025-12-1</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://minnade-game.vercel.app/kanji/index.html</loc>
-    <lastmod>2025-11-27</lastmod>
+    <lastmod>2025-12-1</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://minnade-game.vercel.app/mystery/index.html</loc>
-    <lastmod>2025-11-27</lastmod>
+    <lastmod>2025-12-1</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://minnade-game.vercel.app/territory/index.html</loc>
+    <lastmod>2025-12-1</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://minnade-game.vercel.app/pixel/index.html</loc>
+    <lastmod>2025-12-1</lastmod>
     <priority>0.8</priority>
   </url>
 </urlset>

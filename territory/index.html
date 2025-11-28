@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Connect Territory</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="game-container">
+        <!-- ヘッダー -->
+        <header>
+            <div class="player-info p1-box">
+                <span class="p-name" id="name-1">Player 1</span>
+                <span class="p-score" id="score-1">1</span>
+            </div>
+            <div class="player-info p2-box">
+                <span class="p-name" id="name-2">Player 2</span>
+                <span class="p-score" id="score-2">1</span>
+            </div>
+            <div class="timer-box">
+                TIME<br><span id="time-display">05:00</span>
+            </div>
+            <div class="player-info p3-box">
+                <span class="p-name" id="name-3">Player 3</span>
+                <span class="p-score" id="score-3">1</span>
+            </div>
+            <div class="player-info p4-box">
+                <span class="p-name" id="name-4">Player 4</span>
+                <span class="p-score" id="score-4">1</span>
+            </div>
+        </header>
+
+        <!-- メインエリア -->
+        <div class="content-wrapper">
+            <div class="left-column">
+                <div class="canvas-wrapper">
+                    <canvas id="game-canvas" width="600" height="600"></canvas>
+                </div>
+                <div id="chat-area">
+                    <ul id="chat-list"></ul>
+                </div>
+            </div>
+            <div class="right-column">
+                <div class="instruction-box">
+                    <h4>遊び方</h4>
+                    <div class="step-card">
+                        <div class="step-header"><span class="step-num">1</span><span>参加登録</span></div>
+                        <p>「参加」とコメント！<br>先着順でプレイヤーになります。</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-header"><span class="step-num">2</span><span>陣地を広げる</span></div>
+                        <p>「100」など番号をコメント。<br>自分の色と<span class="highlight">隣り合う場所</span>を塗れます。</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-header"><span class="step-num">★</span><span>イベント</span></div>
+                        <p>「？」マスを取ると<br>爆発して一気に塗れるぞ！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- カウントダウン -->
+    <div id="countdown-overlay" class="modal-overlay hidden" style="background: transparent; pointer-events: none;">
+        <div id="countdown-text" style="font-size: 8em; font-family: 'Orbitron'; color: #ecc94b; text-shadow: 0 0 20px #000;">3</div>
+    </div>
+
+    <!-- 結果モーダル -->
+    <div id="result-modal" class="modal-overlay hidden">
+        <div class="modal-content result-content">
+            <h2 class="result-title">GAME SET!</h2>
+            <div class="winner-announce">WINNER: <span id="winner-name">Player 1</span></div>
+            <div class="ranking-list" id="ranking-list"></div>
+            <button onclick="location.reload()" class="action-btn">タイトルに戻る</button>
+        </div>
+    </div>
+
+    <!-- 設定モーダル (Step 1) -->
+    <div id="setup-modal" class="modal-overlay">
+        <div class="modal-content setup-content">
+            <h2 class="setup-title">GAME SETTINGS</h2>
+            
+            <div class="setting-row">
+                <label>プレイモード</label>
+                <div class="btn-group">
+                    <button id="mode-demo" class="setup-btn selected">デモプレイ</button>
+                    <button id="mode-stream" class="setup-btn">配信モード</button>
+                </div>
+                <p class="setting-desc" id="mode-desc">AI同士が戦う様子を観戦します。</p>
+            </div>
+
+            <div class="setting-row">
+                <label>プレイヤー数</label>
+                <div class="btn-group">
+                    <button id="player-2" class="setup-btn">2人 (1vs1)</button>
+                    <button id="player-4" class="setup-btn selected">4人 (バトロワ)</button>
+                </div>
+            </div>
+
+            <!-- ★追加: イベント設定 -->
+            <div class="setting-row">
+                <label>イベント (アイテム)</label>
+                <div class="btn-group">
+                    <button id="event-on" class="setup-btn selected">あり</button>
+                    <button id="event-off" class="setup-btn">なし</button>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <label>制限時間</label>
+                <div class="btn-group">
+                    <button id="time-180" class="setup-btn">3分</button>
+                    <button id="time-300" class="setup-btn selected">5分</button>
+                    <button id="time-600" class="setup-btn">10分</button>
+                </div>
+            </div>
+
+            <div class="btn-area">
+                <a href="../index.html" class="back-link">ホームへ戻る</a>
+                <button id="next-btn" class="action-btn">次へ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- エントリー待機画面 (Step 2) -->
+    <div id="entry-modal" class="modal-overlay hidden">
+        <div class="modal-content entry-content">
+            <h2 class="setup-title">ENTRY PLAYERS</h2>
+            <p>コメント欄で「参加」と打ってもらってください！</p>
+            
+            <div class="entry-list" id="entry-list">
+                <div class="entry-slot empty" id="slot-1">
+                    <span class="slot-name">Player 1 (待機中...)</span>
+                    <button class="kick-btn" onclick="kickPlayer(1)">×</button>
+                </div>
+                <div class="entry-slot empty" id="slot-2">
+                    <span class="slot-name">Player 2 (待機中...)</span>
+                    <button class="kick-btn" onclick="kickPlayer(2)">×</button>
+                </div>
+                <div class="entry-slot empty" id="slot-3">
+                    <span class="slot-name">Player 3 (待機中...)</span>
+                    <button class="kick-btn" onclick="kickPlayer(3)">×</button>
+                </div>
+                <div class="entry-slot empty" id="slot-4">
+                    <span class="slot-name">Player 4 (待機中...)</span>
+                    <button class="kick-btn" onclick="kickPlayer(4)">×</button>
+                </div>
+            </div>
+
+            <div class="btn-area">
+                <button id="back-to-setup" class="sub-btn">戻る</button>
+                <button id="start-game-btn" class="action-btn" disabled>GAME START</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

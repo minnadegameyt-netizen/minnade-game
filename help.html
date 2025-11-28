@@ -2,6 +2,33 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <!-- Google Analytics Control Script -->
+    <script>
+      (function() {
+        var GA_ID = 'G-TS77Z86Q2V';
+
+        var isLocal = window.location.hostname === 'localhost' || 
+                      window.location.hostname === '127.0.0.1' || 
+                      window.location.hostname.startsWith('192.168.') ||
+                      window.location.protocol === 'file:';
+
+        var isAdmin = localStorage.getItem('analytics_ignore') === 'true';
+
+        if (!isLocal && !isAdmin) {
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+          document.head.appendChild(script);
+
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', GA_ID);
+        } else {
+          console.log('Google Analytics blocked (Local or Admin)');
+        }
+      })();
+    </script>
     <title>よくある質問・配信ガイドライン - みんなでゲーム</title>
     <link rel="stylesheet" href="style.css">
     <style>
@@ -56,6 +83,7 @@
         <h1><a href="index.html" style="color: inherit; text-decoration: none;">視聴者参加型ゲーム</a></h1>
         <nav>
             <a href="index.html">ホーム</a>
+            <a href="help.html">よくある質問</a>
             <a href="about.html">このサイトについて</a>
         </nav>
     </header>
@@ -100,7 +128,7 @@
 
         <!-- 技術・設定セクション -->
         <div class="faq-section">
-            <div class="faq-title">⚙️ 設定・トラブルシューティング</div>
+            <div class="faq-title"⚙️ 設定・トラブルシューティング</div>
 
             <div class="faq-item">
                 <div class="faq-q">APIキーの設定方法がわかりません。</div>
@@ -139,7 +167,7 @@
             <a href="privacy.html">プライバシーポリシー</a>
             <a href="contact.html">お問い合わせ</a>
         </div>
-        <p>&copy; 2024 Dontokoi Games. All Rights Reserved.</p>
+        <p>&copy; 2025 Dontokoi Games. All Rights Reserved.</p>
     </footer>
 
 </body>

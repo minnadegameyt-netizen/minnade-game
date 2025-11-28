@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Streamer Pixel Art</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="game-container">
+        <!-- ヘッダー -->
+        <header>
+            <div class="header-left">
+                <button id="bgm-toggle-btn" class="icon-btn">🔊 BGM: OFF</button>
+                <button id="undo-btn" class="icon-btn hidden" title="元に戻す (Ctrl+Z)">↩ Undo</button>
+            </div>
+
+            <div id="theme-display-area" class="hidden">
+                <div class="theme-box">
+                    <span class="theme-label">THEME</span>
+                    <div class="slot-machine">
+                        <span id="slot-adj">???</span>
+                        <span id="slot-noun">???</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timer-box">
+                TIME<br><span id="time-display">--:--</span>
+            </div>
+            
+            <button id="manual-finish-btn" class="finish-btn hidden">FINISH</button>
+        </header>
+
+        <!-- メインエリア -->
+        <div class="content-wrapper">
+            <!-- キャンバスエリア -->
+            <div class="main-column">
+                <div id="canvases-container" class="canvases-grid"></div>
+            </div>
+
+            <!-- サイドバー -->
+            <div class="side-column">
+                <div class="palette-box">
+                    <h5 class="palette-title" id="palette-title">COLORS</h5>
+                    <div id="color-legend" class="color-grid"></div>
+                </div>
+
+                <div id="players-scoreboard" class="scoreboard-container"></div>
+
+                <!-- ★追加: 番号確認用ガイドマップ -->
+                <div id="guide-map-box" class="guide-box hidden">
+                    <h5 class="guide-title">NUMBER GUIDE</h5>
+                    <div id="guide-size-info" class="guide-info">-- x --</div>
+                    <div class="guide-canvas-wrapper">
+                        <canvas id="guide-canvas" width="600" height="600"></canvas>
+                    </div>
+                </div>
+
+                <div class="instruction-box">
+                    <h4 id="howto-title">操作方法</h4>
+                    <div id="howto-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- カウントダウン -->
+    <div id="countdown-overlay" class="modal-overlay hidden" style="background: transparent; pointer-events: none;">
+        <div id="countdown-text" style="font-size: 8em; font-family: 'Orbitron'; color: #ecc94b; text-shadow: 0 0 20px #000;">3</div>
+    </div>
+
+    <!-- 結果モーダル -->
+    <div id="result-modal" class="modal-overlay hidden">
+        <div class="modal-content result-content">
+            <h2 class="result-title">Finished!</h2>
+            <div class="winner-announce">🎨 Art Completed! 🎨</div>
+            <div id="result-art-container" class="result-art-container"></div>
+            <div id="result-theme-display" style="margin-bottom:15px; font-weight:bold; color:#ffeaa7;"></div>
+            <button id="save-img-btn" class="sub-btn" style="margin-bottom: 20px;">画像を保存 (JPG)</button>
+            <div class="ranking-list" id="ranking-list"></div>
+            <button onclick="location.reload()" class="action-btn">タイトルに戻る</button>
+        </div>
+    </div>
+
+    <!-- 設定モーダル -->
+    <div id="setup-modal" class="modal-overlay">
+        <div class="modal-content setup-content">
+            <h2 class="setup-title">ART SETTINGS</h2>
+            
+            <div class="scrollable-settings">
+                
+                <!-- プレイモード (JSで制御) -->
+                <div class="setting-row hidden" id="row-mode">
+                    <div class="label-row">
+                        <label style="margin:0;">プレイモード</label>
+                        <span class="info-icon">?</span>
+                        <div class="tooltip-text">
+                            <strong>ソロプレイ:</strong> 一人で自由に描きます。<br>
+                            <strong>配信モード:</strong> YouTube等のコメント連携で視聴者と遊びます。
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button id="mode-solo" class="setup-btn">ソロプレイ</button>
+                        <button id="mode-stream" class="setup-btn">配信モード</button>
+                    </div>
+                </div>
+
+                <!-- BGM設定 -->
+                <div class="setting-row" id="row-bgm">
+                    <div class="label-row">
+                        <label style="margin:0;">SE設定 (効果音)</label>
+                        <span class="info-icon">?</span>
+                        <div class="tooltip-text">
+                            塗った時などの効果音のON/OFFを設定します。
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button id="bgm-on" class="setup-btn selected">ON</button>
+                        <button id="bgm-off" class="setup-btn">OFF</button>
+                    </div>
+                </div>
+
+                <!-- グリッドサイズ -->
+                <div class="setting-row">
+                    <div class="label-row">
+                        <label style="margin:0;">ドット数 (グリッドサイズ)</label>
+                        <span class="info-icon">?</span>
+                        <div class="tooltip-text">
+                            キャンバスの目の細かさです。<br>
+                            <strong>20x20:</strong> 素早く塗れます。<br>
+                            <strong>30x30:</strong> 細かく描けます。
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button id="grid-20" class="setup-btn selected">20x20</button>
+                        <button id="grid-30" class="setup-btn">30x30</button>
+                    </div>
+                </div>
+
+                <!-- キャンバス数 -->
+                <div class="setting-row" id="row-players">
+                    <div class="label-row">
+                        <label style="margin:0;">キャンバス数 (チーム数)</label>
+                        <span class="info-icon">?</span>
+                        <div class="tooltip-text">
+                            使用する色のグループ数およびキャンバスの枚数です。<br>
+                            参加者は自動的にチームに割り振られます。
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button id="pl-1" class="setup-btn">1枚</button>
+                        <button id="pl-2" class="setup-btn">2枚</button>
+                        <button id="pl-3" class="setup-btn">3枚</button>
+                        <button id="pl-4" class="setup-btn selected">4枚</button>
+                    </div>
+                </div>
+
+                <!-- ★「レイアウト」設定を削除しました -->
+
+                <!-- お題 -->
+                <div class="setting-row" id="row-theme">
+                    <div class="label-row">
+                        <label style="margin:0;">お題スロット</label>
+                        <span class="info-icon">?</span>
+                        <div class="tooltip-text">
+                            スタート時にランダムなお題（例: 巨大なパンダ）を表示するかどうか設定します。
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button id="theme-none" class="setup-btn selected">なし</button>
+                        <button id="theme-common" class="setup-btn">あり</button>
+                    </div>
+                </div>
+
+                <!-- 制限時間 -->
+                <div class="setting-row" id="row-time">
+                    <div class="label-row">
+                        <label style="margin:0;">制限時間</label>
+                        <span class="info-icon">?</span>
+                        <div class="tooltip-text">
+                            ゲームの終了時間です。<br>
+                            0になると結果画面へ移動します。
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button id="time-300" class="setup-btn selected">5分</button>
+                        <button id="time-600" class="setup-btn">10分</button>
+                        <button id="time-1200" class="setup-btn">20分</button>
+                        <button id="time-free" class="setup-btn">無制限</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="btn-area">
+                <a href="../index.html" class="back-link">ホームに戻る</a>
+                <button id="next-btn" class="action-btn">スタート</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- エントリー画面 -->
+    <div id="entry-modal" class="modal-overlay hidden">
+        <div class="modal-content entry-content">
+            <h2 class="setup-title">PAINTERS ENTRY</h2>
+            <p>コメント欄で「参加」！</p>
+            <div class="entry-list" id="entry-list"></div>
+            <div class="btn-area">
+                <button id="back-to-setup" class="sub-btn">戻る</button>
+                <button id="start-game-btn" class="action-btn">スタート</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -7,7 +7,6 @@
   (function() {
     var GA_ID = 'G-TS77Z86Q2V';
 
-    // 1. ローカル環境かどうか判定
     var isLocal = window.location.hostname === 'localhost' || 
                   window.location.hostname === '127.0.0.1' || 
                   window.location.hostname.startsWith('192.168.') ||
@@ -15,7 +14,6 @@
 
     var isAdmin = localStorage.getItem('analytics_ignore') === 'true';
 
-    // ローカルでも管理者でもない場合のみGAを読み込む
     if (!isLocal && !isAdmin) {
       var script = document.createElement('script');
       script.async = true;
@@ -35,23 +33,21 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="baseball/img/favicon.ico" type="image/x-icon">
     <style>
-        /* カードが増えた時のためのレイアウト調整 */
         .game-selection {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 30px;
             width: 100%;
-            max-width: 1400px; /* 幅を少し広げる */
+            max-width: 1400px;
             margin: 0 auto;
-            padding-bottom: 40px; /* 下部に余裕を持たせる */
+            padding-bottom: 40px;
         }
         
-        /* スマホや狭い画面での見切れ防止 */
         #home-page {
-            overflow-y: auto; /* 縦スクロールを許可 */
-            min-height: calc(100vh - 100px); /* ヘッダー・フッター分を引いた高さ確保 */
-            align-items: flex-start; /* 上寄せにしてスクロールしやすくする */
+            overflow-y: auto;
+            min-height: calc(100vh - 100px);
+            align-items: flex-start;
             padding-top: 40px;
         }
     </style>
@@ -64,7 +60,6 @@
             <a href="index.html">ホーム</a>
             <a href="help.html">よくある質問</a>
             <a href="about.html">このサイトについて</a>
-            <!-- 配信者用設定ボタン -->
             <button id="api-settings-btn" class="header-api-btn">
                 <span class="icon">⚙️</span> 配信者用設定
             </button>
@@ -90,7 +85,7 @@
             <!-- ゲームカード2: 視聴者参加型世論調査 -->
             <div class="game-card">
                 <h2>視聴者参加型世論調査</h2>
-    <img src="war/thumbnail.png" alt="陣取り合戦 サムネイル" class="game-thumbnail">
+                <img src="war/thumbnail.png" alt="陣取り合戦 サムネイル" class="game-thumbnail">
                 <p>コメント数で勢力を拡大せよ！<br>視聴者参加型の陣取りゲーム。</p>
                 <div class="mode-buttons">
                     <a href="war/index.html?mode=demo" class="game-link-btn btn-green">デモプレイ（個人）</a>
@@ -146,8 +141,38 @@
                     <button id="mystery-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
+            
+            <!-- ゲームカード6: Connect Territory -->
+            <div class="game-card">
+                <h2>Connect Territory</h2>
+                <div class="thumbnail-placeholder" style="border-color: #4299e1; color: #4299e1;">
+                    <span style="font-size: 2em;">🌐</span>
+                </div>
+                <p>コメントでマスを塗って陣地を広げろ！<br>視聴者参加型のリアルタイム陣取り合戦。</p>
+                <div class="mode-buttons">
+                    <a href="territory/index.html?mode=demo" class="game-link-btn btn-green">個人で遊ぶ（デモプレイ）</a>
+                    <a href="territory/index.html?mode=stream" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    <button id="territory-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
+                    <button id="territory-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
+                </div>
+            </div>
 
-            <!-- ゲームカード6: Coming Soon -->
+            <!-- ゲームカード: Streamer Pixel Art -->
+            <div class="game-card">
+                <h2>Streamer Pixel Art</h2>
+                <div class="thumbnail-placeholder" style="border-color: #ff7675; color: #ff7675;">
+                    <span style="font-size: 2em;">🎨</span>
+                </div>
+                <p>みんなで一つの絵を描こう！<br>協力してキャンバスを彩るお絵描きゲーム。</p>
+                <div class="mode-buttons">
+                    <a href="pixel/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
+                    <a href="pixel/index.html?mode=stream" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    <button id="pixel-how-to-play-btn" class="game-link-btn btn-gray">遊び方</button>
+                    <button class="game-link-btn btn-pink" onclick="document.getElementById('home-support-modal').style.display = 'flex'">開発者を支援する</button>
+                </div>
+            </div>
+
+            <!-- ゲームカード7: Coming Soon -->
             <div class="game-card">
                 <h2>Coming Soon</h2>
                 <div class="thumbnail-placeholder" style="border-color: #718096; color: #718096; border-style: dashed;">
@@ -166,23 +191,15 @@
     <div id="global-api-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <h2>配信設定（API & Video ID）</h2>
-
             <div class="warning-box" style="border-color: #ecc94b; background-color: rgba(236, 201, 75, 0.15);">
                 <h3 style="color: #ecc94b;">⚠️ 配信遅延設定について</h3>
                 <p style="font-size: 0.9em; font-weight: normal;">
                     ゲームを快適に遊ぶため、YouTube Liveの管理画面で<br>
                     <strong>「超低遅延 (Ultra Low Latency)」</strong>に設定することを<br>
                     <span style="color: #ecc94b; font-weight: bold; text-decoration: underline;">強く推奨</span>します。<br>
-                    <span style="font-size: 0.8em; color: #a0aec0;">※「通常」や「低遅延」だと、投票が間に合わない可能性があります。</span><br>
-<br>
-        <span style="font-size: 0.85em; color: #e2e8f0;">
-            <strong>デメリット:</strong> 視聴者の環境によっては再生が止まりやすくなります。<br>
-            もし配信が頻繁に止まる場合は、<strong>「低遅延」</strong>に変更し、<br>
-            ゲーム内の投票時間を長めに設定して調整してください。
-</span>
+                    <span style="font-size: 0.8em; color: #a0aec0;">※「通常」や「低遅延」だと、投票が間に合わない可能性があります。</span>
                 </p>
             </div>
-            
             <div class="warning-box">
                 <h3>⚠️ 配信者の皆様へ</h3>
                 <p>
@@ -191,18 +208,15 @@
                     <strong>視聴者にキーが見られないようにしてください。</strong>
                 </p>
             </div>
-
             <p class="modal-desc">
                 ここで設定した内容はブラウザに一時保存され、<br>
                 各ゲームの配信モードで自動的に適用されます。<br>
                 <small>※ブラウザを閉じるとリセットされます。</small>
             </p>
-
             <div class="input-group">
                 <label>YouTube API Key</label>
                 <input type="password" id="global-api-key" placeholder="APIキーを入力" autocomplete="off">
             </div>
-
             <div class="input-group">
                 <label>Video ID (または配信URL)</label>
                 <input type="text" id="global-video-id" placeholder="例: jNQXAC9IVRw または URL" autocomplete="off">
@@ -210,8 +224,6 @@
                     ※URLを入力した場合、自動でID部分を抽出します。
                 </p>
             </div>
-
-            <!-- 取得方法の説明アコーディオン -->
             <div style="text-align: left; margin-top: 15px;">
                 <button id="toggle-help-btn" class="btn-gray" style="width: 100%; font-size: 0.9em; padding: 8px;">
                     💡 キーの取得方法を見る
@@ -233,7 +245,6 @@
                     </ul>
                 </div>
             </div>
-            
             <div class="modal-buttons">
                 <button id="save-api-btn" class="btn-green">設定を保存して閉じる</button>
                 <button id="close-api-btn" class="btn-gray">閉じる</button>
@@ -269,10 +280,10 @@
         </div>
     </div>
 
-    <!-- 陣取りゲーム用 -->
+    <!-- 世論調査ゲーム用 -->
     <div id="war-help-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content help-content">
-            <h2>陣取り合戦の遊び方</h2>
+            <h2>視聴者参加型世論調査の遊び方</h2>
             <div class="help-scroll-area">
                 <h3>🚩 ゲームの目的</h3>
                 <p>2つの派閥に分かれて日本全国の都道府県を奪い合うゲームです。制限時間内により多くの地域を支配したチームの勝利です。</p>
@@ -339,6 +350,51 @@
             <button id="close-mystery-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
         </div>
     </div>
+    
+    <!-- Connect Territory ゲーム用 -->
+    <div id="territory-help-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content help-content">
+            <h2>Connect Territory の遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>🚩 ゲームの目的</h3>
+                <p>最大4人のプレイヤーがリアルタイムでマスを塗り、制限時間内により多くの陣地を獲得したプレイヤーが勝利するバトルロワイヤルゲームです。</p>
+                <h3>💬 参加方法（配信モード）</h3>
+                <p>配信者がゲームを開始した後、コメント欄で<strong>「参加」</strong>と入力することで、先着順でプレイヤーとしてエントリーできます。</p>
+                <h3>🗺️ 陣地の広げ方</h3>
+                <p>塗りたいマスの番号（例: <strong>「123」</strong>）をコメントします。自分の陣地と<strong>隣接しているマス</strong>しか塗ることはできません。</p>
+                <h3>💣 イベントマス</h3>
+                <p>マップ上に出現する<strong>「？」</strong>マスを獲得すると、ボム（周囲を塗る）やクロス（十字に塗る）などの特殊効果がランダムで発動！一気に陣地を広げるチャンスです。</p>
+            </div>
+            <button id="close-territory-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
+        </div>
+    </div>
+
+    <!-- Pixel Art ゲーム用 -->
+    <div id="pixel-help-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content help-content">
+            <h2>Streamer Pixel Art の遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>🎨 ゲームの目的</h3>
+                <p>真っ白なキャンバスにドット絵を描くゲームです。勝敗はありません。素敵な絵を完成させましょう！</p>
+                
+                <h3> solo Solo Play</h3>
+                <ul>
+                    <li><strong>色選択:</strong> 右のパレットをクリックして色を選びます。</li>
+                    <li><strong>描画:</strong> マウスドラッグで自由に塗れます。</li>
+                    <li><strong>キーボード操作:</strong> 矢印キーでカーソル移動、[Z]キーまたは[スペース]キーで塗ることができます。</li>
+                    <li><strong>元に戻す:</strong> [Ctrl]+[Z]キーで直前の操作を取り消せます。</li>
+                </ul>
+                
+                <h3>📡 Stream Mode</h3>
+                <ul>
+                    <li><strong>参加:</strong> コメントで「参加」と入力すると、自動でチームが決まります。</li>
+                    <li><strong>色変更:</strong> 「赤」「青」「黒」など、右のパレットにある色名をコメントすると、自分のペンの色が変わります。</li>
+                    <li><strong>描画:</strong> 塗りたいマスの番号（例: 「100」）をコメントします。自分のチームのキャンバスに色が塗られます。</li>
+                </ul>
+            </div>
+            <button id="close-pixel-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
+        </div>
+    </div>
 
     <!-- 支援モーダル (共通) -->
     <div id="home-support-modal" class="modal-overlay" style="display: none;">
@@ -358,7 +414,7 @@
             <a href="privacy.html">プライバシーポリシー</a>
             <a href="contact.html">お問い合わせ</a>
         </div>
-        <p>&copy; 2024 Dontokoi Games. All Rights Reserved.</p>
+        <p>&copy; 2025 Dontokoi Games. All Rights Reserved.</p>
     </footer>
 
     <!-- ▼▼▼ スクリプト ▼▼▼ -->
@@ -421,7 +477,9 @@
                 });
             }
 
-            // --- 野球ゲーム用 ---
+            // --- 各ゲームのモーダル処理 ---
+            
+            // 野球
             const helpModal = document.getElementById('home-help-modal');
             const helpBtn = document.getElementById('home-how-to-play-btn');
             const closeHelpBtn = document.getElementById('close-home-help-btn');
@@ -431,69 +489,75 @@
                 helpModal.addEventListener('click', (e) => { if (e.target === helpModal) helpModal.style.display = 'none'; });
             }
 
-            // --- 陣取りゲーム用 ---
+            // 世論調査
             const warHelpModal = document.getElementById('war-help-modal');
             const warHelpBtn = document.getElementById('war-how-to-play-btn');
             const closeWarHelpBtn = document.getElementById('close-war-help-btn');
-            const warSupportBtn = document.getElementById('war-support-btn');
             if (warHelpBtn) {
                 warHelpBtn.addEventListener('click', () => { warHelpModal.style.display = 'flex'; });
                 closeWarHelpBtn.addEventListener('click', () => { warHelpModal.style.display = 'none'; });
                 warHelpModal.addEventListener('click', (e) => { if(e.target === warHelpModal) warHelpModal.style.display = 'none'; });
             }
-            if (warSupportBtn) {
-                warSupportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
-            }
 
-            // --- クイズゲーム用 ---
+            // クイズ
             const quizHelpModal = document.getElementById('quiz-help-modal');
             const quizHelpBtn = document.getElementById('quiz-how-to-play-btn');
             const closeQuizHelpBtn = document.getElementById('close-quiz-help-btn');
-            const quizSupportBtn = document.getElementById('quiz-support-btn');
             if (quizHelpBtn) {
                 quizHelpBtn.addEventListener('click', () => { quizHelpModal.style.display = 'flex'; });
                 closeQuizHelpBtn.addEventListener('click', () => { quizHelpModal.style.display = 'none'; });
                 quizHelpModal.addEventListener('click', (e) => { if(e.target === quizHelpModal) quizHelpModal.style.display = 'none'; });
             }
-            if (quizSupportBtn) {
-                quizSupportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
-            }
-
-            // --- 漢字ゲーム用 ---
+            
+            // 漢字
             const kanjiHelpModal = document.getElementById('kanji-help-modal');
             const kanjiHelpBtn = document.getElementById('kanji-how-to-play-btn');
             const closeKanjiHelpBtn = document.getElementById('close-kanji-help-btn');
-            const kanjiSupportBtn = document.getElementById('kanji-support-btn');
             if (kanjiHelpBtn) {
                 kanjiHelpBtn.addEventListener('click', () => { kanjiHelpModal.style.display = 'flex'; });
                 closeKanjiHelpBtn.addEventListener('click', () => { kanjiHelpModal.style.display = 'none'; });
                 kanjiHelpModal.addEventListener('click', (e) => { if(e.target === kanjiHelpModal) kanjiHelpModal.style.display = 'none'; });
             }
-            if (kanjiSupportBtn) {
-                kanjiSupportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
-            }
 
-            // --- ミステリーゲーム用 ---
+            // ミステリー
             const mysteryHelpModal = document.getElementById('mystery-help-modal');
             const mysteryHelpBtn = document.getElementById('mystery-how-to-play-btn');
             const closeMysteryHelpBtn = document.getElementById('close-mystery-help-btn');
-            const mysterySupportBtn = document.getElementById('mystery-support-btn');
-
             if (mysteryHelpBtn) {
                 mysteryHelpBtn.addEventListener('click', () => { mysteryHelpModal.style.display = 'flex'; });
                 closeMysteryHelpBtn.addEventListener('click', () => { mysteryHelpModal.style.display = 'none'; });
                 mysteryHelpModal.addEventListener('click', (e) => { if(e.target === mysteryHelpModal) mysteryHelpModal.style.display = 'none'; });
             }
-            if (mysterySupportBtn) {
-                mysterySupportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
+            
+            // Connect Territory
+            const territoryHelpModal = document.getElementById('territory-help-modal');
+            const territoryHelpBtn = document.getElementById('territory-how-to-play-btn');
+            const closeTerritoryHelpBtn = document.getElementById('close-territory-help-btn');
+            if (territoryHelpBtn) {
+                territoryHelpBtn.addEventListener('click', () => { territoryHelpModal.style.display = 'flex'; });
+                closeTerritoryHelpBtn.addEventListener('click', () => { territoryHelpModal.style.display = 'none'; });
+                territoryHelpModal.addEventListener('click', (e) => { if(e.target === territoryHelpModal) territoryHelpModal.style.display = 'none'; });
+            }
+
+            // Pixel Art
+            const pixelHelpModal = document.getElementById('pixel-help-modal');
+            const pixelHelpBtn = document.getElementById('pixel-how-to-play-btn');
+            const closePixelHelpBtn = document.getElementById('close-pixel-help-btn');
+            if (pixelHelpBtn) {
+                pixelHelpBtn.addEventListener('click', () => { pixelHelpModal.style.display = 'flex'; });
+                closePixelHelpBtn.addEventListener('click', () => { pixelHelpModal.style.display = 'none'; });
+                pixelHelpModal.addEventListener('click', (e) => { if(e.target === pixelHelpModal) pixelHelpModal.style.display = 'none'; });
             }
 
             // --- 共通支援モーダル ---
             const supportModal = document.getElementById('home-support-modal');
-            const supportBtn = document.getElementById('home-support-btn');
+            // 全ての支援ボタンを取得してイベントを設定
+            const supportBtns = document.querySelectorAll('#home-support-btn, #war-support-btn, #quiz-support-btn, #kanji-support-btn, #mystery-support-btn, #territory-support-btn');
+            supportBtns.forEach(btn => {
+                btn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
+            });
             const closeSupportBtn = document.getElementById('close-home-support-btn');
-            if (supportBtn) {
-                supportBtn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
+            if (closeSupportBtn) {
                 closeSupportBtn.addEventListener('click', () => { supportModal.style.display = 'none'; });
                 supportModal.addEventListener('click', (e) => { if (e.target === supportModal) supportModal.style.display = 'none'; });
             }

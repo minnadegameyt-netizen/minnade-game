@@ -1,0 +1,299 @@
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Orbitron:wght@700&display=swap');
+
+body {
+    margin: 0;
+    background-color: #2d3436;
+    color: #dfe6e9;
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#game-container {
+    width: 100%;
+    height: 100%;
+    max-width: 1600px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* --- ヘッダー --- */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 5px 20px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    min-height: 50px;
+}
+
+.icon-btn {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9em;
+    margin-right: 10px; transition: all 0.2s;
+}
+.icon-btn:hover { background: rgba(255,255,255,0.2); }
+#undo-btn { background: rgba(225, 112, 85, 0.2); border-color: #e17055; }
+
+#theme-display-area { flex: 2; display: flex; justify-content: center; }
+.theme-box {
+    background: rgba(0,0,0,0.3); border: 1px solid #ffeaa7; border-radius: 6px;
+    padding: 2px 20px; text-align: center;
+}
+.theme-label { font-size: 0.6em; color: #ffeaa7; letter-spacing: 2px; display: block; }
+.slot-machine { font-size: 1.2em; font-weight: bold; color: #fff; }
+
+.timer-box { width: 100px; text-align: center; font-weight: bold; color: #fff; }
+#time-display { font-family: 'Orbitron', sans-serif; font-size: 1.6em; color: #dfe6e9; }
+.finish-btn {
+    background: #e17055; color: #fff; border: none; padding: 8px 20px;
+    border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Orbitron';
+}
+
+/* --- コンテンツエリア --- */
+.content-wrapper { display: flex; flex: 1; gap: 5px; overflow: hidden; }
+
+/* キャンバスエリア (メイン) */
+.main-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 5px;
+}
+
+.canvases-grid {
+    flex: 1;
+    display: grid;
+    gap: 5px;
+    justify-content: center;
+    align-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.grid-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+.grid-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; } 
+.grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+
+.canvas-wrapper {
+    background-color: #eee;
+    padding: 6px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-sizing: border-box; 
+    width: 100%; 
+    height: 100%;
+    
+    /* フレックス内でのサイズ制御 */
+    min-width: 0;
+    min-height: 0;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.canvas-wrapper.p1-border { border: 4px solid #ff7675; background: #ff7675; }
+.canvas-wrapper.p2-border { border: 4px solid #55efc4; background: #55efc4; }
+.canvas-wrapper.p3-border { border: 4px solid #74b9ff; background: #74b9ff; }
+.canvas-wrapper.p4-border { border: 4px solid #ffeaa7; background: #ffeaa7; }
+.canvas-wrapper.solo-border { border: 4px solid #636e72; background: #636e72; }
+
+.canvas-header {
+    width: 100%;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    padding: 2px 0;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 4px;
+    text-shadow: 1px 1px 2px #000;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.canvas-wrapper:has(.canvas-header) canvas {
+    max-height: calc(100% - 25px);
+}
+
+canvas {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    aspect-ratio: 1/1;
+    object-fit: contain;
+    background-color: #fff;
+    image-rendering: pixelated;
+    cursor: crosshair;
+    display: block;
+}
+
+/* --- サイドバー --- */
+.side-column {
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0; /* 重要 */
+}
+
+/* 各ボックス共通 */
+.palette-box, .guide-box, .instruction-box {
+    flex-shrink: 0;
+}
+
+.palette-box {
+    background: rgba(0,0,0,0.3); border: 1px solid #636e72; border-radius: 8px; padding: 10px;
+}
+.palette-title { margin: 0 0 8px 0; font-size: 0.8em; color: #b2bec3; text-align: center; }
+.color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.color-item {
+    display: flex; flex-direction: column; align-items: center;
+    background: rgba(255,255,255,0.05); border-radius: 4px; padding: 3px; cursor: pointer;
+}
+.color-item.active { background: rgba(255,255,255,0.3); box-shadow: 0 0 5px #fff; }
+.color-sample { width: 100%; aspect-ratio: 1/1; border-radius: 3px; border: 1px solid rgba(255,255,255,0.5); }
+.color-name { font-size: 0.7em; color: #dfe6e9; margin-top: 2px; }
+
+/* スコアボード */
+.scoreboard-container { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 5px; 
+    flex-shrink: 1; /* 縮小可 */
+    min-height: 80px; 
+    overflow-y: auto; 
+}
+.player-info {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 10px; border-left: 5px solid transparent;
+    border-radius: 4px; background: rgba(0,0,0,0.3);
+}
+.p-name { font-size: 0.8em; font-weight: bold; }
+.p-score { font-size: 1.1em; font-weight: bold; }
+
+.p1-box { border-color: #ff7675; }
+.p2-box { border-color: #55efc4; }
+.p3-box { border-color: #74b9ff; }
+.p4-box { border-color: #ffeaa7; }
+
+/* ガイドマップ */
+.guide-box {
+    background: rgba(0,0,0,0.3); 
+    border: 1px solid #74b9ff; 
+    border-radius: 8px; 
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 180px; 
+    overflow: hidden;
+}
+.guide-title {
+    margin: 0 0 3px 0; font-size: 0.8em; color: #74b9ff; text-align: center;
+    border-bottom: 1px solid rgba(116, 185, 255, 0.3); padding-bottom: 2px; flex-shrink: 0;
+}
+.guide-info { text-align: center; font-size: 0.8em; color: #fff; margin-bottom: 4px; font-weight: bold; flex-shrink: 0;}
+.guide-canvas-wrapper {
+    flex: 1; display: flex; justify-content: center; align-items: center;
+    overflow: hidden; background: #fff; border-radius: 4px;
+}
+#guide-canvas { width: 100%; height: 100%; object-fit: contain; }
+
+/* 説明 */
+.instruction-box {
+    background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 10px;
+    max-height: 150px; overflow-y: auto;
+}
+.instruction-box h4 { margin: 0 0 5px 0; font-size: 0.9em; color:#74b9ff; border-bottom: 1px solid #74b9ff;}
+.key-guide { font-size: 0.8em; color: #b2bec3; line-height: 1.5; }
+.key-badge { background: #636e72; color: #fff; padding: 2px 5px; border-radius: 4px; margin: 0 2px; font-family: monospace;}
+
+/* --- モーダル --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9); 
+    display: flex; justify-content: center; align-items: flex-start;
+    z-index: 999; overflow-y: auto; padding: 40px 0;
+}
+.hidden { display: none !important; }
+
+.setup-content, .entry-content, .result-content {
+    background: #2d3436; border: 1px solid #636e72;
+    width: 90%; max-width: 500px;
+    padding: 30px; text-align: center; border-radius: 12px; color: #fff;
+    overflow: visible; margin: auto;
+}
+.result-content { max-width: 800px; }
+
+.scrollable-settings { overflow-y: visible; padding-right: 5px; max-height: none; }
+
+.setting-row { margin-bottom: 15px; text-align: left; }
+.setting-row label { display: block; color: #74b9ff; font-weight: bold; margin-bottom: 5px; font-size: 0.85em; }
+.btn-group { display: flex; background: rgba(0,0,0,0.3); border-radius: 6px; overflow: hidden; }
+.setup-btn { flex: 1; padding: 10px; background: transparent; border: none; color: #b2bec3; cursor: pointer; border-right: 1px solid #444; }
+.setup-btn:last-child { border-right: none; }
+.setup-btn.selected { background: #0984e3; color: #fff; }
+.btn-area { display: flex; justify-content: space-between; margin-top: 25px; }
+.action-btn { background: #e17055; color: white; border: none; padding: 10px 40px; font-size: 1.1em; border-radius: 6px; cursor: pointer; }
+.back-link { color: #b2bec3; text-decoration: none; align-self: center; }
+
+/* 結果画面アート */
+.result-art-container {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 20px 0;
+}
+.result-canvas {
+    border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    max-width: 45%; height: auto; image-rendering: pixelated; background-color: #fff;
+}
+
+/* ランキング */
+.ranking-list { text-align: left; margin: 20px 0; }
+.rank-item { background: rgba(0,0,0,0.3); padding: 8px 15px; margin-bottom: 5px; border-radius: 6px; display: flex; align-items: center; position: relative; overflow: hidden; }
+.rank-bar { position: absolute; height: 100%; top:0; left:0; opacity: 0.2; z-index:0; }
+.rank-text { position: relative; z-index: 1; display: flex; width: 100%; justify-content: space-between; font-weight: bold; }
+.rank-num { width: 20px; text-align: center; margin-right: 10px; }
+
+/* --- ツールチップ --- */
+.label-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; position: relative; }
+.info-icon {
+    display: inline-flex; justify-content: center; align-items: center;
+    width: 18px; height: 18px; background-color: #636e72; color: #fff;
+    border-radius: 50%; font-size: 12px; font-weight: bold; cursor: help;
+    transition: background 0.2s;
+}
+.info-icon:hover { background-color: #74b9ff; }
+.tooltip-text {
+    visibility: hidden; opacity: 0; width: 220px;
+    background-color: #2d3436; color: #fff; text-align: left;
+    border-radius: 6px; padding: 10px; position: absolute;
+    z-index: 10000; top: 130%; left: 50%; transform: translateX(-10%); 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 1px solid #74b9ff;
+    font-size: 0.85em; font-weight: normal; line-height: 1.4;
+    transition: opacity 0.2s; pointer-events: none; 
+}
+.tooltip-text::after {
+    content: ""; position: absolute; bottom: 100%; left: 20px;
+    border-width: 6px; border-style: solid;
+    border-color: transparent transparent #74b9ff transparent;
+}
+.info-icon:hover + .tooltip-text { visibility: visible; opacity: 1; }
