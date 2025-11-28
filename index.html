@@ -54,6 +54,17 @@
 </head>
 <body>
 
+    <div id="mobile-warning-overlay">
+        <div class="mobile-warning-content">
+            <h1>PCでのご利用を推奨します</h1>
+            <p>
+                このサイトのゲームは、PCの大きな画面でのプレイを想定して作られています。<br>
+                スマートフォンでは、レイアウトが崩れたり、正しく操作できない可能性があります。
+            </p>
+            <button id="mobile-warning-close-btn">閉じて続ける</button>
+        </div>
+    </div>
+
     <header class="site-header">
         <h1>視聴者参加型：みんなでゲーム</h1>
         <nav>
@@ -420,6 +431,13 @@
     <!-- ▼▼▼ スクリプト ▼▼▼ -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const mobileWarning = document.getElementById('mobile-warning-overlay');
+            const closeBtn = document.getElementById('mobile-warning-close-btn');
+            if (mobileWarning && closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    mobileWarning.style.display = 'none';
+                });
+            }
             // --- API設定モーダルの処理 ---
             const apiModal = document.getElementById('global-api-modal');
             const apiOpenBtn = document.getElementById('api-settings-btn');
