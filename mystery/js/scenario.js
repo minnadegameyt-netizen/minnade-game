@@ -223,7 +223,7 @@ const SCENARIO = [
         messages: [
             { name: 'LogicMaster', text: '落ち着け！こんな時のために強制的にコマンドプロンプトを立ち上げるシステムにしてやっただろ。' },
             { name: 'LogicMaster', text: '奴のプログラム（tracker.exe）を強制終了させろ。コマンドはこれだ。打て！' },
-            { name: 'LogicMaster', text: '`taskkill /f /im tracker.exe` ……急げ！' }
+            { name: 'LogicMaster', text: 'taskkill /f /im tracker.exe ……急げ！' }
         ],
         // ★修正1: 先に画面を表示するIDへ飛ばす
         next: 'display_d2_cmd' 
@@ -543,7 +543,8 @@ const SCENARIO = [
             "俺はこのデータを警察に転送した。",
             "…後日、このデータがカギとなり、捜査員によって男は逮捕された。",
             "犯人はただの遊びと言い、反省の態度を見せなかったらしい。",
-            "一人の愉快犯によって作られた事件と、それを解決したとある大学サークルの話は、以後伝説として語られることになった。",
+            "「知ってるか！ネット上には飛べない鳥がたくさん鳴いているんだよ！」",
+            "「俺はこいつらを救ってやっているんだ！」",
             "【 True End: 籠から飛び立った鳥 】"
         ],
         next: 'action_true_reset'

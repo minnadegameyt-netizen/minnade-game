@@ -1218,8 +1218,8 @@ else if (pageId === 'd4_sound') {
 
             // 犯人の反撃
             overlayText.style.display = 'none';
-            await typeMessage(logArea, '...何をする...', '#ff4d4d');
-            await typeMessage(logArea, '貴様の個人情報を特定した。世界中にばら撒いてやる。', '#ff4d4d');
+            await typeMessage(logArea, '...ははは！...', '#ff4d4d');
+            await typeMessage(logArea, 'お前の個人情報を特定した！世界中にばら撒いてやる！', '#ff4d4d');
             startEnemyTyping(); // 犯人が再びタイピング開始
 
             // LogicMasterの反撃
