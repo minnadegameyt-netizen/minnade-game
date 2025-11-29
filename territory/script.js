@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- 設定 ---
-    const GRID_SIZE = 18; 
+    const GRID_SIZE = 16; 
     const CANVAS_SIZE = 600;
     const CELL_SIZE = CANVAS_SIZE / GRID_SIZE;
     const DEMO_BOT_INTERVAL = 800;

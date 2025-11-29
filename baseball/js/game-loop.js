@@ -8,7 +8,6 @@ import * as youtube from './youtube.js';
 let currentBgmYear = 0;
 let isPaused = false;
 
-// ★★★ ドラフト会議のロジックを独立した関数に切り出し、exportする ★★★
 export async function triggerDraftEnding() {
     stopAllBgm();
     state.gameState.isGameOver = true;
@@ -49,7 +48,7 @@ export async function triggerDraftEnding() {
     await ui.showDraftResult({ rankName, score, comments });
 }
 
-// ★★★ 修正した動画表示関数 ★★★
+// ★★★ 修正した動画表示関数（メモリ対策版） ★★★
 function updateCharacterDisplay(newVideoName = null) {
     let videoPath = '';
 
@@ -68,35 +67,40 @@ function updateCharacterDisplay(newVideoName = null) {
         }
     }
     
-    // ★修正: datasetを使って現在再生中のパスと厳密に比較する
-    // currentSrcプロパティは絶対パス(http://...)になるため、相対パスと比較するとバグりやすいため
     const currentVideoPath = ui.characterVideo.dataset.currentVideoPath;
+    const videoElement = ui.characterVideo;
 
-    // パスが同じなら、再読み込みせずに再生状態だけ確認して終わる
+    // パスが同じ場合
     if (currentVideoPath === videoPath) {
-        if (ui.characterVideo.paused && !ui.characterVideo.classList.contains('hidden')) {
-           ui.characterVideo.play().catch(e => {
-               // 自動再生ポリシーなどで失敗した場合のログ
+        if (videoElement.paused && !videoElement.classList.contains('hidden')) {
+           videoElement.play().catch(e => {
                console.log("Video resume failed:", e);
            });
         }
         return;
     }
 
-    // パスが違う場合のみ src を書き換える
+    // ★修正: 動画を切り替える前に、前の動画を停止する
+    videoElement.pause();
+    
     if (videoPath) {
-        ui.characterVideo.src = videoPath;
-        ui.characterVideo.dataset.currentVideoPath = videoPath; // 現在のパスを記録
-        ui.characterVideo.classList.remove('hidden');
-        ui.characterVideo.load(); // 明示的にロード
-        ui.characterVideo.play().catch(e => {
-            console.log("Video play failed (autoplay policy):", e);
-        });
+        videoElement.src = videoPath;
+        videoElement.dataset.currentVideoPath = videoPath;
+        videoElement.classList.remove('hidden');
+        videoElement.load(); 
+        
+        const playPromise = videoElement.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(e => {
+                console.log("Video play failed (autoplay policy or memory):", e);
+            });
+        }
     } else {
-        // ビデオなしの場合
-        ui.characterVideo.classList.add('hidden');
-        ui.characterVideo.pause();
-        ui.characterVideo.dataset.currentVideoPath = ''; // パスをクリア
+        // ★修正: 動画なしの場合は src を空にしてメモリを解放する
+        videoElement.classList.add('hidden');
+        videoElement.removeAttribute('src'); // src属性を削除
+        videoElement.load(); // 空の状態でロードしてバッファをクリア
+        videoElement.dataset.currentVideoPath = '';
     }
 }
 
@@ -200,7 +204,6 @@ async function runTournamentSequence() {
         return;
     }
 
-// 甲子園の4戦目は「決勝」と表示する
     const roundName = (tournamentName === 'koshien' && currentRound === 4) ? "決勝" : `${currentRound}回戦`;
     await ui.typeWriter(`${roundName}の相手は ${opponent.name} だ！`);
     await ui.waitForUserAction();
@@ -355,20 +358,23 @@ async function startVoting() {
     if (state.gameState.week === 1) {
         const stats = ["power", "meet", "speed", "shoulder", "defense", "intelligence"];
         
-        // 神の啓示
+        const statJapanese = {
+            power: "パワー", meet: "ミート", speed: "走力", 
+            shoulder: "肩力", defense: "守備力", intelligence: "学力"
+        };
+        
         if (state.player.specialAbilities["神の啓示"]) {
             const target = stats[Math.floor(Math.random() * stats.length)];
             state.player[target] = Math.min(state.maxStats.playerStats, state.player[target] + 1);
-            await ui.typeWriter(`【神の啓示】不思議な力が湧いてくる… ${target}が 1 上がった！`);
+            await ui.typeWriter(`【神の啓示】不思議な力が湧いてくる… ${statJapanese[target] || target}が 1 上がった！`);
             playSfx('point');
             await ui.waitForUserAction();
         }
 
-        // 監督の秘蔵っ子
         if (state.player.specialAbilities["監督の秘蔵っ子"]) {
             const target = stats[Math.floor(Math.random() * stats.length)];
             state.player[target] = Math.min(state.maxStats.playerStats, state.player[target] + 1);
-            await ui.typeWriter(`【監督の秘蔵っ子】監督との朝練の成果だ！ ${target}が 1 上がった！`);
+            await ui.typeWriter(`【監督の秘蔵っ子】監督との朝練の成果だ！ ${statJapanese[target] || target}が 1 上がった！`);
             playSfx('point');
             await ui.waitForUserAction();
         }
@@ -500,14 +506,12 @@ async function executeCommand(command) {
             await statUp('学力', 'intelligence', 3);
             healthChange = -5; break;
         case "気分転換": 
-             // ▼▼▼ 追加した処理 ▼▼▼
              if(state.player.specialAbilities["すれ違い"]) {
                 delete state.player.specialAbilities["すれ違い"];
                 state.player.noDateTurnCount = 0; // カウントもリセット
                 await ui.typeWriter("気分転換して、彼女とのすれ違いが解消された！");
                 await ui.waitForUserAction();
             }
-            // ▲▲▲ ここまで ▲▲▲
             
             healthChange = 10; state.player.condition = "絶好調"; 
             await ui.typeWriter("体力が回復し、やる気が絶好調になった！");
@@ -579,10 +583,8 @@ async function checkSpecialAbilities(command) {
     if (state.player.commandHistory.length > 10) state.player.commandHistory.shift();
     if(command === "勉強") state.player.studyCount++;
 
-    // 勉強10回でデータ野球
     if (state.player.studyCount >= 10) await acquireAbility("データ野球");
     
-    // ★追加案: 勉強20回で自己分析
     if (state.player.studyCount >= 20) await acquireAbility("自己分析");
 
     if (state.player.girlfriendEval >= 40 && state.player.isGirlfriend && !state.player.specialAbilities["すれ違い"]) await acquireAbility("お弁当");

@@ -115,24 +115,23 @@ function addMatchLog(text) {
 
 let hideCharacterTimeout = null; 
 
+// ★★★ 修正した画像表示関数（メモリ対策版） ★★★
 function showCharacter(imagePath) {
     if (imagePath) {
-        // ★修正: 「隠すタイマー」が動いていたらキャンセルする
         if (hideCharacterTimeout) {
             clearTimeout(hideCharacterTimeout);
             hideCharacterTimeout = null;
         }
 
-        const img = new Image();
-        img.onload = () => {
-            uiElements.characterSprite.src = imagePath;
-            uiElements.characterSprite.classList.remove('hidden');
+        const sprite = uiElements.characterSprite;
+
+        sprite.onload = () => {
+            sprite.classList.remove('hidden');
             uiElements.logWindow.style.alignItems = 'flex-start';
-        
-            // 少し待ってからフェードインクラスをつける（CSSトランジション用）
-            setTimeout(() => uiElements.characterSprite.classList.add('fade-in'), 10);
-        }; // ★修正: ここに閉じ括弧とセミコロンを追加
-        img.src = imagePath; // ★追加: 画像の読み込みを開始するためにsrcを設定（onloadの後が良い）
+            setTimeout(() => sprite.classList.add('fade-in'), 10);
+            sprite.onload = null;
+        };
+        sprite.src = imagePath;
     }
 }
 
@@ -140,12 +139,10 @@ function hideCharacter() {
     uiElements.characterSprite.classList.remove('fade-in');
     uiElements.logWindow.style.alignItems = 'center';
 
-    // ★修正: 念のため既存のタイマーがあれば消す
     if (hideCharacterTimeout) {
         clearTimeout(hideCharacterTimeout);
     }
 
-    // 0.3秒後（フェードアウト後）に完全に非表示にするタイマーをセット
     hideCharacterTimeout = setTimeout(() => {
         uiElements.characterSprite.classList.add('hidden');
         hideCharacterTimeout = null;
@@ -485,11 +482,9 @@ function setupEventListeners(){
         uiElements.startModal.classList.remove('hidden');
     });
 
-    // --- ▼▼▼ 配信者モード: トップページの設定を読み込む ▼▼▼ ---
     uiElements.startStreamerBtn.addEventListener('click', async () => {
         state.gameState.gameMode = 'streamer';
         
-        // 1. 設定チェック
         const apiKey = sessionStorage.getItem('youtube_api_key');
         const videoId = sessionStorage.getItem('youtube_target_video_id');
 
@@ -500,19 +495,15 @@ function setupEventListeners(){
             return;
         }
 
-        // 2. Chat ID 自動取得
         try {
-            // ▼▼▼ 追加: 簡易的なローディング表示（ボタンを無効化＆テキスト変更） ▼▼▼
             const originalText = uiElements.startStreamerBtn.textContent;
             uiElements.startStreamerBtn.textContent = "接続中...";
             uiElements.startStreamerBtn.disabled = true;
-            // ▲▲▲ 追加ここまで ▲▲▲
 
             const chatUrl = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${apiKey}`;
             const res = await fetch(chatUrl);
             const data = await res.json();
 
-            // ローディング解除
             uiElements.startStreamerBtn.textContent = originalText;
             uiElements.startStreamerBtn.disabled = false;
 
@@ -523,40 +514,29 @@ function setupEventListeners(){
             }
 
             if (data.items && data.items.length > 0 && data.items[0].liveStreamingDetails && data.items[0].liveStreamingDetails.activeLiveChatId) {
-                // 成功: IDをセットしてゲーム画面へ
                 state.youtubeSettings.apiKey = apiKey;
                 state.youtubeSettings.liveChatId = data.items[0].liveStreamingDetails.activeLiveChatId;
                 
-                // ▼▼▼ 修正: ゲーム画面を表示し、即座に「開始確認モーダル」を出す ▼▼▼
                 uiElements.homePage.classList.add('hidden');
                 uiElements.gameWrapper.classList.remove('hidden');
-                
-                // ここで setupModal (名前入力) ではなく startModal (はじめから/続きから) を出す
                 uiElements.startModal.classList.remove('hidden'); 
-                uiElements.setupModal.classList.add('hidden'); // 念のため隠す
-                // ▲▲▲ 修正ここまで ▲▲▲
+                uiElements.setupModal.classList.add('hidden');
 
             } else {
-                // ▼▼▼ 修正: エラー時はトップへ戻る ▼▼▼
                 alert("ライブチャットが見つかりませんでした。\n・Video IDが正しいか\n・配信が開始されているか\nを確認してください。");
                 window.location.href = "../index.html"; 
-                // ▲▲▲ 修正ここまで ▲▲▲
             }
         } catch (e) {
             console.error(e);
-            // ローディング解除
             uiElements.startStreamerBtn.textContent = "配信で遊ぶ";
             uiElements.startStreamerBtn.disabled = false;
             
-            // ▼▼▼ 修正: エラー時はトップへ戻る ▼▼▼
             alert("通信エラーが発生しました。");
             window.location.href = "../index.html";
-            // ▲▲▲ 修正ここまで ▲▲▲
         }
     });
 
     uiElements.toggleApiDetailsBtn?.addEventListener('click', () => {
-        // apiDetails要素自体が存在しない可能性が高いためオプショナルチェーンを使用、あるいはこのブロックごと削除しても良い
         uiElements.apiDetails?.classList.toggle('visible');
     });
 
@@ -635,55 +615,3 @@ function setupEventListeners(){
     });
 
     document.querySelectorAll('.duration-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-        });
-    });
-
-    const backHomeBtn = document.getElementById('back-to-home-from-start-btn');
-
-    if (backHomeBtn) {
-        backHomeBtn.addEventListener('click', () => {
-            // サイトのトップページ（1段階目のインデックス）へ移動する
-            // フォルダ構成に合わせてパスを調整してください
-            // 例: 現在が /baseball/index.html なら、一つ上の ../index.html へ
-            window.location.href = "../index.html"; 
-        });
-    }
-}
-
-function updateShuttleRunScore(score) {
-    const scoreDisplay = document.getElementById('shuttle-score');
-    if (scoreDisplay) {
-        scoreDisplay.textContent = `SCORE: ${score}`;
-        scoreDisplay.style.transition = "transform 0.1s";
-        scoreDisplay.style.transform = "scale(1.3)";
-        setTimeout(() => scoreDisplay.style.transform = "scale(1)", 100);
-    }
-}
-
-export const ui = {
-    ...uiElements,
-    showCharacter,
-    hideCharacter,
-    typeWriter,
-    waitForChoice,
-    waitForUserAction,
-    showGameOverScreen,
-    showFloatingText,
-    showDraftResult,
-    showMatchUI,
-    hideMatchUI,
-    addMatchLog,
-    addLiveComment,
-    updateAllDisplays,
-    updatePlayerStatusDisplay,
-    updateDateDisplay,
-    updateUpcomingEventDisplay,
-    updateTeamStatusDisplay,
-    updateVoteDisplay,
-    updateMissionDisplay,
-    setupEventListeners,
-    updateShuttleRunScore
-};

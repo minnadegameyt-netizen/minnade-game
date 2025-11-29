@@ -1,5 +1,3 @@
-// js/minigames.js
-
 import * as state from '../state.js';
 import { ui } from '../ui.js';
 import { playSfx, playLoopSfx, stopLoopSfx } from '../sound.js';
@@ -180,9 +178,9 @@ export async function runSelectionQuiz(quizType, maxQuestions) {
 
 function showSingleQuiz(quiz, currentQuestionNum, totalQuestions) {
     return new Promise(async resolve => {
-        let timeLimit = 10;
+        let timeLimit;
         
-        if (state.gameState.gameMode === 'streamer') {
+        if (state.gameState.gameMode === 'streamer' && state.gameState.isAudienceMode) {
             timeLimit = state.youtubeSettings.voteDuration || 15;
         } else {
             timeLimit = 20; 
@@ -229,6 +227,30 @@ function showSingleQuiz(quiz, currentQuestionNum, totalQuestions) {
             setTimeout(() => resolve(isCorrect), 1500);
         };
 
+        const startTimer = () => {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                if(timerDisplay) timerDisplay.textContent = `TIME: ${timeLeft}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+
+                    if (resolved) return;
+                    resolved = true;
+                    
+                    if (state.gameState.gameMode === 'streamer' && state.gameState.isAudienceMode) {
+                        if(timerDisplay) timerDisplay.textContent = "集計中...";
+                        return;
+                    }
+
+                    playSfx('quiz_incorrect');
+                    if(timerDisplay) timerDisplay.textContent = "時間切れ！";
+                    Array.from(choicesContainer.children).forEach(b => b.disabled = true);
+                    setTimeout(() => resolve(false), 1500);
+                }
+            }, 1000);
+        };
+
         if (state.gameState.gameMode === 'streamer' && state.gameState.isAudienceMode) {
              quiz.choices.forEach((choice, index) => {
                 const btn = document.createElement('button');
@@ -236,6 +258,7 @@ function showSingleQuiz(quiz, currentQuestionNum, totalQuestions) {
                 btn.innerHTML = `<span class="choice-number">${index + 1}.</span> ${choice}`;
                 choicesContainer.appendChild(btn);
             });
+            startTimer(); 
             const winnerChoice = await youtube.startVote(quiz.choices);
             handleAnswer(winnerChoice);
         } else {
@@ -246,28 +269,8 @@ function showSingleQuiz(quiz, currentQuestionNum, totalQuestions) {
                 btn.onclick = () => handleAnswer(choice);
                 choicesContainer.appendChild(btn);
             });
+            startTimer(); 
         }
-
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            timerDisplay.textContent = `TIME: ${timeLeft}`;
-            
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-
-                if (state.gameState.gameMode === 'streamer' && state.gameState.isAudienceMode) {
-                    timerDisplay.textContent = "集計中...";
-                    return;
-                }
-
-                if(resolved) return;
-                resolved = true;
-                playSfx('quiz_incorrect');
-                timerDisplay.textContent = "時間切れ！";
-                Array.from(choicesContainer.children).forEach(b => b.disabled = true);
-                setTimeout(() => resolve(false), 1500);
-            }
-        }, 1000);
     });
 }
 
@@ -320,64 +323,54 @@ export async function runTestRoulette(playerIntelligence) {
 }
 
 export async function runJanken() {
+    const choices = ["グー", "チョキ", "パー"];
+    const cpuChoice = choices[Math.floor(Math.random() * 3)];
+    let result;
+
+    await ui.typeWriter("じゃんけん勝負！");
+
+    // ★配信者モードの場合、コメント投票を促すメッセージを追加
     if (state.gameState.gameMode === 'streamer' && state.gameState.isAudienceMode) {
-        return new Promise(async resolve => {
-            await ui.typeWriter("じゃんけん勝負！コメントで投票してください！<br>1. グー, 2. チョキ, 3. パー");
-            const choices = ["グー", "チョキ", "パー"];
-            const cpuChoice = choices[Math.floor(Math.random() * 3)];
-            let result;
+        await ui.typeWriter("コメント（1, 2, 3）で手を決めてくれ！");
+    } else {
+        await ui.typeWriter("出す手を選べ！");
+    }
+    
+    // ui.waitForChoice を呼び出す。
+    // 視聴者参加ONなら自動で投票が開始され、視聴者参加OFFなら配信者がクリックできるボタンが表示される。
+    const playerChoice = await ui.waitForChoice(choices);
+    
+    // 勝敗判定
+    if (playerChoice === cpuChoice) {
+        result = 'draw';
+    } else if (
+        (playerChoice === "グー" && cpuChoice === "チョキ") ||
+        (playerChoice === "チョキ" && cpuChoice === "パー") ||
+        (playerChoice === "パー" && cpuChoice === "グー")
+    ) {
+        result = 'win';
+    } else {
+        result = 'lose';
+    }
+    
+    let resultText = "";
+    if (state.gameState.gameMode === 'streamer' && state.gameState.isAudienceMode) {
+        resultText += `みんなの選択は「${playerChoice}」、`;
+    }
+    resultText += `相手は「${cpuChoice}」！<br>${result === 'win' ? 'あなたの勝ち！' : result === 'lose' ? 'あなたの負け...' : 'あいこ！'}`;
+    
+    playSfx(result === 'draw' ? 'select' : result === 'win' ? 'point' : 'negative');
 
-            const playerChoice = await youtube.startVote(choices);
-            
-            if (playerChoice === cpuChoice) result = 'draw';
-            else if ((playerChoice === "グー" && cpuChoice === "チョキ") || (playerChoice === "チョキ" && cpuChoice === "パー") || (playerChoice === "パー" && cpuChoice === "グー")) result = 'win';
-            else result = 'lose';
-
-            await ui.typeWriter(`みんなの選択は「${playerChoice}」、相手は「${cpuChoice}」！<br>${result === 'win' ? 'あなたの勝ち！' : result === 'lose' ? 'あなたの負け...' : 'あいこ！'}`);
-            resolve(result);
-        });
+    await ui.typeWriter(resultText);
+    
+    if (result !== 'draw') {
+        await ui.waitForUserAction();
+    } else {
+        // あいこの場合は、少し待ってから再度同じ関数を呼び出す
+        await new Promise(r => setTimeout(r, 1500));
+        return runJanken(); // 再帰呼び出し
     }
 
-    return new Promise(resolve => {
-        ui.eventChoicesWindow.innerHTML = `
-            <div id="janken-ui" style="text-align: center; width: 100%;">
-                <p id="janken-result-text" style="min-height: 2em; margin-bottom: 15px;"></p>
-                <div id="janken-choices" class="command-choices-container">
-                    <button class="choice-btn">グー</button>
-                    <button class="choice-btn">チョキ</button>
-                    <button class="choice-btn">パー</button>
-                </div>
-            </div>
-        `;
-
-        const resultText = document.getElementById('janken-result-text');
-        const choiceContainer = document.getElementById('janken-choices');
-        
-        const playGame = async (playerChoice) => {
-            const choices = ["グー", "チョキ", "パー"];
-            const cpuChoice = choices[Math.floor(Math.random() * 3)];
-            let result;
-
-            if (playerChoice === cpuChoice) {
-                result = 'draw';
-            } else if ( (playerChoice === "グー" && cpuChoice === "チョキ") || (playerChoice === "チョキ" && cpuChoice === "パー") || (playerChoice === "パー" && cpuChoice === "グー") ) {
-                result = 'win';
-            } else {
-                result = 'lose';
-            }
-            
-            resultText.innerHTML = `相手は${cpuChoice}を出した！<br>${result === 'win' ? 'あなたの勝ち！' : result === 'lose' ? 'あなたの負け...' : 'あいこ！もう一回！'}`;
-            playSfx(result === 'draw' ? 'select' : result === 'win' ? 'point' : 'negative');
-            
-            if (result !== 'draw') {
-                choiceContainer.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
-                await new Promise(r => setTimeout(r, 1500));
-                resolve(result);
-            }
-        };
-
-        choiceContainer.querySelectorAll('.choice-btn').forEach(btn => {
-            btn.onclick = () => playGame(btn.textContent);
-        });
-    });
+    // 勝敗の結果を返す
+    return result;
 }

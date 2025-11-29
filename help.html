@@ -69,8 +69,8 @@
             color: #e2e8f0;
         }
         .important-box {
-            background-color: rgba(229, 62, 62, 0.1);
-            border: 1px solid #e53e3e;
+            background-color: rgba(72, 187, 120, 0.1); /* 緑系の背景に変更 */
+            border: 1px solid #48bb78;
             padding: 15px;
             border-radius: 8px;
             margin-top: 10px;
@@ -98,13 +98,10 @@
             <div class="faq-item">
                 <div class="faq-q">視聴者参加モードは長時間配信でも使えますか？</div>
                 <div class="faq-a">
-                    はい、ご利用いただけます。ただし、YouTube APIの仕様（無料枠の上限）により、<strong>1つのAPIキーで連続稼働できるのは約2〜3時間まで</strong>となります。<br>
-                    それ以上の長時間配信で遊ぶ場合は、以下の対策をお願いします。
+                    <strong>はい、問題なくご利用いただけます。</strong><br>
+                    当サイトのゲームはAPIの消費量を抑えるよう設計されており、計算上は**10時間以上の連続配信でも上限に達することはありません。** 安心して長時間の配信をお楽しみください。
                     <div class="important-box">
-                        <ul>
-                            <li>一旦ゲームを終了し、翌日以降に遊ぶ。</li>
-                            <li>別のGoogleアカウントで取得した「予備のAPIキー」に差し替える。</li>
-                        </ul>
+                        もし万が一、APIの利用上限に関するエラーが出た場合は、別のGoogleアカウントで取得した「予備のAPIキー」に差し替えるか、翌日（日本時間17時以降）に再度お試しください。
                     </div>
                 </div>
             </div>
@@ -113,14 +110,14 @@
                 <div class="faq-q">参加者が数万人いても大丈夫ですか？</div>
                 <div class="faq-a">
                     はい、問題ありません。<br>
-                    当サイトのゲームは、コメント数に関わらずAPI消費量が一定になるよう設計されています。また、大量のコメントが来てもブラウザが重くならないよう、表示件数に制限を設けていますので、<strong>登録者数100万人規模の配信でも安心してご利用いただけます。</strong>
+                    YouTube APIの仕組み上、コメントをする視聴者の数がAPIの消費量に影響することはありません。また、大量のコメントが来てもブラウザが重くならないよう最適化していますので、**大規模なチャンネルでも安心してご利用いただけます。**
                 </div>
             </div>
 
             <div class="faq-item">
                 <div class="faq-q">収益化（スパチャ・広告）はOKですか？</div>
                 <div class="faq-a">
-                    <strong>完全にOKです。</strong><br>
+                    <strong>はい、完全にOKです。</strong><br>
                     当サイトのゲームを使用した配信で得た収益（スーパーチャット、広告収入、メンバーシップなど）は、すべて配信者様のものとなります。当サイトへの報告や許諾申請は一切不要です。
                 </div>
             </div>
@@ -128,21 +125,21 @@
 
         <!-- 技術・設定セクション -->
         <div class="faq-section">
-            <div class="faq-title"⚙️ 設定・トラブルシューティング</div>
+            <div class="faq-title">⚙️ 設定・トラブルシューティング</div>
 
             <div class="faq-item">
                 <div class="faq-q">APIキーの設定方法がわかりません。</div>
                 <div class="faq-a">
-                    初めての方でも5分で設定できる解説記事をご用意しました。<br>
-                    👉 <a href="https://note.com/dontokoi_games/n/nxxxxxxxxxxxx" target="_blank">【図解】YouTube APIキーの取得方法（Note記事）</a>
+                    初めての方でも5分で設定できる図解ガイドをご用意しました。<br>
+                    👉 <a href="api-guide.html">【5分で完了】YouTube APIキー取得ガイド</a>
                 </div>
             </div>
 
             <div class="faq-item">
                 <div class="faq-q">「クォータを超えました」というエラーが出ます。</div>
                 <div class="faq-a">
-                    1日（24時間）のAPI利用上限（10,000ポイント）を使い切った場合に表示されます。<br>
-                    通常は翌日の日本時間17:00頃にリセットされます。お急ぎの場合は、別のGoogleアカウントで新しいキーを取得してご利用ください。
+                    1日のAPI利用上限に達した場合のエラーです。<br>
+                    この上限は**日本時間の毎日17:00頃にリセットされます**ので、それ以降に再度お試しください。
                 </div>
             </div>
 
@@ -151,9 +148,9 @@
                 <div class="faq-a">
                     以下の点をご確認ください。
                     <ul>
-                        <li><strong>Video IDの間違い:</strong> 配信URLの「v=」の後ろの文字列です。</li>
-                        <li><strong>配信の状態:</strong> 「限定公開」や「非公開」では取得できない場合があります。「公開」状態でお試しください。</li>
-                        <li><strong>低遅延設定:</strong> YouTubeの管理画面で「超低遅延」に設定することを推奨します。</li>
+                        <li><strong>APIキーとVideo IDの確認:</strong> 「配信者用設定」で正しく入力されているか再度ご確認ください。特にコピー＆ペーストの際に前後に余分なスペースが入っていないかご注意ください。</li>
+                        <li><strong>配信の状態:</strong> 配信が「公開」になっているかご確認ください。「限定公開」や「非公開」ではコメントを取得できない場合があります。</li>
+                        <li><strong>YouTube側の遅延:</strong> 配信設定で「超低遅延」に設定すると、コメントの反映がよりスムーズになります。</li>
                     </ul>
                 </div>
             </div>

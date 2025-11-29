@@ -530,13 +530,15 @@ export const allEvents = [
             { character: "主人公", image: "img/p_normal.png", text: "いいぜ、負けないぞ！" },
             { 
                 miniGame: "janken", 
-                action: (result) => {
+                action: async (result) => {
                     if (result === 'win') {
                         playSfx('point');
-                        const juices = ["炭酸", "コーヒー", "アイスティー"];
-                        const juice = juices[Math.floor(Math.random() * juices.length)];
                         
-                        let logText = `じゃんけんに勝った！田中から「${juice}」を奢ってもらった！<br>体力が15回復した！`;
+                        // ルーレットの選択肢を定義して実行
+                        const juices = ["炭酸", "コーヒー", "アイスティー"];
+                        const juice = await runRoulette(juices);
+                        
+                        let logText = `じゃんけんに勝った！ルーレットの結果…「${juice}」を奢ってもらった！<br>体力が15回復した！`;
                         state.player.health = Math.min(state.player.maxHealth, state.player.health + 15);
 
                         // アイスティーだった場合、フラグを立てる
@@ -549,7 +551,6 @@ export const allEvents = [
                         playSfx('negative');
                         return "負けてしまった…。自分の分は自分で買おう。";
                     } else {
-                        // あいこ（ゲームシステム上、決着がつくまでやるか、引き分けとするかですが、今回は引き分け扱い）
                         return "引き分けだ。まあ、割り勘で飲むか。";
                     }
                 }

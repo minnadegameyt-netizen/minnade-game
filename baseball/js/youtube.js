@@ -119,16 +119,29 @@ export function startVote(choices) {
 
         ui.updateVoteDisplay(voteCounts);
 
+        // --- ▼▼▼ ここから修正 ▼▼▼ ---
         let timeLeft = state.youtubeSettings.voteDuration;
-        ui.voteTimer.textContent = timeLeft;
+
+        // 両方のタイマー要素を取得
+        const mainVoteTimer = ui.voteTimer;
+        const quizTimer = document.getElementById('quiz-timer');
+
+        // 初期表示
+        if (mainVoteTimer) mainVoteTimer.textContent = timeLeft;
+        if (quizTimer) quizTimer.textContent = `TIME: ${timeLeft}`;
+
         const timerId = setInterval(() => {
             timeLeft--;
-            ui.voteTimer.textContent = timeLeft;
+            // 両方のタイマーが存在すれば更新
+            if (mainVoteTimer) mainVoteTimer.textContent = timeLeft;
+            if (quizTimer) quizTimer.textContent = `TIME: ${timeLeft}`;
+            
             if (timeLeft <= 0) {
                 clearInterval(timerId);
                 endVote();
             }
         }, 1000);
+        // --- ▲▲▲ 修正ここまで ▲▲▲ ---
     });
 }
 
