@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let liveChatId = null;
     let nextPageToken = null;
     let youtubeIntervalId = null;
+    let gameStartTime = null; // ★変更点: ゲーム開始時刻を記録する変数を追加
 
     // 都道府県データ
     const prefData = {
@@ -413,6 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function startMainGameLoop() {
+        gameStartTime = new Date(); // ★変更点: ゲーム開始時刻を記録
         addLog("【開始】投票の受付を開始しました！");
         
         setText('timer-label', '残り時間');
@@ -995,6 +997,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (data.items) {
                 data.items.forEach(item => {
+                    // ★変更点: ゲーム開始時刻より前のコメントは無視する
+                    const messageTimestamp = new Date(item.snippet.publishedAt);
+                    if (!gameStartTime || messageTimestamp < gameStartTime) {
+                        return;
+                    }
+                    
                     const comment = item.snippet.displayMessage;
                     const author = item.authorDetails.displayName;
                     
