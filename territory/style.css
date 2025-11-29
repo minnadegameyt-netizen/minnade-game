@@ -5,20 +5,22 @@ body {
     background-color: #2d3436;
     color: #dfe6e9;
     font-family: 'M PLUS Rounded 1c', sans-serif;
-    height: 100vh;
+    min-height: 100vh;
+    height: auto;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: auto;
 }
 
 #game-container {
     width: 100%;
-    height: 100%;
+    height: auto;
+    min-height: 100vh;
     max-width: 1400px;
     display: flex;
     flex-direction: column;
-    padding: 15px;
+    padding: 15px 15px 20px 15px; /* 下部余白を20pxに調整 */
     box-sizing: border-box;
 }
 
@@ -77,9 +79,21 @@ header {
 .finish-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #d63031; }
 
 /* コンテンツエリア */
-.content-wrapper { display: flex; flex: 1; gap: 20px; overflow: hidden; }
+.content-wrapper { 
+    display: flex; 
+    flex: 1; 
+    gap: 20px; 
+    overflow: hidden; 
+}
 
-.left-column { flex: 3; display: flex; flex-direction: column; gap: 15px; min-width: 0; }
+.left-column { 
+    flex: 3; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+    min-width: 0; 
+    justify-content: flex-start;
+}
 
 .canvases-grid {
     flex: 1; background-color: rgba(0,0,0,0.2); padding: 10px;
@@ -88,9 +102,14 @@ header {
 }
 
 .canvas-wrapper {
-    background-color: #eee; padding: 5px; border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex;
-    flex-direction: column; align-items: center; height: 100%; aspect-ratio: 1/1;
+    background-color: #eee; 
+    padding: 5px; 
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    height: auto; /* 高さを自動調整にして白い余白を消す */
 }
 .canvas-header {
     width: 100%; text-align: center; font-size: 0.8em; font-weight: bold;
@@ -106,15 +125,20 @@ canvas {
 .grid-4 .canvas-wrapper { height: 45%; }
 
 #chat-area {
-    height: 120px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px; overflow-y: auto; padding: 10px;
+    height: 120px; 
+    background: rgba(0,0,0,0.3); 
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; 
+    overflow-y: auto; 
+    padding: 10px;
+    margin-top: 0;
 }
 #chat-list { list-style: none; padding: 0; margin: 0; }
 #chat-list li { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 3px 0; font-size: 0.9em; }
 
 .right-column { width: 240px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
 
-/* ★カラーパレット表 */
+/* パレット表 */
 .palette-box {
     background: rgba(0,0,0,0.3);
     border: 1px solid #636e72;
@@ -179,7 +203,6 @@ canvas {
 .setup-btn.selected { background: #0984e3; color: #fff; }
 .setting-desc { font-size: 0.8em; color: #b2bec3; margin: 5px 0 0 0; }
 
-/* ★変更点: inputテキスト用のスタイルを追加 */
 .text-input {
     width: 100%;
     padding: 10px;

@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- 設定 ---
     const GRID_SIZE = 16; 
-    const CANVAS_SIZE = 600;
-    const CELL_SIZE = CANVAS_SIZE / GRID_SIZE;
+    const DISPLAY_SIZE = 600; // CSS上の表示サイズ
+    const CELL_SIZE = DISPLAY_SIZE / GRID_SIZE; // 1マスのサイズ
     const DEMO_BOT_INTERVAL = 800;
     
     // --- 色定義 ---
@@ -48,15 +48,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas.getContext('2d');
     const chatList = document.getElementById('chat-list');
     
+    // --- 高解像度ディスプレイ対応 ---
+    function setupCanvasHiDPI() {
+        const dpr = window.devicePixelRatio || 1;
+        // キャンバスの内部解像度をDPR倍にする
+        canvas.width = DISPLAY_SIZE * dpr;
+        canvas.height = DISPLAY_SIZE * dpr;
+        
+        // CSS上のサイズは固定
+        canvas.style.width = `${DISPLAY_SIZE}px`;
+        canvas.style.height = `${DISPLAY_SIZE}px`;
+        
+        // 描画コンテキストをスケーリング
+        ctx.scale(dpr, dpr);
+    }
+
     // --- 初期化 ---
     function init() {
+        // 初期設定
+        setupCanvasHiDPI();
+
         // URLパラメータから初期モードを設定
         const urlParams = new URLSearchParams(window.location.search);
         const initialMode = urlParams.get('mode');
         if (initialMode === 'stream') {
             setMode('stream');
         } else {
-            setMode('demo'); // デフォルトまたは不明な値の場合はデモモード
+            setMode('demo');
         }
 
         document.getElementById('mode-demo').addEventListener('click', () => setMode('demo'));
@@ -98,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- キック機能 ---
     window.kickPlayer = function(slotNum) {
-        // 配信者が設定されていれば、プレイヤー1はキックできない
         if (slotNum === 1 && streamerIdentifier) {
             alert('配信者はキックできません。');
             return;
@@ -123,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(`mode-${mode}`).classList.add('selected');
         document.getElementById('mode-desc').textContent = mode === 'demo' ? "AI同士が戦う様子を観戦します。" : "YouTubeのコメントで視聴者が参加します。";
 
-        // 配信者ID入力欄の表示/非表示を切り替える
         const streamerIdSetting = document.getElementById('streamer-id-setting');
         if (streamerIdSetting) {
             streamerIdSetting.style.display = (mode === 'stream') ? 'block' : 'none';
@@ -143,12 +159,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function onNextStep() {
-        // 配信者ID/ハンドル名を取得して保存
         if (gameMode === 'stream') {
             const streamerIdInput = document.getElementById('streamer-id-input');
             let input = streamerIdInput ? streamerIdInput.value.trim() : null;
             if (input && input.startsWith('@')) {
-                input = input.substring(1); // 先頭の@を削除
+                input = input.substring(1);
             }
             streamerIdentifier = input;
         } else {
@@ -180,11 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
             updateSlotDisplay(i, null);
         }
 
-        // 配信者が設定されていればP1に仮登録
         if (gameMode === 'stream' && streamerIdentifier) {
             const streamerTempName = "配信者 (待機中)";
             playerSlots[1] = streamerTempName;
-            players['STREAMER_PLACEHOLDER'] = 1; // 最初のコメントが来るまで仮のIDで登録
+            players['STREAMER_PLACEHOLDER'] = 1;
             updateSlotDisplay(1, streamerTempName);
             entryCount++;
         }
@@ -355,16 +369,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function processComment(msg, authorName, authorId) {
         if (!authorId) authorId = authorName;
 
-        // --- 配信者確定処理 ---
-        // 配信者が設定されており、まだ仮登録状態の場合
         if (streamerIdentifier && players['STREAMER_PLACEHOLDER']) {
             const isStreamerById = authorId === streamerIdentifier;
             const isStreamerByName = authorName.toLowerCase() === streamerIdentifier.toLowerCase();
             
-            // チャンネルIDが一致、または、入力がID形式でなく名前が一致した場合
             if (isStreamerById || (!(streamerIdentifier.startsWith('UC') || streamerIdentifier.startsWith('UG')) && isStreamerByName)) {
-                delete players['STREAMER_PLACEHOLDER']; // 仮登録を削除
-                players[authorId] = 1;                 // 本物のチャンネルIDで登録
+                delete players['STREAMER_PLACEHOLDER'];
+                players[authorId] = 1;
                 playerSlots[1] = authorName;
                 if (!isGameRunning) {
                     updateSlotDisplay(1, authorName);
@@ -372,8 +383,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateHeaderNames();
             }
         } 
-        // --- 配信者の名前更新処理 ---
-        // 既にプレイヤー1として登録されているユーザーの表示名が変わった場合
         else if (players[authorId] === 1 && playerSlots[1] !== authorName) {
             playerSlots[1] = authorName;
             if (!isGameRunning) {
@@ -387,7 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const entryModal = document.getElementById('entry-modal');
             if (gameMode !== 'demo' && entryModal.classList.contains('hidden')) return; 
 
-            // 配信者がいる場合はP2からスロットを探す
             const startSlot = streamerIdentifier ? 2 : 1;
             for (let i = startSlot; i <= maxPlayers; i++) {
                 if (playerSlots[i] === null) {
@@ -498,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function render() {
-        ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+        ctx.clearRect(0, 0, DISPLAY_SIZE, DISPLAY_SIZE);
         for (let y = 0; y < GRID_SIZE; y++) {
             for (let x = 0; x < GRID_SIZE; x++) {
                 const val = mapData[y][x];
@@ -512,7 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.font = 'bold 16px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText('?', px + CELL_SIZE/2, py + CELL_SIZE/2);
+                    ctx.fillText('?', px + CELL_SIZE/2, py + CELL_SIZE/2 + 1);
                 } else {
                     ctx.fillStyle = COLORS[val];
                     ctx.fillRect(px, py, CELL_SIZE, CELL_SIZE);
@@ -523,11 +531,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.strokeRect(px, py, CELL_SIZE, CELL_SIZE);
                 
                 if (val === 0) {
-                    ctx.fillStyle = '#dfe6e9'; // 色を明るく
-                    ctx.font = 'bold 12px sans-serif'; // フォントを太く、大きく
+                    ctx.fillStyle = '#dfe6e9';
+                    ctx.font = 'bold 14px "Noto Sans JP", sans-serif'; 
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText((y * GRID_SIZE) + x + 1, px + CELL_SIZE/2, py + CELL_SIZE/2);
+                    ctx.fillText((y * GRID_SIZE) + x + 1, px + CELL_SIZE/2, py + CELL_SIZE/2 + 2);
                 }
             }
         }
@@ -632,8 +640,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function onCanvasClick(e) {
         const rect = canvas.getBoundingClientRect();
-        const x = Math.floor((e.clientX - rect.left) / CELL_SIZE);
-        const y = Math.floor((e.clientY - rect.top) / CELL_SIZE);
+        // 比率計算を厳密に
+        const scaleX = canvas.width / rect.width / (window.devicePixelRatio || 1);
+        const scaleY = canvas.height / rect.height / (window.devicePixelRatio || 1);
+        
+        const x = Math.floor(((e.clientX - rect.left) * scaleX) / CELL_SIZE);
+        const y = Math.floor(((e.clientY - rect.top) * scaleY) / CELL_SIZE);
+        
         processComment("参加", "You", "user-self");
         processComment(`${ (y*GRID_SIZE)+x+1 }`, "You", "user-self");
     }
