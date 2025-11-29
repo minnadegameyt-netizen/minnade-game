@@ -1,3 +1,5 @@
+--- START OF FILE script.js ---
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- 設定 ---
     const GRID_SIZE = 20; 
@@ -24,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const players = {}; 
     const playerSlots = [null, null, null, null, null]; 
     let entryCount = 0; 
-    let streamerChannelId = null; // ★変更点: 配信者IDを保存する変数
+    let streamerIdentifier = null; // 配信者のIDまたはハンドル名を保存
 
     // --- API用 ---
     let YOUTUBE_API_KEY = "", TARGET_VIDEO_ID = "", liveChatId = null, nextPageToken = null;
@@ -98,8 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- キック機能 ---
     window.kickPlayer = function(slotNum) {
-        // ★変更点: 配信者はキックできないようにする
-        if (slotNum === 1 && streamerChannelId && players[streamerChannelId] === 1) {
+        // 配信者が設定されていれば、プレイヤー1はキックできない
+        if (slotNum === 1 && streamerIdentifier) {
             alert('配信者はキックできません。');
             return;
         }
@@ -123,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(`mode-${mode}`).classList.add('selected');
         document.getElementById('mode-desc').textContent = mode === 'demo' ? "AI同士が戦う様子を観戦します。" : "YouTubeのコメントで視聴者が参加します。";
 
-        // ★変更点: 配信者ID入力欄の表示/非表示を切り替える
+        // 配信者ID入力欄の表示/非表示を切り替える
         const streamerIdSetting = document.getElementById('streamer-id-setting');
         if (streamerIdSetting) {
             streamerIdSetting.style.display = (mode === 'stream') ? 'block' : 'none';
@@ -143,12 +145,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function onNextStep() {
-        // ★変更点: 配信者IDを取得して保存
+        // 配信者ID/ハンドル名を取得して保存
         if (gameMode === 'stream') {
             const streamerIdInput = document.getElementById('streamer-id-input');
-            streamerChannelId = streamerIdInput ? streamerIdInput.value.trim() : null;
+            let input = streamerIdInput ? streamerIdInput.value.trim() : null;
+            if (input && input.startsWith('@')) {
+                input = input.substring(1); // 先頭の@を削除
+            }
+            streamerIdentifier = input;
         } else {
-            streamerChannelId = null;
+            streamerIdentifier = null;
         }
 
         document.getElementById('setup-modal').classList.add('hidden');
@@ -176,11 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
             updateSlotDisplay(i, null);
         }
 
-        // ★変更点: 配信者が設定されていればP1に自動登録
-        if (gameMode === 'stream' && streamerChannelId) {
-            const streamerTempName = "配信者";
+        // 配信者が設定されていればP1に仮登録
+        if (gameMode === 'stream' && streamerIdentifier) {
+            const streamerTempName = "配信者 (待機中)";
             playerSlots[1] = streamerTempName;
-            players[streamerChannelId] = 1; // IDをキーにプレイヤー番号を登録
+            players['STREAMER_PLACEHOLDER'] = 1; // 最初のコメントが来るまで仮のIDで登録
             updateSlotDisplay(1, streamerTempName);
             entryCount++;
         }
@@ -351,15 +357,31 @@ document.addEventListener('DOMContentLoaded', () => {
     function processComment(msg, authorName, authorId) {
         if (!authorId) authorId = authorName;
 
-        // ★変更点: 配信者の名前をコメントから取得して更新
-        if (streamerChannelId && authorId === streamerChannelId && playerSlots[1] !== authorName) {
-            if (players[streamerChannelId] === 1) { // 念のためP1か確認
+        // --- 配信者確定処理 ---
+        // 配信者が設定されており、まだ仮登録状態の場合
+        if (streamerIdentifier && players['STREAMER_PLACEHOLDER']) {
+            const isStreamerById = authorId === streamerIdentifier;
+            const isStreamerByName = authorName.toLowerCase() === streamerIdentifier.toLowerCase();
+            
+            // チャンネルIDが一致、または、入力がID形式でなく名前が一致した場合
+            if (isStreamerById || (!(streamerIdentifier.startsWith('UC') || streamerIdentifier.startsWith('UG')) && isStreamerByName)) {
+                delete players['STREAMER_PLACEHOLDER']; // 仮登録を削除
+                players[authorId] = 1;                 // 本物のチャンネルIDで登録
                 playerSlots[1] = authorName;
                 if (!isGameRunning) {
                     updateSlotDisplay(1, authorName);
                 }
                 updateHeaderNames();
             }
+        } 
+        // --- 配信者の名前更新処理 ---
+        // 既にプレイヤー1として登録されているユーザーの表示名が変わった場合
+        else if (players[authorId] === 1 && playerSlots[1] !== authorName) {
+            playerSlots[1] = authorName;
+            if (!isGameRunning) {
+                updateSlotDisplay(1, authorName);
+            }
+            updateHeaderNames();
         }
 
         if (msg.includes('参加') || msg.includes('join') || msg.includes('ノ')) {
@@ -367,8 +389,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const entryModal = document.getElementById('entry-modal');
             if (gameMode !== 'demo' && entryModal.classList.contains('hidden')) return; 
 
-            // ★変更点: 配信者がいる場合はP2からスロットを探す
-            const startSlot = (streamerChannelId && players[streamerChannelId]) ? 2 : 1;
+            // 配信者がいる場合はP2からスロットを探す
+            const startSlot = streamerIdentifier ? 2 : 1;
             for (let i = startSlot; i <= maxPlayers; i++) {
                 if (playerSlots[i] === null) {
                     playerSlots[i] = authorName;
@@ -503,8 +525,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.strokeRect(px, py, CELL_SIZE, CELL_SIZE);
                 
                 if (val === 0) {
-                    ctx.fillStyle = '#4a5568';
-                    ctx.font = '10px Arial';
+                    ctx.fillStyle = '#dfe6e9'; // 色を明るく
+                    ctx.font = 'bold 12px sans-serif'; // フォントを太く、大きく
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText((y * GRID_SIZE) + x + 1, px + CELL_SIZE/2, py + CELL_SIZE/2);

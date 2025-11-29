@@ -1,3 +1,5 @@
+--- START OF FILE script.js ---
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- 定数 ---
     const CANVAS_PIXEL_SIZE = 600; 
@@ -64,55 +66,27 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- 初期化 ---
     function init() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const modeParam = urlParams.get('mode');
+        // ★変更点: 配信モードを一時的に無効化し、常にソロモードで起動するように修正
+        state.mode = 'solo';
+        document.getElementById('mode-solo').classList.add('selected');
+        document.getElementById('mode-stream').classList.remove('selected');
+
+        document.getElementById('row-players').classList.add('hidden');
+        document.getElementById('row-time').classList.add('hidden');
         
-        if (modeParam === 'stream') {
-            state.mode = 'stream';
-            document.getElementById('mode-stream').classList.add('selected');
-            document.getElementById('mode-solo').classList.remove('selected');
-            
-            document.getElementById('row-players').classList.remove('hidden');
-            document.getElementById('row-time').classList.remove('hidden');
-            
-            document.getElementById('howto-content').innerHTML = `
-                <div class="key-guide">
-                <strong>【配信者】</strong><br>
-                <span class="key-badge">キーボードの矢印</span> で塗る<br>
-                <span class="key-badge">Ctrl+Z</span> 元に戻す<br>
-                <strong>【参加者】</strong><br>
-                「100」等の数字で塗る<br>
-                例：左上は「1」右下は400
-                「赤」「青」等で色変更<br>
-                </div>`;
-            state.players = 4;
-            state.timeLimit = 300;
-            
-            document.getElementById('undo-btn').classList.remove('hidden');
-            document.getElementById('manual-finish-btn').classList.remove('hidden');
-
-        } else {
-            state.mode = 'solo';
-            document.getElementById('mode-solo').classList.add('selected');
-            document.getElementById('mode-stream').classList.remove('selected');
-
-            document.getElementById('row-players').classList.add('hidden');
-            document.getElementById('row-time').classList.add('hidden');
-            
-            document.getElementById('howto-content').innerHTML = `
-                <div class="key-guide">
-                <span class="key-badge">キーボードの矢印</span> エンターキーで塗る<br>
-                <span class="key-badge">矢印</span> カーソル移動<br>
-                <span class="key-badge">Z / Space</span> 塗る<br>
-                <span class="key-badge">Ctrl+Z</span> 元に戻す
-                </div>`;
-            
-            state.players = 1;
-            state.timeLimit = 99999;
-            document.getElementById('undo-btn').classList.remove('hidden');
-            document.getElementById('manual-finish-btn').classList.remove('hidden');
-            document.getElementById('time-display').textContent = "∞";
-        }
+        document.getElementById('howto-content').innerHTML = `
+            <div class="key-guide">
+            <span class="key-badge">キーボードの矢印</span> エンターキーで塗る<br>
+            <span class="key-badge">矢印</span> カーソル移動<br>
+            <span class="key-badge">Z / Space</span> 塗る<br>
+            <span class="key-badge">Ctrl+Z</span> 元に戻す
+            </div>`;
+        
+        state.players = 1;
+        state.timeLimit = 99999;
+        document.getElementById('undo-btn').classList.remove('hidden');
+        document.getElementById('manual-finish-btn').classList.remove('hidden');
+        document.getElementById('time-display').textContent = "∞";
 
         renderColorLegend();
         bindSettingsEvents();
