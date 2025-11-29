@@ -184,15 +184,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const seBtn = document.getElementById('bgm-toggle-btn');
         seBtn.textContent = state.seEnabled ? "🔊 SE: ON" : "🔈 SE: OFF";
 
-        // ガイドマップは先に描画しておく
+        setupGameLayout();
         drawGuideMap();
 
         if (state.mode === 'solo') {
-            // ソロモードの場合はすぐにレイアウトを作成して開始
-            setupGameLayout();
             startGame();
         } else {
-            // 配信モードの場合はエントリー画面へ
             document.getElementById('entry-modal').classList.remove('hidden');
             initEntryScreen();
             YOUTUBE_API_KEY = sessionStorage.getItem('youtube_api_key');
@@ -206,21 +203,10 @@ document.addEventListener('DOMContentLoaded', () => {
         state.maps = [];
         soloState.history = [];
 
-        // 参加者リストを取得し、各プレイヤーにキャンバスインデックスを割り振る
-        const playerList = Object.values(playersMap);
-        playerList.forEach((player, index) => {
-            player.canvasIndex = index;
-        });
-
-        const canvasCount = state.mode === 'solo' ? 1 : playerList.length;
+        const canvasCount = state.players;
         container.className = `canvases-grid grid-${canvasCount}`;
 
-        // スコアボードを準備
-        const sb = document.getElementById('players-scoreboard');
-        sb.innerHTML = '';
-
         for (let i = 0; i < canvasCount; i++) {
-            // マップデータを作成
             let row = [];
             for(let y=0; y<state.gridSize; y++) row.push(new Array(state.gridSize).fill(0));
             state.maps.push(row);
@@ -228,26 +214,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const wrapper = document.createElement('div');
             wrapper.className = 'canvas-wrapper';
             
-            // ヘッダー（名前表示）とボーダー色を設定
-            const header = document.createElement('div');
-            header.className = 'canvas-header';
-
             if (state.mode === 'solo') {
                 wrapper.classList.add('solo-border');
-                header.textContent = 'My Canvas';
             } else {
-                const player = playerList[i];
-                const colorClass = (i % 4) + 1; // 4色を巡回
-                wrapper.classList.add(`p${colorClass}-border`);
-                header.textContent = player.name; // ★参加者の名前を表示
-
-                // スコアボード項目を作成
-                const pInfo = document.createElement('div');
-                pInfo.className = `player-info p${colorClass}-box`;
-                pInfo.innerHTML = `<span class="p-name">${player.name}</span><span class="p-score" id="score-${i}">0px</span>`;
-                sb.appendChild(pInfo);
+                wrapper.classList.add(`p${i+1}-border`);
             }
-            wrapper.appendChild(header);
+
+            if (state.mode === 'stream') {
+                const header = document.createElement('div');
+                header.className = 'canvas-header';
+                const names = ["Pink Team", "Green Team", "Blue Team", "Yellow Team"];
+                header.textContent = names[i];
+                wrapper.appendChild(header);
+            }
 
             const cvs = document.createElement('canvas');
             cvs.id = `cvs-${i}`;
@@ -261,10 +240,21 @@ document.addEventListener('DOMContentLoaded', () => {
             cvs.addEventListener('contextmenu', e => e.preventDefault());
 
             wrapper.appendChild(cvs);
-            container.appendChild(cvs);
+            container.appendChild(wrapper);
         }
-        
-        // UI表示の調整
+
+        const sb = document.getElementById('players-scoreboard');
+        sb.innerHTML = '';
+        if (state.mode === 'stream') {
+            const names = ["Pink", "Green", "Blue", "Yellow"];
+            for (let i = 1; i <= state.players; i++) {
+                const pInfo = document.createElement('div');
+                pInfo.className = `player-info p${i}-box`;
+                pInfo.innerHTML = `<span class="p-name">${names[i-1]}</span><span class="p-score" id="score-${i}">0px</span>`;
+                sb.appendChild(pInfo);
+            }
+        }
+
         if (state.themeMode !== 'none') document.getElementById('theme-display-area').classList.remove('hidden');
         else document.getElementById('theme-display-area').classList.add('hidden');
         
@@ -276,39 +266,68 @@ document.addEventListener('DOMContentLoaded', () => {
             finishBtn.classList.add('hidden');
         }
     }
-    
+
     function initEntryScreen() {
         const list = document.getElementById('entry-list');
-        list.innerHTML = `<h3>参加者リスト (<span id="entry-count">1</span>名)</h3><div id="player-name-list"></div>`;
-        
+        list.innerHTML = '';
+        const teamNames = ["Pink Team", "Green Team", "Blue Team", "Yellow Team"];
+        const colors = ['#ff7675', '#55efc4', '#74b9ff', '#ffeaa7'];
+        for(let i=0; i<state.players; i++) {
+            const item = document.createElement('div');
+            item.style.padding = '10px';
+            item.style.border = `2px solid ${colors[i]}`;
+            item.style.borderRadius = '8px';
+            item.style.marginBottom = '5px';
+            item.style.color = '#fff';
+            item.style.textAlign = 'left';
+            item.style.wordBreak = 'break-all';
+            item.id = `entry-slot-${i+1}`;
+            list.appendChild(item);
+        }
+
         totalEntries = 0;
         for(let key in playersMap) delete playersMap[key];
         
-        // 配信者をプレイヤーとして自動追加
-        playersMap['host'] = { id: 'host', group: 1, colorId: 5, name: '配信者' };
+        playersMap['host'] = { group: 1, colorId: 5, name: '配信者' };
         totalEntries = 1;
 
         updateEntryScreen();
     }
 
     function updateEntryScreen() {
-        const nameList = document.getElementById('player-name-list');
-        const countEl = document.getElementById('entry-count');
-        if (!nameList || !countEl) return;
+        const teamNames = ["Pink Team", "Green Team", "Blue Team", "Yellow Team"];
+        
+        const teams = {};
+        for (let i = 1; i <= state.players; i++) {
+            teams[i] = [];
+        }
+        for (const playerId in playersMap) {
+            const player = playersMap[playerId];
+            if (teams[player.group]) {
+                teams[player.group].push(player.name);
+            }
+        }
 
-        countEl.textContent = totalEntries;
-        nameList.innerHTML = Object.values(playersMap).map(p => `<span>${p.name}</span>`).join(', ');
+        for (let i = 1; i <= state.players; i++) {
+            const slot = document.getElementById(`entry-slot-${i}`);
+            if (slot) {
+                const memberCount = teams[i].length;
+                let text = `<strong>${teamNames[i-1]} (${memberCount > 0 ? `${memberCount}名` : '募集中'})</strong>`;
+                if (memberCount > 0) {
+                    const displayNames = teams[i].slice(0, 15).join(', ');
+                    text += `<br>${displayNames}`;
+                    if(memberCount > 15) {
+                        text += ` ...他${memberCount - 15}名`;
+                    }
+                }
+                slot.innerHTML = text;
+            }
+        }
     }
 
     function startGame() {
         document.getElementById('entry-modal').classList.add('hidden');
         document.getElementById('setup-modal').classList.add('hidden');
-    
-        // ★追加: 参加者リストに基づいてレイアウトを確定
-        if (state.mode === 'stream') {
-            state.players = totalEntries; // プレイヤー数を参加者数に更新
-            setupGameLayout();
-        }
         
         const overlay = document.getElementById('countdown-overlay');
         const text = document.getElementById('countdown-text');
@@ -377,10 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderLoop() {
         if (!state.isRunning) return;
         
-        const canvasCount = state.mode === 'solo' ? 1 : state.maps.length;
-        for(let i=0; i < canvasCount; i++) {
+        const count = state.players;
+        for(let i=0; i<count; i++) {
             const cvs = document.getElementById(`cvs-${i}`);
-            if(!cvs) continue;
             const ctx = cvs.getContext('2d');
             const map = state.maps[i];
             
@@ -523,8 +541,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('result-art-container');
         container.innerHTML = '';
         
-        const canvasCount = state.mode === 'solo' ? 1 : state.maps.length;
-        for(let i=0; i<canvasCount; i++) {
+        const count = state.players;
+        for(let i=0; i<count; i++) {
             const map = state.maps[i];
             const cvs = document.createElement('canvas');
             cvs.className = 'result-canvas';
@@ -550,25 +568,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const rankList = document.getElementById('ranking-list');
         rankList.innerHTML = '';
         if (state.mode === 'stream') {
-             const playerList = Object.values(playersMap);
-             const scores = playerList.map(p => {
-                 const scoreEl = document.getElementById(`score-${p.canvasIndex}`);
-                 return {
-                     id: p.id,
-                     score: scoreEl ? parseInt(scoreEl.textContent) : 0,
-                     name: p.name,
-                     canvasIndex: p.canvasIndex
-                 };
-             });
-             
+             const scores = [];
+             for(let i=1; i<=state.players; i++) {
+                 scores.push({ id: i, score: parseInt(document.getElementById(`score-${i}`).textContent), name: getPlayerName(i) });
+             }
              scores.sort((a,b) => b.score - a.score);
              const maxScore = state.gridSize * state.gridSize; 
              scores.forEach((p, index) => {
-                 const colorClass = (p.canvasIndex % 4) + 1;
-                 const color = COLOR_DEFINITIONS[colorClass-1].color;
                  const div = document.createElement('div');
                  div.className = 'rank-item';
-                 div.innerHTML = `<div class="rank-bar" style="width: ${(p.score/maxScore)*100}%; background:${color}"></div><div class="rank-text"><span class="rank-num">${index+1}.</span><span>${p.name}</span><span class="rank-score">${p.score} px</span></div>`;
+                 div.innerHTML = `<div class="rank-bar" style="width: ${(p.score/maxScore)*100}%; background:${COLORS[p.id]||'#fff'}"></div><div class="rank-text"><span class="rank-num">${index+1}.</span><span>${p.name}</span><span class="rank-score">${p.score} px</span></div>`;
                  rankList.appendChild(div);
              });
         }
@@ -590,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const ctx = combinedCanvas.getContext('2d');
         const padding = 20;
 
-        const cols = canvases.length > 1 ? (canvases.length <= 4 ? 2 : Math.ceil(Math.sqrt(canvases.length))) : 1;
+        const cols = canvases.length > 1 ? 2 : 1;
         const rows = Math.ceil(canvases.length / cols);
         
         const unitW = canvases[0].width;
@@ -598,7 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         combinedCanvas.width = (unitW * cols) + (padding * (cols + 1));
         combinedCanvas.height = (unitH * rows) + (padding * (rows + 1));
-        
+
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height);
 
@@ -609,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const y = padding + (r * (unitH + padding));
             
             ctx.drawImage(cvs, x, y);
-            
+
             ctx.strokeStyle = '#e2e8f0';
             ctx.lineWidth = 2;
             ctx.strokeRect(x, y, unitW, unitH);
@@ -621,57 +630,68 @@ document.addEventListener('DOMContentLoaded', () => {
         link.click();
     }
 
-    function processComment(msg, authorName, authorId) {
-        if (!authorId) authorId = authorName;
+function processComment(msg, authorName, authorId) {
+    if (!authorId) authorId = authorName;
 
-        if (msg.includes('参加') || msg.includes('join')) {
-            if (playersMap[authorId]) return;
-            // ゲーム開始後は参加できない
-            if (state.isRunning) return;
+    if (msg.includes('参加') || msg.includes('join')) {
+        if (playersMap[authorId]) return; // 既にどこかのチームに参加済みなら何もしない
+        if (state.isRunning) return; // ゲーム開始後は参加不可
+
+        // ★★★ ここからが新しいロジック ★★★
+        // 2番チームから順に空きを探す
+        let assigned = false;
+        for (let teamId = 2; teamId <= state.players; teamId++) {
+            // そのチームに既に誰かいるかチェック
+            const isTeamFull = Object.values(playersMap).some(p => p.group === teamId);
             
-playersMap[authorId] = { id: authorId, group: totalEntries + 1, colorId: 5, name: authorName }; // ★変更: colorIdを5(黒)に固定
-            totalEntries++;
-            playSe('join');
-            updateEntryScreen(); 
-            return;
-        }
-
-        let newColorId = -1;
-        for (const def of COLOR_DEFINITIONS) {
-            if (msg.includes(def.name)) {
-                newColorId = def.id;
-                break;
+            if (!isTeamFull) {
+                // チームが空いていれば、そこに参加させる
+                playersMap[authorId] = { group: teamId, colorId: 5, name: authorName };
+                totalEntries++;
+                playSe('join');
+                updateEntryScreen();
+                assigned = true;
+                break; // 割り当てが完了したのでループを抜ける
             }
         }
-        
-        if (newColorId !== -1) {
-            if (playersMap[authorId]) {
-                playersMap[authorId].colorId = newColorId;
-            }
-            return;
-        }
+        // ★★★ ここまでが新しいロジック ★★★
+        return;
+    }
 
-        if (!state.isRunning) return;
-
-        let playerInfo = playersMap[authorId];
-        if (!playerInfo) return;
-        
-        if (playerInfo.canvasIndex === undefined) return;
-
-        const normalizeMsg = msg.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
-        const match = normalizeMsg.match(/(\d+)/);
-        
-        if (match) {
-            const cellNum = parseInt(match[1], 10);
-            const index = cellNum - 1;
-            const x = index % state.gridSize;
-            const y = Math.floor(index / state.gridSize);
-            
-            const targetMapIndex = playerInfo.canvasIndex;
-
-            tryPaint(targetMapIndex, x, y, playerInfo.colorId);
+    let newColorId = -1;
+    for (const def of COLOR_DEFINITIONS) {
+        if (msg.includes(def.name)) {
+            newColorId = def.id;
+            break;
         }
     }
+    
+    if (newColorId !== -1) {
+        if (playersMap[authorId]) {
+            playersMap[authorId].colorId = newColorId;
+        }
+        return;
+    }
+
+    if (!state.isRunning) return;
+
+    let playerInfo = playersMap[authorId];
+    if (!playerInfo) return;
+
+    const normalizeMsg = msg.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+    const match = normalizeMsg.match(/(\d+)/);
+    
+    if (match) {
+        const cellNum = parseInt(match[1], 10);
+        const index = cellNum - 1;
+        const x = index % state.gridSize;
+        const y = Math.floor(index / state.gridSize);
+
+        const targetMapIndex = playerInfo.group - 1;
+
+        tryPaint(targetMapIndex, x, y, playerInfo.colorId);
+    }
+}
 
     function tryPaint(mapIndex, x, y, colorId) {
         if (!state.maps[mapIndex]) return;
@@ -684,18 +704,21 @@ playersMap[authorId] = { id: authorId, group: totalEntries + 1, colorId: 5, name
     }
 
     function updateScore() {
-        if (state.mode !== 'stream') return;
-    
+        const counts = {}; 
+        for(let i=1; i<=state.players; i++) counts[i] = 0;
         state.maps.forEach((map, index) => {
-            let count = 0;
+            const teamId = index + 1;
             for(let y=0; y<state.gridSize; y++){
                 for(let x=0; x<state.gridSize; x++){
-                    if(map[y][x] > 0) count++;
+                    const val = map[y][x];
+                    if(val > 0) counts[teamId]++;
                 }
             }
-            const el = document.getElementById(`score-${index}`);
-            if(el) el.textContent = count + " px";
         });
+        for(let i=1; i<=state.players; i++) {
+            const el = document.getElementById(`score-${i}`);
+            if(el) el.textContent = counts[i] + " px";
+        }
     }
 
     function toggleSe() {
