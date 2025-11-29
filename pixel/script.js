@@ -1,5 +1,3 @@
---- START OF FILE script.js ---
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- 定数 ---
     const CANVAS_PIXEL_SIZE = 600; 
