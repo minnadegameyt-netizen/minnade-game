@@ -22,7 +22,7 @@ const assetsToLoad = [
     'img/suzuki_confident.png',
     'img/mysterious_man.png',
     
-    // ★★★ 動画を復活（ロード画面でダウンロードさせるため） ★★★
+    // 動画 (ディスクキャッシュに入れるためにロードする)
     'video/april.mp4', 'video/summer.mp4', 'video/school.mp4', 'video/winter.mp4',
     'video/matchday.mp4', 'video/game-center.mp4',
     'video/muscle_training.mp4', 'video/running.mp4', 'video/training.mp4',
@@ -38,99 +38,104 @@ function preloadAssets(paths) {
     const totalAssets = paths.length;
     progressBar.max = totalAssets;
 
+    // 進捗更新関数
     const updateProgress = () => {
         loadedCount++;
         progressBar.value = loadedCount;
-        const percent = Math.round((loadedCount / totalAssets) * 100);
+        const percent = totalAssets > 0 ? Math.round((loadedCount / totalAssets) * 100) : 100;
         if (percentDisplay) {
             percentDisplay.textContent = `${percent}%`;
         }
     };
 
-    // 同時接続数を制限してブラウザの負荷を下げる（動画が多い場合の対策）
-    // 5つずつ並列処理
-    const CONCURRENT_LIMIT = 5;
-    
-    // アセットを処理する関数
-    const loadAsset = (path) => {
-        return new Promise((resolve, reject) => {
+    if (totalAssets === 0) return Promise.resolve();
+
+    // ★修正1: 同時実行数を3に減らす（動画のスタック防止）
+    const CONCURRENT_LIMIT = 3;
+
+    // 1つのアセットをロードする内部関数
+    const loadSingleAsset = (path) => {
+        return new Promise((resolve) => {
             const extension = path.split('.').pop().toLowerCase();
-            
+            let isResolved = false;
+
+            // 完了時の処理（成功・失敗問わず）
+            const done = () => {
+                if (!isResolved) {
+                    isResolved = true;
+                    resolve();
+                }
+            };
+
+            // ★修正2: タイムアウト設定
+            // 動画は30秒、それ以外は10秒で強制的に「完了」扱いにして次へ進める
+            const timeoutMs = ['mp4', 'webm'].includes(extension) ? 30000 : 10000;
+            setTimeout(() => {
+                if (!isResolved) {
+                    console.warn(`Load timeout: ${path}`);
+                    done();
+                }
+            }, timeoutMs);
+
             if (['png', 'jpg', 'jpeg', 'gif', 'ico'].includes(extension)) {
-                // 画像：Imageオブジェクトとしてメモリに保持
                 const img = new Image();
                 img.src = path;
-                assetCache.push(img);
-                img.onload = () => { updateProgress(); resolve(); };
-                img.onerror = (e) => { 
-                    console.warn(`Failed: ${path}`, e); 
-                    updateProgress(); 
-                    resolve(); 
-                };
+                assetCache.push(img); // 画像はメモリ保持
+                img.onload = done;
+                img.onerror = () => { console.warn(`Img error: ${path}`); done(); };
 
             } else if (['mp3', 'wav', 'ogg'].includes(extension)) {
-                // 音声：Audioオブジェクトとしてメモリに保持
                 const audio = new Audio();
-                audio.src = path;
                 audio.oncanplaythrough = () => {
                     audio.oncanplaythrough = null;
-                    updateProgress();
-                    resolve();
+                    done();
                 };
-                audio.onerror = (e) => {
-                    console.warn(`Failed: ${path}`, e);
-                    updateProgress();
-                    resolve();
-                };
+                audio.onerror = () => { console.warn(`Audio error: ${path}`); done(); };
+                audio.src = path;
                 audio.load();
 
             } else if (['mp4', 'webm'].includes(extension)) {
-                // ★★★ 動画：fetchしてBlobにするが、メモリには保存せず捨てる ★★★
-                // これにより「ダウンロード完了」は待つが、「メモリ消費」は回避し、ブラウザキャッシュに残る
                 fetch(path)
-                    .then(response => {
-                        if (!response.ok) throw new Error(`Network response was not ok for ${path}`);
-                        return response.blob(); // Blobとしてダウンロード完了を待つ
+                    .then(res => {
+                        if (!res.ok) throw new Error(res.statusText);
+                        return res.blob();
                     })
-                    .then(blob => {
-                        // ここでblobを変数に保存しない！GC（ガベージコレクション）に回収させる。
-                        // ブラウザは一度DLしたURLとしてディスクキャッシュに持つはず。
-                        updateProgress();
-                        resolve();
+                    .then(() => {
+                        // メモリには保持せず完了（ブラウザキャッシュに入る）
+                        done();
                     })
                     .catch(e => {
-                        console.warn(`Failed: ${path}`, e);
-                        updateProgress(); // エラーでも止まらないように
-                        resolve();
+                        console.warn(`Video fetch error: ${path}`, e);
+                        done(); // エラーでも止まらない
                     });
 
             } else {
-                updateProgress();
-                resolve();
+                done();
             }
         });
     };
 
-    // 並列処理の実装
-    const run = async () => {
-        const results = [];
-        const executing = [];
-        
-        for (const path of paths) {
-            const p = loadAsset(path);
-            results.push(p);
-            
-            const e = p.then(() => executing.splice(executing.indexOf(e), 1));
-            executing.push(e);
-            
-            if (executing.length >= CONCURRENT_LIMIT) {
-                await Promise.race(executing);
+    // ★修正3: ワーカー方式による確実な並列処理
+    // キューからタスクを取り出して処理し続けるワーカーを作成
+    const queue = [...paths];
+    
+    const worker = async () => {
+        while (queue.length > 0) {
+            const path = queue.shift();
+            if (path) {
+                await loadSingleAsset(path);
+                updateProgress();
             }
         }
-        return Promise.all(results);
     };
 
-    return run();
+    // ワーカーを複数起動して並列処理
+    const workers = [];
+    for (let i = 0; i < CONCURRENT_LIMIT; i++) {
+        workers.push(worker());
+    }
+
+    return Promise.all(workers);
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -160,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } catch (error) {
         console.error("アセットの読み込みに失敗しました:", error);
-        // エラーでもゲームは開始させる
+        // 万が一全体がコケてもゲームは開始させる
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('home-page').classList.remove('hidden');
         ui.setupEventListeners();
