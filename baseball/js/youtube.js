@@ -1,5 +1,3 @@
-// js/youtube.js
-
 import * as state from './state.js';
 import { ui } from './ui.js';
 

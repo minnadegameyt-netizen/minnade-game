@@ -76,7 +76,7 @@ export async function runRoulette(options) {
 export async function runShuttleRun() {
     if (state.gameState.gameMode === 'streamer' && state.gameState.isAudienceMode) {
         return new Promise(async resolve => {
-            const TIME_LIMIT = state.youtubeSettings.voteDuration || 12;
+            const TIME_LIMIT = state.youtubeSettings.voteDuration || 15;
             
             await ui.typeWriter("シャトルラン勝負！<br>制限時間内に 'run' とコメントしまくれ！");
             
@@ -109,7 +109,7 @@ export async function runShuttleRun() {
     }
 
     return new Promise(resolve => {
-        const TIME_LIMIT = 12;
+        const TIME_LIMIT = 15;
         let timeLeft = TIME_LIMIT;
         let score = 0;
 
