@@ -98,8 +98,6 @@ header {
     box-sizing: border-box; 
     width: 100%; 
     height: 100%;
-    
-    /* フレックス内でのサイズ制御 */
     min-width: 0;
     min-height: 0;
     justify-content: center;
@@ -154,10 +152,9 @@ canvas {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    min-height: 0; /* 重要 */
+    min-height: 0;
 }
 
-/* 各ボックス共通 */
 .palette-box, .guide-box, .instruction-box {
     flex-shrink: 0;
 }
@@ -175,12 +172,11 @@ canvas {
 .color-sample { width: 100%; aspect-ratio: 1/1; border-radius: 3px; border: 1px solid rgba(255,255,255,0.5); }
 .color-name { font-size: 0.7em; color: #dfe6e9; margin-top: 2px; }
 
-/* スコアボード */
 .scoreboard-container { 
     display: flex; 
     flex-direction: column; 
     gap: 5px; 
-    flex-shrink: 1; /* 縮小可 */
+    flex-shrink: 1;
     min-height: 80px; 
     overflow-y: auto; 
 }
@@ -197,7 +193,6 @@ canvas {
 .p3-box { border-color: #74b9ff; }
 .p4-box { border-color: #ffeaa7; }
 
-/* ガイドマップ */
 .guide-box {
     background: rgba(0,0,0,0.3); 
     border: 1px solid #74b9ff; 
@@ -219,7 +214,6 @@ canvas {
 }
 #guide-canvas { width: 100%; height: 100%; object-fit: contain; }
 
-/* 説明 */
 .instruction-box {
     background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 10px;
     max-height: 150px; overflow-y: auto;
@@ -230,10 +224,19 @@ canvas {
 
 /* --- モーダル --- */
 .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9); 
-    display: flex; justify-content: center; align-items: flex-start;
-    z-index: 999; overflow-y: auto; padding: 40px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    z-index: 999;
+    overflow-y: auto;
+    padding: 40px 0;
+    box-sizing: border-box;
 }
 .hidden { display: none !important; }
 
@@ -241,9 +244,14 @@ canvas {
     background: #2d3436; border: 1px solid #636e72;
     width: 90%; max-width: 500px;
     padding: 30px; text-align: center; border-radius: 12px; color: #fff;
-    overflow: visible; margin: auto;
+    overflow: visible; 
+    margin: 0 auto; /* ★変更: 上下のマージンを0に */
 }
-.result-content { max-width: 800px; }
+
+/* ★★★ ここからが修正箇所 ★★★ */
+.result-content {
+    max-width: 800px; /* ★変更: モーダルの最大幅を固定 */
+}
 
 .scrollable-settings { overflow-y: visible; padding-right: 5px; max-height: none; }
 
@@ -257,14 +265,20 @@ canvas {
 .action-btn { background: #e17055; color: white; border: none; padding: 10px 40px; font-size: 1.1em; border-radius: 6px; cursor: pointer; }
 .back-link { color: #b2bec3; text-decoration: none; align-self: center; }
 
-/* 結果画面アート */
 .result-art-container {
     display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 20px 0;
 }
+
 .result-canvas {
-    border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-    max-width: 45%; height: auto; image-rendering: pixelated; background-color: #fff;
+    border: 4px solid #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    max-width: 45%;
+    height: auto;
+    image-rendering: pixelated;
+    background-color: #fff;
 }
+/* ★★★ ここまでが修正箇所 ★★★ */
+
 
 /* ランキング */
 .ranking-list { text-align: left; margin: 20px 0; }
@@ -308,8 +322,6 @@ canvas {
     border: 1px solid #4a5568;
 }
 
-/* style.css の末尾に追加 */
-
 .entry-list h3 {
     text-align: center;
     color: #74b9ff;
@@ -332,7 +344,6 @@ canvas {
     font-size: 0.9em;
 }
 
-/* style.css の末尾に追加 */
 .kick-btn {
     margin-left: 8px;
     padding: 1px 6px;
@@ -343,14 +354,12 @@ canvas {
     cursor: pointer;
     font-size: 0.8em;
     font-weight: bold;
-    float: right; /* 右端に配置 */
+    float: right;
 }
 
 .kick-btn:hover {
     background-color: #ff7675;
 }
-
-/* style.css の末尾に追加 */
 
 .setup-input {
     width: 100%;
