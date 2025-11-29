@@ -615,3 +615,52 @@ function setupEventListeners(){
     });
 
     document.querySelectorAll('.duration-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        });
+    });
+
+    const backHomeBtn = document.getElementById('back-to-home-from-start-btn');
+
+    if (backHomeBtn) {
+        backHomeBtn.addEventListener('click', () => {
+            window.location.href = "../index.html"; 
+        });
+    }
+}
+
+function updateShuttleRunScore(score) {
+    const scoreDisplay = document.getElementById('shuttle-score');
+    if (scoreDisplay) {
+        scoreDisplay.textContent = `SCORE: ${score}`;
+        scoreDisplay.style.transition = "transform 0.1s";
+        scoreDisplay.style.transform = "scale(1.3)";
+        setTimeout(() => scoreDisplay.style.transform = "scale(1)", 100);
+    }
+}
+
+export const ui = {
+    ...uiElements,
+    showCharacter,
+    hideCharacter,
+    typeWriter,
+    waitForChoice,
+    waitForUserAction,
+    showGameOverScreen,
+    showFloatingText,
+    showDraftResult,
+    showMatchUI,
+    hideMatchUI,
+    addMatchLog,
+    addLiveComment,
+    updateAllDisplays,
+    updatePlayerStatusDisplay,
+    updateDateDisplay,
+    updateUpcomingEventDisplay,
+    updateTeamStatusDisplay,
+    updateVoteDisplay,
+    updateMissionDisplay,
+    setupEventListeners,
+    updateShuttleRunScore
+};
