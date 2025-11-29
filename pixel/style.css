@@ -331,3 +331,21 @@ canvas {
     border-radius: 4px;
     font-size: 0.9em;
 }
+
+/* style.css の末尾に追加 */
+.kick-btn {
+    margin-left: 8px;
+    padding: 1px 6px;
+    background-color: #d63031;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+    font-weight: bold;
+    float: right; /* 右端に配置 */
+}
+
+.kick-btn:hover {
+    background-color: #ff7675;
+}

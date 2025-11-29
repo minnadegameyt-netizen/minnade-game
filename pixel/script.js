@@ -294,36 +294,71 @@ document.addEventListener('DOMContentLoaded', () => {
         updateEntryScreen();
     }
 
-    function updateEntryScreen() {
-        const teamNames = ["Pink Team", "Green Team", "Blue Team", "Yellow Team"];
-        
-        const teams = {};
-        for (let i = 1; i <= state.players; i++) {
-            teams[i] = [];
-        }
-        for (const playerId in playersMap) {
-            const player = playersMap[playerId];
-            if (teams[player.group]) {
-                teams[player.group].push(player.name);
-            }
-        }
-
-        for (let i = 1; i <= state.players; i++) {
-            const slot = document.getElementById(`entry-slot-${i}`);
-            if (slot) {
-                const memberCount = teams[i].length;
-                let text = `<strong>${teamNames[i-1]} (${memberCount > 0 ? `${memberCount}名` : '募集中'})</strong>`;
-                if (memberCount > 0) {
-                    const displayNames = teams[i].slice(0, 15).join(', ');
-                    text += `<br>${displayNames}`;
-                    if(memberCount > 15) {
-                        text += ` ...他${memberCount - 15}名`;
-                    }
-                }
-                slot.innerHTML = text;
-            }
+function updateEntryScreen() {
+    const teamNames = ["Pink Team", "Green Team", "Blue Team", "Yellow Team"];
+    
+    // チームごとの参加者リストを作成 (IDも保持)
+    const teams = {};
+    for (let i = 1; i <= state.players; i++) {
+        teams[i] = []; // { id, name } の配列に
+    }
+    for (const playerId in playersMap) {
+        const player = playersMap[playerId];
+        if (teams[player.group]) {
+            // ★変更: プレイヤーIDと名前をオブジェクトで追加
+            teams[player.group].push({ id: playerId, name: player.name });
         }
     }
+
+function kickPlayer(playerId) {
+    if (playersMap[playerId]) {
+        delete playersMap[playerId]; // プレイヤー情報を削除
+        totalEntries--; // 総参加者数を減らす
+        
+        // エントリー画面を再描画
+        updateEntryScreen();
+        
+        // 効果音を鳴らすなど（任意）
+        playSe('kick'); // もしkick.mp3などがあれば
+    }
+}
+
+    // 画面の表示を更新
+    for (let i = 1; i <= state.players; i++) {
+        const slot = document.getElementById(`entry-slot-${i}`);
+        if (slot) {
+            const members = teams[i];
+            const memberCount = members.length;
+            let text = `<strong>${teamNames[i-1]} (${memberCount > 0 ? `${memberCount}名` : '募集中'})</strong>`;
+            
+            if (memberCount > 0) {
+                // 参加者リストを生成
+                const memberListHTML = members.map(member => {
+                    // 配信者(host)にはキックボタンを付けない
+                    if (member.id === 'host') {
+                        return `<div>${member.name}</div>`;
+                    }
+                    // ★追加: キックボタン付きのHTMLを生成
+                    return `<div>
+                                ${member.name}
+                                <button class="kick-btn" data-player-id="${member.id}">×</button>
+                            </div>`;
+
+                }).join('');
+                text += `<br>${memberListHTML}`;
+            }
+            slot.innerHTML = text;
+        }
+    }
+
+    // ★追加: キックボタンにイベントを設定
+    document.querySelectorAll('.kick-btn').forEach(btn => {
+        btn.onclick = () => {
+            const playerIdToKick = btn.dataset.playerId;
+            kickPlayer(playerIdToKick);
+        };
+    });
+}
 
     function startGame() {
         document.getElementById('entry-modal').classList.add('hidden');
