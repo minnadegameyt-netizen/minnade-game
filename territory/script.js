@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const players = {}; 
     const playerSlots = [null, null, null, null, null]; 
     let entryCount = 0; 
+    let streamerChannelId = null; // ★変更点: 配信者IDを保存する変数
 
     // --- API用 ---
     let YOUTUBE_API_KEY = "", TARGET_VIDEO_ID = "", liveChatId = null, nextPageToken = null;
@@ -97,6 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- キック機能 ---
     window.kickPlayer = function(slotNum) {
+        // ★変更点: 配信者はキックできないようにする
+        if (slotNum === 1 && streamerChannelId && players[streamerChannelId] === 1) {
+            alert('配信者はキックできません。');
+            return;
+        }
+
         const name = playerSlots[slotNum];
         if (!name) return;
         for (let id in players) {
@@ -115,6 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('#mode-demo, #mode-stream').forEach(b => b.classList.remove('selected'));
         document.getElementById(`mode-${mode}`).classList.add('selected');
         document.getElementById('mode-desc').textContent = mode === 'demo' ? "AI同士が戦う様子を観戦します。" : "YouTubeのコメントで視聴者が参加します。";
+
+        // ★変更点: 配信者ID入力欄の表示/非表示を切り替える
+        const streamerIdSetting = document.getElementById('streamer-id-setting');
+        if (streamerIdSetting) {
+            streamerIdSetting.style.display = (mode === 'stream') ? 'block' : 'none';
+        }
     }
 
     function setPlayerCount(n) {
@@ -130,6 +143,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function onNextStep() {
+        // ★変更点: 配信者IDを取得して保存
+        if (gameMode === 'stream') {
+            const streamerIdInput = document.getElementById('streamer-id-input');
+            streamerChannelId = streamerIdInput ? streamerIdInput.value.trim() : null;
+        } else {
+            streamerChannelId = null;
+        }
+
         document.getElementById('setup-modal').classList.add('hidden');
         if (gameMode === 'demo') {
             startGame();
@@ -154,6 +175,16 @@ document.addEventListener('DOMContentLoaded', () => {
             playerSlots[i] = null;
             updateSlotDisplay(i, null);
         }
+
+        // ★変更点: 配信者が設定されていればP1に自動登録
+        if (gameMode === 'stream' && streamerChannelId) {
+            const streamerTempName = "配信者";
+            playerSlots[1] = streamerTempName;
+            players[streamerChannelId] = 1; // IDをキーにプレイヤー番号を登録
+            updateSlotDisplay(1, streamerTempName);
+            entryCount++;
+        }
+
         document.getElementById('slot-3').style.display = (maxPlayers >= 3) ? 'flex' : 'none';
         document.getElementById('slot-4').style.display = (maxPlayers >= 4) ? 'flex' : 'none';
         document.getElementById('start-game-btn').disabled = true;
@@ -256,28 +287,23 @@ document.addEventListener('DOMContentLoaded', () => {
         updateHeaderNames();
         if(chatList) chatList.innerHTML = '';
     }
-
-    // ▼▼▼ 修正箇所 ▼▼▼
+    
     function resetGameMap() {
-        // マップデータを初期化
         mapData = [];
         for (let y = 0; y < GRID_SIZE; y++) {
             let row = new Array(GRID_SIZE).fill(0);
             mapData.push(row);
         }
 
-        // プレイヤーの初期位置を配置
-        mapData[0][0] = 1; // P1
-        mapData[GRID_SIZE - 1][GRID_SIZE - 1] = 2; // P2
+        mapData[0][0] = 1;
+        mapData[GRID_SIZE - 1][GRID_SIZE - 1] = 2; 
 
         if (maxPlayers === 4) {
-            // 4人プレイの場合
-            mapData[0][GRID_SIZE - 1] = 3; // P3
-            mapData[GRID_SIZE - 1][0] = 4; // P4
+            mapData[0][GRID_SIZE - 1] = 3;
+            mapData[GRID_SIZE - 1][0] = 4;
             document.querySelector('.p3-box').style.display = 'block';
             document.querySelector('.p4-box').style.display = 'block';
         } else {
-            // 2人プレイの場合
             document.querySelector('.p3-box').style.display = 'none';
             document.querySelector('.p4-box').style.display = 'none';
         }
@@ -285,7 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateScore();
         updateHeaderNames();
     }
-    // ▲▲▲ 修正ここまで ▲▲▲
 
     function updateHeaderNames() {
         for(let i=1; i<=4; i++) {
@@ -326,12 +351,25 @@ document.addEventListener('DOMContentLoaded', () => {
     function processComment(msg, authorName, authorId) {
         if (!authorId) authorId = authorName;
 
+        // ★変更点: 配信者の名前をコメントから取得して更新
+        if (streamerChannelId && authorId === streamerChannelId && playerSlots[1] !== authorName) {
+            if (players[streamerChannelId] === 1) { // 念のためP1か確認
+                playerSlots[1] = authorName;
+                if (!isGameRunning) {
+                    updateSlotDisplay(1, authorName);
+                }
+                updateHeaderNames();
+            }
+        }
+
         if (msg.includes('参加') || msg.includes('join') || msg.includes('ノ')) {
             if (players[authorId]) return; 
             const entryModal = document.getElementById('entry-modal');
-            if (gameMode !== 'demo' && entryModal.classList.contains('hidden') && isGameRunning) return; 
+            if (gameMode !== 'demo' && entryModal.classList.contains('hidden')) return; 
 
-            for (let i = 1; i <= maxPlayers; i++) {
+            // ★変更点: 配信者がいる場合はP2からスロットを探す
+            const startSlot = (streamerChannelId && players[streamerChannelId]) ? 2 : 1;
+            for (let i = startSlot; i <= maxPlayers; i++) {
                 if (playerSlots[i] === null) {
                     playerSlots[i] = authorName;
                     players[authorId] = i; 

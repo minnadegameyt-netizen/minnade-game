@@ -179,6 +179,18 @@ canvas {
 .setup-btn.selected { background: #0984e3; color: #fff; }
 .setting-desc { font-size: 0.8em; color: #b2bec3; margin: 5px 0 0 0; }
 
+/* ★変更点: inputテキスト用のスタイルを追加 */
+.text-input {
+    width: 100%;
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #636e72;
+    border-radius: 6px;
+    color: #dfe6e9;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
 .btn-area { display: flex; justify-content: space-between; margin-top: 20px; }
 .back-link { color: #b2bec3; text-decoration: none; align-self: center; }
 .action-btn { background: #e17055; color: white; border: none; padding: 10px 30px; font-size: 1.1em; border-radius: 6px; cursor: pointer; }
