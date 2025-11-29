@@ -1,5 +1,3 @@
---- START OF FILE kanji-data.js ---
-
 // 漢字クイズデータ
 // difficulty: 1(初級) ~ 4(特級)
 // 4択: 正解は correct のインデックス (0, 1, 2, 3)

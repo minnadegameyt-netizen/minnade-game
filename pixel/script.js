@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             document.getElementById('howto-content').innerHTML = `
                 <div class="key-guide">
-                <span class="key-badge">マウス</span> ドラッグで塗る<br>
+                <span class="key-badge">キーボードの矢印</span> エンターキーで塗る<br>
                 <span class="key-badge">矢印</span> カーソル移動<br>
                 <span class="key-badge">Z / Space</span> 塗る<br>
                 <span class="key-badge">Ctrl+Z</span> 元に戻す
