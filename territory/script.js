@@ -1,5 +1,3 @@
---- START OF FILE script.js ---
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- 設定 ---
     const GRID_SIZE = 20; 
