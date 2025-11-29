@@ -28,10 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
         mode: 'solo',         
         players: 1,           
         gridSize: 20,         
-        // layout: 'shared', // 削除
         themeMode: 'none',    
         timeLimit: 99999,       
-        seEnabled: true,      // SE設定 (デフォルトON)
+        seEnabled: true,      
         isRunning: false,
         timeRemaining: 0,
         maps: []             
@@ -57,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
         paint: new Audio('../territory/bgm/paint.mp3'),
         finish: new Audio('../territory/bgm/finish.mp3'),
         join: new Audio('../territory/bgm/join.mp3'),
-        // ★変更: スロット停止音を追加
         slot_stop: new Audio('bgm/slot_stop.mp3') 
     };
 
@@ -133,21 +131,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
 
-        // SE設定
         bind('bgm-on', 'bgm', true, v => state.seEnabled = true);
         bind('bgm-off', 'bgm', false, v => state.seEnabled = false);
-
         bind('grid-20', 'grid', 20, v => state.gridSize = v);
         bind('grid-30', 'grid', 30, v => state.gridSize = v);
-
         bind('pl-1', 'pl', 1, v => state.players = v);
         bind('pl-2', 'pl', 2, v => state.players = v);
         bind('pl-3', 'pl', 3, v => state.players = v);
         bind('pl-4', 'pl', 4, v => state.players = v);
-
         bind('theme-none', 'theme', 'none', v => state.themeMode = v);
         bind('theme-common', 'theme', 'common', v => state.themeMode = v);
-
         bind('time-300', 'time', 300, v => state.timeLimit = v);
         bind('time-600', 'time', 600, v => state.timeLimit = v);
         bind('time-1200', 'time', 1200, v => state.timeLimit = v);
@@ -191,13 +184,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const seBtn = document.getElementById('bgm-toggle-btn');
         seBtn.textContent = state.seEnabled ? "🔊 SE: ON" : "🔈 SE: OFF";
 
-        setupGameLayout();
-
+        // ガイドマップは先に描画しておく
         drawGuideMap();
 
         if (state.mode === 'solo') {
+            // ソロモードの場合はすぐにレイアウトを作成して開始
+            setupGameLayout();
             startGame();
         } else {
+            // 配信モードの場合はエントリー画面へ
             document.getElementById('entry-modal').classList.remove('hidden');
             initEntryScreen();
             YOUTUBE_API_KEY = sessionStorage.getItem('youtube_api_key');
@@ -211,10 +206,21 @@ document.addEventListener('DOMContentLoaded', () => {
         state.maps = [];
         soloState.history = [];
 
-        const canvasCount = state.players;
+        // 参加者リストを取得し、各プレイヤーにキャンバスインデックスを割り振る
+        const playerList = Object.values(playersMap);
+        playerList.forEach((player, index) => {
+            player.canvasIndex = index;
+        });
+
+        const canvasCount = state.mode === 'solo' ? 1 : playerList.length;
         container.className = `canvases-grid grid-${canvasCount}`;
 
+        // スコアボードを準備
+        const sb = document.getElementById('players-scoreboard');
+        sb.innerHTML = '';
+
         for (let i = 0; i < canvasCount; i++) {
+            // マップデータを作成
             let row = [];
             for(let y=0; y<state.gridSize; y++) row.push(new Array(state.gridSize).fill(0));
             state.maps.push(row);
@@ -222,16 +228,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const wrapper = document.createElement('div');
             wrapper.className = 'canvas-wrapper';
             
-            if (state.mode === 'solo') wrapper.classList.add('solo-border');
-            else wrapper.classList.add(`p${i+1}-border`);
+            // ヘッダー（名前表示）とボーダー色を設定
+            const header = document.createElement('div');
+            header.className = 'canvas-header';
 
-            if (state.mode === 'stream') {
-                const header = document.createElement('div');
-                header.className = 'canvas-header';
-                const names = ["Pink Team", "Green Team", "Blue Team", "Yellow Team"];
-                header.textContent = names[i];
-                wrapper.appendChild(header);
+            if (state.mode === 'solo') {
+                wrapper.classList.add('solo-border');
+                header.textContent = 'My Canvas';
+            } else {
+                const player = playerList[i];
+                const colorClass = (i % 4) + 1; // 4色を巡回
+                wrapper.classList.add(`p${colorClass}-border`);
+                header.textContent = player.name; // ★参加者の名前を表示
+
+                // スコアボード項目を作成
+                const pInfo = document.createElement('div');
+                pInfo.className = `player-info p${colorClass}-box`;
+                pInfo.innerHTML = `<span class="p-name">${player.name}</span><span class="p-score" id="score-${i}">0px</span>`;
+                sb.appendChild(pInfo);
             }
+            wrapper.appendChild(header);
 
             const cvs = document.createElement('canvas');
             cvs.id = `cvs-${i}`;
@@ -245,26 +261,14 @@ document.addEventListener('DOMContentLoaded', () => {
             cvs.addEventListener('contextmenu', e => e.preventDefault());
 
             wrapper.appendChild(cvs);
-            container.appendChild(wrapper);
+            container.appendChild(cvs);
         }
-
-        const sb = document.getElementById('players-scoreboard');
-        sb.innerHTML = '';
-        if (state.mode === 'stream') {
-            const names = ["Pink", "Green", "Blue", "Yellow"];
-            for (let i = 1; i <= state.players; i++) {
-                const pInfo = document.createElement('div');
-                pInfo.className = `player-info p${i}-box`;
-                pInfo.innerHTML = `<span class="p-name">${names[i-1]}</span><span class="p-score" id="score-${i}">0px</span>`;
-                sb.appendChild(pInfo);
-            }
-        }
-
+        
+        // UI表示の調整
         if (state.themeMode !== 'none') document.getElementById('theme-display-area').classList.remove('hidden');
         else document.getElementById('theme-display-area').classList.add('hidden');
-        // ★修正: 終了ボタンの表示ロジック
+        
         const finishBtn = document.getElementById('manual-finish-btn');
-        // 時間が無制限(>3600)なら、モードに関わらず表示する
         if (state.timeLimit > 3600) { 
             finishBtn.classList.remove('hidden');
             document.getElementById('time-display').textContent = "∞";
@@ -272,38 +276,47 @@ document.addEventListener('DOMContentLoaded', () => {
             finishBtn.classList.add('hidden');
         }
     }
-
+    
     function initEntryScreen() {
         const list = document.getElementById('entry-list');
-        list.innerHTML = '';
-        const names = ["Pink Team", "Green Team", "Blue Team", "Yellow Team"];
-        const colors = ['#ff7675', '#55efc4', '#74b9ff', '#ffeaa7'];
-        for(let i=0; i<state.players; i++) {
-            const item = document.createElement('div');
-            item.style.padding = '10px';
-            item.style.border = `2px solid ${colors[i]}`;
-            item.style.borderRadius = '8px';
-            item.style.marginBottom = '5px';
-            item.style.color = '#fff';
-            item.textContent = `${names[i]} (募集中)`;
-            item.id = `entry-slot-${i+1}`;
-            list.appendChild(item);
-        }
+        list.innerHTML = `<h3>参加者リスト (<span id="entry-count">1</span>名)</h3><div id="player-name-list"></div>`;
+        
         totalEntries = 0;
         for(let key in playersMap) delete playersMap[key];
+        
+        // 配信者をプレイヤーとして自動追加
+        playersMap['host'] = { id: 'host', group: 1, colorId: 5, name: '配信者' };
+        totalEntries = 1;
+
+        updateEntryScreen();
+    }
+
+    function updateEntryScreen() {
+        const nameList = document.getElementById('player-name-list');
+        const countEl = document.getElementById('entry-count');
+        if (!nameList || !countEl) return;
+
+        countEl.textContent = totalEntries;
+        nameList.innerHTML = Object.values(playersMap).map(p => `<span>${p.name}</span>`).join(', ');
     }
 
     function startGame() {
         document.getElementById('entry-modal').classList.add('hidden');
         document.getElementById('setup-modal').classList.add('hidden');
-
+    
+        // ★追加: 参加者リストに基づいてレイアウトを確定
+        if (state.mode === 'stream') {
+            state.players = totalEntries; // プレイヤー数を参加者数に更新
+            setupGameLayout();
+        }
+        
         const overlay = document.getElementById('countdown-overlay');
         const text = document.getElementById('countdown-text');
         overlay.classList.remove('hidden');
         let count = 3;
         text.textContent = count;
         playSe('count');
-
+    
         const cdInterval = setInterval(() => {
             count--;
             if(count > 0) {
@@ -314,7 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 text.textContent = "START!";
                 playSe('start');
                 
-                // ★変更: 待機時間を1000msから200msに短縮してサクサク感を出す
                 setTimeout(() => {
                     overlay.classList.add('hidden');
                     if (state.themeMode !== 'none') {
@@ -338,7 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 frames++;
                 if (frames > 20) {
                     clearInterval(slotInt);
-                    // ★変更: スロット停止音を再生
                     playSe('slot_stop'); 
                     resolve();
                 }
@@ -349,8 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function startRealGame() {
         state.isRunning = true;
         state.timeRemaining = state.timeLimit;
-        // BGM再生ロジック削除
-
+        
         if (state.timeLimit < 99999) {
             const tId = setInterval(() => {
                 state.timeRemaining--;
@@ -367,9 +377,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderLoop() {
         if (!state.isRunning) return;
         
-        const count = state.players;
-        for(let i=0; i<count; i++) {
+        const canvasCount = state.mode === 'solo' ? 1 : state.maps.length;
+        for(let i=0; i < canvasCount; i++) {
             const cvs = document.getElementById(`cvs-${i}`);
+            if(!cvs) continue;
             const ctx = cvs.getContext('2d');
             const map = state.maps[i];
             
@@ -377,7 +388,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             ctx.clearRect(0,0,cvs.width,cvs.height);
 
-            // ドット描画
             for(let y=0; y<state.gridSize; y++){
                 for(let x=0; x<state.gridSize; x++){
                     const val = map[y][x];
@@ -391,19 +401,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.strokeStyle = '#dfe6e9';
                     ctx.lineWidth = 1;
                     ctx.strokeRect(x*size, y*size, size, size);
-                    
-                    if(val === 0 && state.mode === 'stream' && state.gridSize <= 25) {
-                        ctx.fillStyle = '#b2bec3';
-                        const fontSize = Math.max(8, Math.floor(size * 0.4));
-                        ctx.font = `${fontSize}px Arial`;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillText((y*state.gridSize)+x+1, x*size+size/2, y*size+size/2);
-                    }
                 }
             }
 
-            // カーソル描画 (ソロ)
             if (state.mode === 'solo' && i === 0) {
                 const cx = soloState.cursor.x;
                 const cy = soloState.cursor.y;
@@ -523,8 +523,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('result-art-container');
         container.innerHTML = '';
         
-        const count = state.players;
-        for(let i=0; i<count; i++) {
+        const canvasCount = state.mode === 'solo' ? 1 : state.maps.length;
+        for(let i=0; i<canvasCount; i++) {
             const map = state.maps[i];
             const cvs = document.createElement('canvas');
             cvs.className = 'result-canvas';
@@ -550,16 +550,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const rankList = document.getElementById('ranking-list');
         rankList.innerHTML = '';
         if (state.mode === 'stream') {
-             const scores = [];
-             for(let i=1; i<=state.players; i++) {
-                 scores.push({ id: i, score: parseInt(document.getElementById(`score-${i}`).textContent), name: getPlayerName(i) });
-             }
+             const playerList = Object.values(playersMap);
+             const scores = playerList.map(p => {
+                 const scoreEl = document.getElementById(`score-${p.canvasIndex}`);
+                 return {
+                     id: p.id,
+                     score: scoreEl ? parseInt(scoreEl.textContent) : 0,
+                     name: p.name,
+                     canvasIndex: p.canvasIndex
+                 };
+             });
+             
              scores.sort((a,b) => b.score - a.score);
              const maxScore = state.gridSize * state.gridSize; 
              scores.forEach((p, index) => {
+                 const colorClass = (p.canvasIndex % 4) + 1;
+                 const color = COLOR_DEFINITIONS[colorClass-1].color;
                  const div = document.createElement('div');
                  div.className = 'rank-item';
-                 div.innerHTML = `<div class="rank-bar" style="width: ${(p.score/maxScore)*100}%; background:${COLORS[p.id]||'#fff'}"></div><div class="rank-text"><span class="rank-num">${index+1}.</span><span>${p.name}</span><span class="rank-score">${p.score} px</span></div>`;
+                 div.innerHTML = `<div class="rank-bar" style="width: ${(p.score/maxScore)*100}%; background:${color}"></div><div class="rank-text"><span class="rank-num">${index+1}.</span><span>${p.name}</span><span class="rank-score">${p.score} px</span></div>`;
                  rankList.appendChild(div);
              });
         }
@@ -573,7 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('result-modal').classList.remove('hidden');
     }
 
-function saveResultImage() {
+    function saveResultImage() {
         const canvases = document.querySelectorAll('#result-art-container canvas');
         if (canvases.length === 0) return;
 
@@ -581,7 +590,7 @@ function saveResultImage() {
         const ctx = combinedCanvas.getContext('2d');
         const padding = 20;
 
-        const cols = canvases.length > 1 ? 2 : 1;
+        const cols = canvases.length > 1 ? (canvases.length <= 4 ? 2 : Math.ceil(Math.sqrt(canvases.length))) : 1;
         const rows = Math.ceil(canvases.length / cols);
         
         const unitW = canvases[0].width;
@@ -589,10 +598,8 @@ function saveResultImage() {
 
         combinedCanvas.width = (unitW * cols) + (padding * (cols + 1));
         combinedCanvas.height = (unitH * rows) + (padding * (rows + 1));
-
-        // 背景色（ダークグレーにして隙間を分かりやすくする場合）
-        // ctx.fillStyle = '#2d3436'; 
-        ctx.fillStyle = '#ffffff'; // 白背景
+        
+        ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height);
 
         canvases.forEach((cvs, i) => {
@@ -602,9 +609,8 @@ function saveResultImage() {
             const y = padding + (r * (unitH + padding));
             
             ctx.drawImage(cvs, x, y);
-
-            // ★追加: 枠線を描画して区切りを明確にする
-            ctx.strokeStyle = '#e2e8f0'; // 薄いグレーの枠線
+            
+            ctx.strokeStyle = '#e2e8f0';
             ctx.lineWidth = 2;
             ctx.strokeRect(x, y, unitW, unitH);
         });
@@ -618,6 +624,18 @@ function saveResultImage() {
     function processComment(msg, authorName, authorId) {
         if (!authorId) authorId = authorName;
 
+        if (msg.includes('参加') || msg.includes('join')) {
+            if (playersMap[authorId]) return;
+            // ゲーム開始後は参加できない
+            if (state.isRunning) return;
+            
+playersMap[authorId] = { id: authorId, group: totalEntries + 1, colorId: 5, name: authorName }; // ★変更: colorIdを5(黒)に固定
+            totalEntries++;
+            playSe('join');
+            updateEntryScreen(); 
+            return;
+        }
+
         let newColorId = -1;
         for (const def of COLOR_DEFINITIONS) {
             if (msg.includes(def.name)) {
@@ -627,25 +645,9 @@ function saveResultImage() {
         }
         
         if (newColorId !== -1) {
-            if (!playersMap[authorId]) {
-                const groupID = (totalEntries % state.players) + 1;
-                playersMap[authorId] = { group: groupID, colorId: newColorId, name: authorName };
-                totalEntries++;
-                playSe('join');
-                const slot = document.getElementById(`entry-slot-${groupID}`);
-                if(slot) slot.style.borderColor = COLORS[groupID];
-            } else {
+            if (playersMap[authorId]) {
                 playersMap[authorId].colorId = newColorId;
             }
-            return;
-        }
-
-        if (msg.includes('参加') || msg.includes('join')) {
-            if (playersMap[authorId]) return;
-            const groupID = (totalEntries % state.players) + 1;
-            playersMap[authorId] = { group: groupID, colorId: groupID, name: authorName };
-            totalEntries++;
-            playSe('join');
             return;
         }
 
@@ -653,6 +655,8 @@ function saveResultImage() {
 
         let playerInfo = playersMap[authorId];
         if (!playerInfo) return;
+        
+        if (playerInfo.canvasIndex === undefined) return;
 
         const normalizeMsg = msg.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
         const match = normalizeMsg.match(/(\d+)/);
@@ -662,8 +666,8 @@ function saveResultImage() {
             const index = cellNum - 1;
             const x = index % state.gridSize;
             const y = Math.floor(index / state.gridSize);
-
-            const targetMapIndex = playerInfo.group - 1;
+            
+            const targetMapIndex = playerInfo.canvasIndex;
 
             tryPaint(targetMapIndex, x, y, playerInfo.colorId);
         }
@@ -680,21 +684,18 @@ function saveResultImage() {
     }
 
     function updateScore() {
-        const counts = {}; 
-        for(let i=1; i<=state.players; i++) counts[i] = 0;
+        if (state.mode !== 'stream') return;
+    
         state.maps.forEach((map, index) => {
-            const teamId = index + 1;
+            let count = 0;
             for(let y=0; y<state.gridSize; y++){
                 for(let x=0; x<state.gridSize; x++){
-                    const val = map[y][x];
-                    if(val > 0) counts[teamId]++;
+                    if(map[y][x] > 0) count++;
                 }
             }
+            const el = document.getElementById(`score-${index}`);
+            if(el) el.textContent = count + " px";
         });
-        for(let i=1; i<=state.players; i++) {
-            const el = document.getElementById(`score-${i}`);
-            if(el) el.textContent = counts[i] + " px";
-        }
     }
 
     function toggleSe() {
@@ -721,23 +722,19 @@ function saveResultImage() {
         return names[id-1] || `P${id}`;
     }
 
-    // ★追加: ガイドマップ描画関数
     function drawGuideMap() {
         const cvs = document.getElementById('guide-canvas');
         if(!cvs) return;
         const ctx = cvs.getContext('2d');
         
-        // サイズ情報更新
         document.getElementById('guide-size-info').textContent = `${state.gridSize} x ${state.gridSize}`;
 
-        // クリア
         ctx.clearRect(0, 0, cvs.width, cvs.height);
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, cvs.width, cvs.height);
 
         const size = cvs.width / state.gridSize;
-
-        // グリッド線 (薄く)
+        
         ctx.strokeStyle = '#e2e8f0'; 
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -748,52 +745,40 @@ function saveResultImage() {
             ctx.lineTo(cvs.width, i * size);
         }
         ctx.stroke();
-
-        // 数字描画設定
+        
         ctx.fillStyle = '#2d3436';
-        const fontSize = Math.max(14, Math.floor(size * 0.6)); // 少し大きめに
+        const fontSize = Math.max(14, Math.floor(size * 0.6));
         ctx.font = `bold ${fontSize}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // 表示するターゲット座標リスト
-        // 四隅 + 中央付近の数点
         const targets = [];
         const gs = state.gridSize;
         const last = gs - 1;
         const mid = Math.floor(gs / 2);
-
-        // 四隅
-        targets.push({x:0, y:0}); // 左上
-        targets.push({x:last, y:0}); // 右上
-        targets.push({x:0, y:last}); // 左下
-        targets.push({x:last, y:last}); // 右下
         
-        // 中央
+        targets.push({x:0, y:0});
+        targets.push({x:last, y:0});
+        targets.push({x:0, y:last});
+        targets.push({x:last, y:last});
         targets.push({x:mid, y:mid});
-        targets.push({x:mid-1, y:mid}); // 中央付近補足
+        targets.push({x:mid-1, y:mid});
         targets.push({x:mid, y:mid-1}); 
 
-        // 描画ループ
         targets.forEach(p => {
             const num = (p.y * gs) + p.x + 1;
-            // 背景を白で抜いて見やすくする
             ctx.fillStyle = 'rgba(255,255,255,0.8)';
             ctx.fillRect(p.x * size + 2, p.y * size + 2, size - 4, size - 4);
             
             ctx.fillStyle = '#000';
             ctx.fillText(num, p.x * size + size / 2, p.y * size + size / 2);
         });
-
-        // 省略記号 (...) の描画 (簡易的)
+        
         ctx.fillStyle = '#a0aec0';
         ctx.font = `bold ${fontSize}px Arial`;
-        // 左上と右上の間
         ctx.fillText("...", (mid * size) + size/2, size/2);
-        // 左上と左下の間
         ctx.fillText(":", size/2, (mid * size) + size/2);
         
-        // 表示
         document.getElementById('guide-map-box').classList.remove('hidden');
     }
 

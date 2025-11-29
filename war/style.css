@@ -150,7 +150,8 @@ h3 span { font-size: 0.8em; color: var(--text-muted); font-family: var(--font-mo
     overflow: hidden;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start; /* 変更点1: center から flex-start へ */
+    padding-left: 200px; 
 }
 .map-wrapper h2 {
     position: absolute; top: 10px; left: 10px;

@@ -297,3 +297,37 @@ canvas {
     border-color: transparent transparent #74b9ff transparent;
 }
 .info-icon:hover + .tooltip-text { visibility: visible; opacity: 1; }
+
+.entry-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    margin: 20px 0;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    border: 1px solid #4a5568;
+}
+
+/* style.css の末尾に追加 */
+
+.entry-list h3 {
+    text-align: center;
+    color: #74b9ff;
+    margin-top: 0;
+    border-bottom: 1px solid #4a5568;
+    padding-bottom: 10px;
+}
+#player-name-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    padding-top: 10px;
+    line-height: 1.5;
+}
+#player-name-list span {
+    background: #636e72;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}

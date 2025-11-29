@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Streamer Pixel Art</title>
+    <title>ピクセル　イラストレーター</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
@@ -206,8 +206,11 @@
     <div id="entry-modal" class="modal-overlay hidden">
         <div class="modal-content entry-content">
             <h2 class="setup-title">PAINTERS ENTRY</h2>
-            <p>コメント欄で「参加」！</p>
-            <div class="entry-list" id="entry-list"></div>
+            <p>コメント欄で「参加」とコメントしてください！</p>
+            <!-- ★ここをシンプルに変更 -->
+            <div id="entry-list" class="entry-list">
+                <!-- JSがここにリストを生成します -->
+            </div>
             <div class="btn-area">
                 <button id="back-to-setup" class="sub-btn">戻る</button>
                 <button id="start-game-btn" class="action-btn">スタート</button>
