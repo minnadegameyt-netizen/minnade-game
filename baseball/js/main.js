@@ -1,9 +1,7 @@
-// --- START OF FILE main.js ---
-
 import { ui } from './ui.js';
 import * as youtube from './youtube.js';
 
-const assetCache = []; // 画像と音声だけを保持する配列
+const assetCache = []; 
 
 const assetsToLoad = [
     // BGM
@@ -22,7 +20,7 @@ const assetsToLoad = [
     'img/suzuki_confident.png',
     'img/mysterious_man.png',
     
-    // 動画 (ディスクキャッシュに入れるためにロードする)
+    // 動画
     'video/april.mp4', 'video/summer.mp4', 'video/school.mp4', 'video/winter.mp4',
     'video/matchday.mp4', 'video/game-center.mp4',
     'video/muscle_training.mp4', 'video/running.mp4', 'video/training.mp4',
@@ -38,7 +36,6 @@ function preloadAssets(paths) {
     const totalAssets = paths.length;
     progressBar.max = totalAssets;
 
-    // 進捗更新関数
     const updateProgress = () => {
         loadedCount++;
         progressBar.value = loadedCount;
@@ -50,16 +47,14 @@ function preloadAssets(paths) {
 
     if (totalAssets === 0) return Promise.resolve();
 
-    // ★修正1: 同時実行数を3に減らす（動画のスタック防止）
-    const CONCURRENT_LIMIT = 3;
+    // ★修正1: 直列ダウンロードに変更（1つずつ確実に終わらせるため）
+    const CONCURRENT_LIMIT = 1;
 
-    // 1つのアセットをロードする内部関数
     const loadSingleAsset = (path) => {
         return new Promise((resolve) => {
             const extension = path.split('.').pop().toLowerCase();
             let isResolved = false;
 
-            // 完了時の処理（成功・失敗問わず）
             const done = () => {
                 if (!isResolved) {
                     isResolved = true;
@@ -67,12 +62,13 @@ function preloadAssets(paths) {
                 }
             };
 
-            // ★修正2: タイムアウト設定
-            // 動画は30秒、それ以外は10秒で強制的に「完了」扱いにして次へ進める
-            const timeoutMs = ['mp4', 'webm'].includes(extension) ? 30000 : 10000;
+            // ★修正2: 待機時間を60秒に延長
+            const timeoutMs = ['mp4', 'webm'].includes(extension) ? 60000 : 10000;
+            
             setTimeout(() => {
                 if (!isResolved) {
-                    console.warn(`Load timeout: ${path}`);
+                    // ここでログが出ても、裏でDLが続いていればキャッシュされる可能性はある
+                    console.warn(`Load timeout (skip): ${path}`);
                     done();
                 }
             }, timeoutMs);
@@ -80,7 +76,7 @@ function preloadAssets(paths) {
             if (['png', 'jpg', 'jpeg', 'gif', 'ico'].includes(extension)) {
                 const img = new Image();
                 img.src = path;
-                assetCache.push(img); // 画像はメモリ保持
+                assetCache.push(img);
                 img.onload = done;
                 img.onerror = () => { console.warn(`Img error: ${path}`); done(); };
 
@@ -95,18 +91,18 @@ function preloadAssets(paths) {
                 audio.load();
 
             } else if (['mp4', 'webm'].includes(extension)) {
-                fetch(path)
+                // ★修正3: cache: 'force-cache' を指定してキャッシュ利用を強制
+                fetch(path, { cache: 'force-cache' })
                     .then(res => {
                         if (!res.ok) throw new Error(res.statusText);
                         return res.blob();
                     })
                     .then(() => {
-                        // メモリには保持せず完了（ブラウザキャッシュに入る）
                         done();
                     })
                     .catch(e => {
                         console.warn(`Video fetch error: ${path}`, e);
-                        done(); // エラーでも止まらない
+                        done();
                     });
 
             } else {
@@ -115,8 +111,7 @@ function preloadAssets(paths) {
         });
     };
 
-    // ★修正3: ワーカー方式による確実な並列処理
-    // キューからタスクを取り出して処理し続けるワーカーを作成
+    // ワーカーによる処理（今回は同時実行数1なので、実質順番待ち）
     const queue = [...paths];
     
     const worker = async () => {
@@ -129,7 +124,6 @@ function preloadAssets(paths) {
         }
     };
 
-    // ワーカーを複数起動して並列処理
     const workers = [];
     for (let i = 0; i < CONCURRENT_LIMIT; i++) {
         workers.push(worker());
@@ -165,7 +159,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } catch (error) {
         console.error("アセットの読み込みに失敗しました:", error);
-        // 万が一全体がコケてもゲームは開始させる
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('home-page').classList.remove('hidden');
         ui.setupEventListeners();
