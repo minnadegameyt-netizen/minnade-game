@@ -20,11 +20,8 @@ const assetsToLoad = [
     'img/suzuki_confident.png',
     'img/mysterious_man.png',
     
-    // ★★★ 修正: 動画は容量が大きいためプリロードから外す（メモリ節約） ★★★
-    // 'video/april.mp4', 'video/summer.mp4', 'video/school.mp4', 'video/winter.mp4',
-    // 'video/matchday.mp4', 'video/game-center.mp4',
-    // 'video/muscle_training.mp4', 'video/running.mp4', 'video/training.mp4',
-    // 'video/study.mp4', 'video/city.mp4', 'video/cafe.mp4', 'video/phone.mp4'
+    // ★★★ 修正: 動画は容量過多でクラッシュするため、ここでは読み込まない ★★★
+    // 動画は game-loop.js 側で「必要な時に裏でダウンロードする」方式に変更します。
 ];
 
 function preloadAssets(paths) {
@@ -39,11 +36,15 @@ function preloadAssets(paths) {
     const updateProgress = () => {
         loadedCount++;
         progressBar.value = loadedCount;
-        const percent = Math.round((loadedCount / totalAssets) * 100);
+        const percent = totalAssets > 0 ? Math.round((loadedCount / totalAssets) * 100) : 100;
         if (percentDisplay) {
             percentDisplay.textContent = `${percent}%`;
         }
     };
+
+    if (totalAssets === 0) {
+        return Promise.resolve();
+    }
 
     const promises = paths.map(path => {
         return new Promise((resolve, reject) => {
@@ -52,11 +53,11 @@ function preloadAssets(paths) {
             if (['png', 'jpg', 'jpeg', 'gif', 'ico'].includes(extension)) {
                 const img = new Image();
                 img.src = path;
-                assetCache.push(img);
+                assetCache.push(img); // 画像はメモリに保持してOK
                 img.onload = () => { updateProgress(); resolve(); };
                 img.onerror = (e) => { 
                     console.warn(`Failed: ${path}`, e); 
-                    updateProgress(); // エラーでも進める
+                    updateProgress(); 
                     resolve(); 
                 };
 
@@ -75,23 +76,8 @@ function preloadAssets(paths) {
                 };
                 audio.load();
 
-            } else if (['mp4', 'webm'].includes(extension)) {
-                fetch(path)
-                    .then(response => {
-                        if (!response.ok) throw new Error('Network response was not ok');
-                        return response.blob();
-                    })
-                    .then(blob => {
-                        updateProgress();
-                        resolve();
-                    })
-                    .catch(e => {
-                        console.warn(`Failed: ${path}`, e);
-                        updateProgress();
-                        resolve();
-                    });
-
             } else {
+                // 動画などはここに含まれないためスキップ
                 updateProgress();
                 resolve();
             }

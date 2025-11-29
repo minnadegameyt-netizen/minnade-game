@@ -1,3 +1,5 @@
+// --- START OF FILE game-loop.js ---
+
 import * as state from './state.js';
 import { ui, abilityDescriptions } from './ui.js';
 import { checkEvent, runEvent, allEvents } from './events/events.js'; 
@@ -8,7 +10,176 @@ import * as youtube from './youtube.js';
 let currentBgmYear = 0;
 let isPaused = false;
 
+// ★★★ 動画管理用キャッシュセット（重複ロード防止用） ★★★
+const videoCacheSet = new Set();
+
+// ★★★ 動画を裏で読み込む関数 ★★★
+// fetchするだけで変数には保存しません。これでブラウザのディスクキャッシュに入り、
+// 実際に使うときに「ネットワーク待ち」が発生しなくなります。メモリも圧迫しません。
+function prefetchVideo(filename) {
+    if (!filename || videoCacheSet.has(filename)) return;
+    
+    const path = `video/${filename}.mp4`;
+    console.log(`Prefetching video: ${path}`);
+    videoCacheSet.add(filename);
+
+    fetch(path)
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            // レスポンスを受け取るだけで、Blobとしてメモリには保持しない
+            // ブラウザが自動的にディスクキャッシュしてくれることを期待する
+        })
+        .catch(e => {
+            console.warn(`Prefetch failed for ${path}:`, e);
+            videoCacheSet.delete(filename); // 失敗したら再トライできるように削除
+        });
+}
+
+// ★★★ 動画表示関数（メモリ対策強化版） ★★★
+function updateCharacterDisplay(newVideoName = null) {
+    let videoPath = '';
+
+    if (newVideoName) {
+        videoPath = `video/${newVideoName}.mp4`;
+    } else {
+        const month = state.gameState.month;
+        if (month >= 3 && month <= 5) {
+            videoPath = 'video/april.mp4';
+        } else if (month >= 6 && month <= 8) {
+            videoPath = 'video/summer.mp4';
+        } else if (month >= 9 && month <= 11) {
+            videoPath = 'video/school.mp4';
+        } else {
+            videoPath = 'video/winter.mp4';
+        }
+    }
+    
+    const videoElement = ui.characterVideo;
+    const currentVideoPath = videoElement.getAttribute('src'); // datasetではなくsrc属性を直接確認
+
+    // パスが同じ場合、再生されていなければ再生して終了
+    if (currentVideoPath && currentVideoPath.endsWith(videoPath)) {
+        if (videoElement.paused && !videoElement.classList.contains('hidden')) {
+           videoElement.play().catch(e => console.log("Video resume failed:", e));
+        }
+        return;
+    }
+
+    // ★修正: 新しい動画をセットする前に、前の動画のメモリを完全に手放す
+    videoElement.pause();
+    videoElement.removeAttribute('src'); // srcを空にする
+    videoElement.load(); // 空の状態でロードしてバッファをクリア（重要）
+    
+    if (videoPath) {
+        videoElement.src = videoPath;
+        videoElement.classList.remove('hidden');
+        
+        const playPromise = videoElement.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(e => {
+                console.log("Video play failed (autoplay policy or memory):", e);
+            });
+        }
+    } else {
+        videoElement.classList.add('hidden');
+    }
+}
+
+function calculateTeamTotal() {
+    const p = state.player;
+    const stats = [p.power, p.meet, p.speed, p.shoulder, p.defense];
+    const avg = stats.reduce((s, v) => s + v, 0) / stats.length;
+    return Math.round(avg);
+}
+
+
+export async function initializeGame(mode, playerName, saveData = null) {
+    // ... (既存の初期化コードはそのまま) ...
+    if (mode === 'solo') {
+        document.querySelector('.vote-status').classList.add('hidden');
+        document.querySelector('.community-panel').classList.add('hidden');
+    } else if (mode === 'streamer') {
+        youtube.startYouTubeFetching(state.youtubeSettings.apiKey, state.youtubeSettings.liveChatId);
+    }
+    
+    const missionDefinitions = [ 
+        { command: "筋トレ", text: "パワーをつけろ！", reward: { type: "health", value: 5 }, rewardText: "体力+5" }, 
+        { command: "気分転換", text: "リフレッシュしろ！", reward: { type: "health", value: 10 }, rewardText: "体力+10" },
+        { command: "走り込み", text: "走り込んで足を鍛えろ！", reward: { type: "health", value: 5 }, rewardText: "体力+5" },
+        { command: "勉強", text: "テストに備えて勉強だ！", reward: { type: "intelligence", value: 2 }, rewardText: "学力+2" },
+        { command: "チーム練習", text: "チームの輪を大事にしろ！", reward: { type: "coachEval", value: 1 }, rewardText: "監督評価+1" }
+    ];
+
+    // ★★★ 先読み開始 ★★★
+    // ゲーム開始直後、よく使うコマンド動画を裏で読み込んでおく
+    // これにより、コマンド選択後に即座に再生され、かつメモリは圧迫しない
+    setTimeout(() => {
+        prefetchVideo('april'); // 春の背景
+        prefetchVideo('muscle_training');
+        prefetchVideo('running');
+        prefetchVideo('training');
+        prefetchVideo('study');
+        prefetchVideo('city');
+    }, 1000);
+
+    if (saveData) {
+        // ... (セーブデータロード処理) ...
+        const savedEvents = saveData.gameEvents;
+        allEvents.forEach(event => {
+            const savedEvent = savedEvents.find(se => se.id === event.id);
+            if (savedEvent) {
+                event.executed = savedEvent.executed;
+            }
+        });
+
+        state.setInitialState({ 
+            gameState: saveData.gameState, 
+            player: saveData.player, 
+            team: saveData.team, 
+            gameEvents: allEvents,
+            missions: missionDefinitions,
+            randomEventHistory: saveData.randomEventHistory,
+            logHistory: saveData.logHistory,
+        });
+        currentBgmYear = saveData.gameState.year;
+    } else {
+        // ... (新規データ作成処理) ...
+        allEvents.forEach(event => event.executed = false);
+        state.setInitialState({
+            gameState: { gameMode: mode, totalTurns: 109, currentTurn: 0, year: 1, month: 4, week: 1, isVoting: false, isAudienceMode: true, isEventRunning: false, matchScheduled: false, currentMissions: [], tournamentProgress: 0, tournamentState: null, lastCommand: null },
+            player: { name: playerName, health: 100, maxHealth: 100, intelligence: 10, power: 1, meet: 1, speed: 1, shoulder: 1, defense: 1, condition: "普通", specialAbilities: {}, girlfriendEval: 0, hasPhoneNumber: false, girlfriendRoute: 'none', redMarkCount: 0, studyCount: 0, noRefreshTurnCount: 0, noDateTurnCount: 0, commandHistory: [] },
+            team: { total: 0, coachEval: 0 },
+            gameEvents: allEvents,
+            missions: missionDefinitions
+        });
+    }
+    ui.startModal.classList.add('hidden');
+    
+    if(currentBgmYear === 0 && !saveData) {
+        currentBgmYear = 1;
+    }
+    playBgmByName(currentBgmYear);
+    
+    state.team.total = calculateTeamTotal();
+    ui.updateAllDisplays(); 
+    updateCharacterDisplay();
+    
+    if (saveData) {
+        await ui.typeWriter("セーブデータをロードしました。");
+        await ui.waitForUserAction();
+        await nextTurn();
+    } else {
+        const openingEvent = allEvents.find(e => e.id === 'opening');
+        if(openingEvent && !openingEvent.executed) {
+            await runEvent(openingEvent);
+        } else {
+            await processEndOfTurn();
+        }
+    }
+}
+
 export async function triggerDraftEnding() {
+    // ... (ドラフトエンド処理、変更なし) ...
     stopAllBgm();
     state.gameState.isGameOver = true;
     
@@ -48,144 +219,14 @@ export async function triggerDraftEnding() {
     await ui.showDraftResult({ rankName, score, comments });
 }
 
-// ★★★ 修正した動画表示関数（メモリ対策版） ★★★
-function updateCharacterDisplay(newVideoName = null) {
-    let videoPath = '';
-
-    if (newVideoName) {
-        videoPath = `video/${newVideoName}.mp4`;
-    } else {
-        const month = state.gameState.month;
-        if (month >= 3 && month <= 5) {
-            videoPath = 'video/april.mp4';
-        } else if (month >= 6 && month <= 8) {
-            videoPath = 'video/summer.mp4';
-        } else if (month >= 9 && month <= 11) {
-            videoPath = 'video/school.mp4';
-        } else {
-            videoPath = 'video/winter.mp4';
-        }
-    }
-    
-    const currentVideoPath = ui.characterVideo.dataset.currentVideoPath;
-    const videoElement = ui.characterVideo;
-
-    // パスが同じ場合
-    if (currentVideoPath === videoPath) {
-        if (videoElement.paused && !videoElement.classList.contains('hidden')) {
-           videoElement.play().catch(e => {
-               console.log("Video resume failed:", e);
-           });
-        }
-        return;
-    }
-
-    // ★修正: 動画を切り替える前に、前の動画を停止する
-    videoElement.pause();
-    
-    if (videoPath) {
-        videoElement.src = videoPath;
-        videoElement.dataset.currentVideoPath = videoPath;
-        videoElement.classList.remove('hidden');
-        videoElement.load(); 
-        
-        const playPromise = videoElement.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(e => {
-                console.log("Video play failed (autoplay policy or memory):", e);
-            });
-        }
-    } else {
-        // ★修正: 動画なしの場合は src を空にしてメモリを解放する
-        videoElement.classList.add('hidden');
-        videoElement.removeAttribute('src'); // src属性を削除
-        videoElement.load(); // 空の状態でロードしてバッファをクリア
-        videoElement.dataset.currentVideoPath = '';
-    }
-}
-
-function calculateTeamTotal() {
-    const p = state.player;
-    const stats = [p.power, p.meet, p.speed, p.shoulder, p.defense];
-    const avg = stats.reduce((s, v) => s + v, 0) / stats.length;
-    return Math.round(avg);
-}
-
-
-export async function initializeGame(mode, playerName, saveData = null) {
-    if (mode === 'solo') {
-        document.querySelector('.vote-status').classList.add('hidden');
-        document.querySelector('.community-panel').classList.add('hidden');
-    } else if (mode === 'streamer') {
-        youtube.startYouTubeFetching(state.youtubeSettings.apiKey, state.youtubeSettings.liveChatId);
-    }
-    
-    const missionDefinitions = [ 
-        { command: "筋トレ", text: "パワーをつけろ！", reward: { type: "health", value: 5 }, rewardText: "体力+5" }, 
-        { command: "気分転換", text: "リフレッシュしろ！", reward: { type: "health", value: 10 }, rewardText: "体力+10" },
-        { command: "走り込み", text: "走り込んで足を鍛えろ！", reward: { type: "health", value: 5 }, rewardText: "体力+5" },
-        { command: "勉強", text: "テストに備えて勉強だ！", reward: { type: "intelligence", value: 2 }, rewardText: "学力+2" },
-        { command: "チーム練習", text: "チームの輪を大事にしろ！", reward: { type: "coachEval", value: 1 }, rewardText: "監督評価+1" }
-    ];
-
-    if (saveData) {
-        const savedEvents = saveData.gameEvents;
-        allEvents.forEach(event => {
-            const savedEvent = savedEvents.find(se => se.id === event.id);
-            if (savedEvent) {
-                event.executed = savedEvent.executed;
-            }
-        });
-
-        state.setInitialState({ 
-            gameState: saveData.gameState, 
-            player: saveData.player, 
-            team: saveData.team, 
-            gameEvents: allEvents,
-            missions: missionDefinitions,
-            randomEventHistory: saveData.randomEventHistory,
-            logHistory: saveData.logHistory,
-        });
-        currentBgmYear = saveData.gameState.year;
-    } else {
-        allEvents.forEach(event => event.executed = false);
-        state.setInitialState({
-            gameState: { gameMode: mode, totalTurns: 109, currentTurn: 0, year: 1, month: 4, week: 1, isVoting: false, isAudienceMode: true, isEventRunning: false, matchScheduled: false, currentMissions: [], tournamentProgress: 0, tournamentState: null, lastCommand: null },
-            player: { name: playerName, health: 100, maxHealth: 100, intelligence: 10, power: 1, meet: 1, speed: 1, shoulder: 1, defense: 1, condition: "普通", specialAbilities: {}, girlfriendEval: 0, hasPhoneNumber: false, girlfriendRoute: 'none', redMarkCount: 0, studyCount: 0, noRefreshTurnCount: 0, noDateTurnCount: 0, commandHistory: [] },
-            team: { total: 0, coachEval: 0 },
-            gameEvents: allEvents,
-            missions: missionDefinitions
-        });
-    }
-    ui.startModal.classList.add('hidden');
-    
-    if(currentBgmYear === 0 && !saveData) {
-        currentBgmYear = 1;
-    }
-    playBgmByName(currentBgmYear);
-    
-    state.team.total = calculateTeamTotal();
-    ui.updateAllDisplays(); 
-    updateCharacterDisplay();
-    
-    if (saveData) {
-        await ui.typeWriter("セーブデータをロードしました。");
-        await ui.waitForUserAction();
-        await nextTurn();
-    } else {
-        const openingEvent = allEvents.find(e => e.id === 'opening');
-        if(openingEvent && !openingEvent.executed) {
-            await runEvent(openingEvent);
-        } else {
-            await processEndOfTurn();
-        }
-    }
-}
-
 async function runTournamentSequence() {
+    // ... (大会処理) ...
     state.gameState.isEventRunning = true;
     stopAllBgm();
     playBgmByName('match');
+
+    // ★大会中は試合用動画を先読み
+    prefetchVideo('matchday');
 
     const tournamentName = state.gameState.tournamentState.name;
     let currentRound = state.gameState.tournamentState.round;
@@ -210,7 +251,8 @@ async function runTournamentSequence() {
 
     updateCharacterDisplay('matchday');
     const hasWon = await runMatch(opponent);
-
+    
+    // ... (以降の大会処理ロジックは変更なし) ...
     if (hasWon) {
         if (currentRound >= totalMatches && tournamentName === 'koshien') {
             const victoryEvent = allEvents.find(e => e.id === 'koshien_victory');
@@ -288,6 +330,7 @@ async function runTournamentSequence() {
     await processEndOfTurn();
 }
 
+
 export async function nextTurn() {
     if (state.gameState.isGameOver || state.gameState.isEventRunning) return;
     state.gameState.phoneConfessionAttemptedThisTurn = false;
@@ -299,6 +342,14 @@ export async function nextTurn() {
         if (state.gameState.week > 4) { state.gameState.week = 1; state.gameState.month++; }
         if (state.gameState.month > 12) { state.gameState.month = 1; state.gameState.year++; }
     }
+    
+    // ★★★ 季節動画の先読みロジック ★★★
+    // 月が変わる1ヶ月前くらいに、次の季節の背景動画をダウンロードしておく
+    const m = state.gameState.month;
+    if (m === 2) prefetchVideo('april');  // 4月用
+    if (m === 5) prefetchVideo('summer'); // 6月用
+    if (m === 8) prefetchVideo('school'); // 9月用
+    if (m === 11) prefetchVideo('winter'); // 12月用
     
     if (state.gameState.tournamentState && state.gameState.tournamentState.round > 0) {
         await runTournamentSequence();
@@ -324,10 +375,13 @@ export async function nextTurn() {
 }
 
 export async function processEndOfTurn() {
+    // ... (変更なし) ...
     if (state.gameState.isGameOver) return; 
     const eventToRun = checkEvent();
     if (eventToRun) {
+        // イベントに応じた動画の先読み（必要ならここに追加）
         if (eventToRun.id === "gw_1" || eventToRun.id === "gw_2") {
+             prefetchVideo("game-center"); // 先読み
              updateCharacterDisplay("game-center");
         } else if (eventToRun.id.includes("rikujo_")) {
              updateCharacterDisplay("school");
@@ -346,6 +400,7 @@ export async function processEndOfTurn() {
 }
 
 async function startVoting() {
+    // ... (変更なし) ...
     if (state.player.health <= 0) {
         await ui.typeWriter("体力が尽きて倒れてしまった...<br>今週は強制的に休む。");
         state.player.health = state.player.maxHealth;
@@ -357,11 +412,7 @@ async function startVoting() {
 
     if (state.gameState.week === 1) {
         const stats = ["power", "meet", "speed", "shoulder", "defense", "intelligence"];
-        
-        const statJapanese = {
-            power: "パワー", meet: "ミート", speed: "走力", 
-            shoulder: "肩力", defense: "守備力", intelligence: "学力"
-        };
+        const statJapanese = { power: "パワー", meet: "ミート", speed: "走力", shoulder: "肩力", defense: "守備力", intelligence: "学力" };
         
         if (state.player.specialAbilities["神の啓示"]) {
             const target = stats[Math.floor(Math.random() * stats.length)];
@@ -380,6 +431,7 @@ async function startVoting() {
         }
     }
     
+    // ... (イベントチェック処理 変更なし) ...
     if (state.player.specialAbilities["お弁当"] && state.player.isGirlfriend && state.gameState.month !== state.player.bentoEventLastMonth) {
         await ui.typeWriter("彼女からお弁当をもらった！体力が回復し、やる気が最大に！");
         state.player.health = Math.min(state.player.maxHealth, state.player.health + 30);
@@ -398,6 +450,7 @@ async function startVoting() {
         if (prevEval >= 40 && state.player.girlfriendEval < 40) {
             const crisisEvent = allEvents.find(e => e.id === 'breakup_crisis');
             if (crisisEvent) {
+                // ... (破局イベント分岐) ...
                 switch(state.player.girlfriendRoute) {
                     case 'rikujo':
                         crisisEvent.scenes[1].image = "img/kazami_sad.png";
@@ -452,9 +505,11 @@ async function executeCommand(command) {
         case "電話する": videoName = "phone"; break;
         default: videoName = null;
     }
+    // ここで再生
     updateCharacterDisplay(videoName);
 
     await ui.typeWriter(`「${effectiveCommand}」を実行！`);
+    // ... (以下、コマンド実行後のパラメータ変動処理は変更なし) ...
     await ui.waitForUserAction();
 
     let healthChange = 0;
@@ -567,6 +622,7 @@ async function executeCommand(command) {
 }
 
 async function checkSpecialAbilities(command) {
+    // ... (特殊能力取得ロジック 変更なし) ...
     const acquireAbility = async (name) => {
         if (!state.player.specialAbilities[name]) {
             state.player.specialAbilities[name] = true;
