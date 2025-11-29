@@ -1,5 +1,3 @@
-/* style.css */
-
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Orbitron:wght@700&display=swap');
 
 html {
@@ -586,4 +584,107 @@ body {
     #mobile-warning-overlay {
         display: flex;
     }
+}
+
+/* --- SNSリンク (フッター用) --- */
+.footer-sns {
+    display: flex;
+    justify-content: center;
+    gap: 30px; /* アイコン同士の間隔を広げる */
+    margin-bottom: 25px; /* 下のリンクとの距離を広げる */
+}
+
+.sns-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px; /* 40px -> 60px に拡大 */
+    height: 60px; /* 40px -> 60px に拡大 */
+    background-color: #2d3748;
+    border-radius: 50%;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s; /* アニメーションを少し滑らかに */
+    border: 2px solid #4a5568; /* 枠線を少し太く */
+}
+
+/* SVGアイコンのサイズも大きくする */
+.sns-icon svg {
+    width: 30px; /* 20px -> 30px に拡大 */
+    height: 30px;
+}
+
+/* ホバー時の挙動 */
+.sns-icon:hover {
+    transform: translateY(-5px); /* 浮き上がりを大きく */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* 影をつけて立体的に */
+}
+
+/* X (Twitter) のブランドカラー */
+.sns-icon.x-icon {
+    /* デフォルトでも少し目立つようにするならコメントアウトを外す */
+    /* background-color: #000; */
+}
+.sns-icon.x-icon:hover {
+    background-color: #000;
+    border-color: #fff;
+}
+
+/* Note のブランドカラー */
+.sns-icon.note-icon {
+    /* background-color: #41c9b4; */
+}
+.sns-icon.note-icon:hover {
+    background-color: #41c9b4; /* Noteグリーン */
+    border-color: #41c9b4;
+}.footer-sns {
+    display: flex;
+    justify-content: center;
+    gap: 30px; /* アイコン同士の間隔を広げる */
+    margin-bottom: 25px; /* 下のリンクとの距離を広げる */
+}
+
+.sns-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px; /* 40px -> 60px に拡大 */
+    height: 60px; /* 40px -> 60px に拡大 */
+    background-color: #2d3748;
+    border-radius: 50%;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s; /* アニメーションを少し滑らかに */
+    border: 2px solid #4a5568; /* 枠線を少し太く */
+}
+
+/* SVGアイコンのサイズも大きくする */
+.sns-icon svg {
+    width: 30px; /* 20px -> 30px に拡大 */
+    height: 30px;
+}
+
+/* ホバー時の挙動 */
+.sns-icon:hover {
+    transform: translateY(-5px); /* 浮き上がりを大きく */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* 影をつけて立体的に */
+}
+
+/* X (Twitter) のブランドカラー */
+.sns-icon.x-icon {
+    /* デフォルトでも少し目立つようにするならコメントアウトを外す */
+    /* background-color: #000; */
+}
+.sns-icon.x-icon:hover {
+    background-color: #000;
+    border-color: #fff;
+}
+
+/* Note のブランドカラー */
+.sns-icon.note-icon {
+    /* background-color: #41c9b4; */
+}
+.sns-icon.note-icon:hover {
+    background-color: #41c9b4; /* Noteグリーン */
+    border-color: #41c9b4;
 }
