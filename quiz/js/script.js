@@ -222,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (gameMode === 'streamer') {
             votingStatus.classList.remove('hidden');
+            nextPageToken = null; // ポーリング履歴をリセット
             startYouTubePolling();
         } else {
             votingStatus.classList.add('hidden');

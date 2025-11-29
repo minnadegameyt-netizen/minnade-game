@@ -943,6 +943,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (liveChatId) {
             addLog("【システム】接続成功！コメント取得を開始します。");
+            nextPageToken = null; // ポーリング履歴をリセット
             // 初回実行
             pollYouTubeChat();
         } else {
