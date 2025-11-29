@@ -77,15 +77,20 @@ document.addEventListener('DOMContentLoaded', () => {
             
             document.getElementById('howto-content').innerHTML = `
                 <div class="key-guide">
-                ・ デフォルトは黒です<br>
-                ・ 「100」等の数字で塗る<br>
-                ・ 左上が「1」右下が「400」
-                または「900」<br>
-                ・ 「赤」「青」で色変更<br>
-                ・ 赤・青・黄・黒・白・紫・灰・水・茶・ピンク・橙
+                <strong>【配信者】</strong><br>
+                <span class="key-badge">キーボードの矢印</span> で塗る<br>
+                <span class="key-badge">Ctrl+Z</span> 元に戻す<br>
+                <strong>【参加者】</strong><br>
+                「100」等の数字で塗る<br>
+                例：左上は「1」右下は400
+                「赤」「青」等で色変更<br>
                 </div>`;
             state.players = 4;
             state.timeLimit = 300;
+            
+            document.getElementById('undo-btn').classList.remove('hidden');
+            document.getElementById('manual-finish-btn').classList.remove('hidden');
+
         } else {
             state.mode = 'solo';
             document.getElementById('mode-solo').classList.add('selected');
@@ -159,9 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
         COLOR_DEFINITIONS.forEach(def => {
             const item = document.createElement('div');
             item.className = 'color-item';
-            if (state.mode === 'solo' && def.id === soloState.currentColorId) item.classList.add('active');
+            if ((state.mode === 'solo' || state.mode === 'stream') && def.id === soloState.currentColorId) item.classList.add('active');
             item.onclick = () => {
-                if (state.mode === 'solo') {
+                if (state.mode === 'solo' || state.mode === 'stream') {
                     soloState.currentColorId = def.id;
                     updatePaletteSelection();
                 }
@@ -234,9 +239,11 @@ document.addEventListener('DOMContentLoaded', () => {
             cvs.height = CANVAS_PIXEL_SIZE;
             cvs.dataset.index = i;
 
-            cvs.addEventListener('mousedown', onCanvasMouseDown);
-            window.addEventListener('mouseup', onCanvasMouseUp);
-            cvs.addEventListener('mousemove', onCanvasMouseMove);
+            if (state.mode === 'solo' || (state.mode === 'stream' && i === 0)) {
+                cvs.addEventListener('mousedown', onCanvasMouseDown);
+                window.addEventListener('mouseup', onCanvasMouseUp);
+                cvs.addEventListener('mousemove', onCanvasMouseMove);
+            }
             cvs.addEventListener('contextmenu', e => e.preventDefault());
 
             wrapper.appendChild(cvs);
@@ -266,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
             finishBtn.classList.add('hidden');
         }
     }
-
+    
     function initEntryScreen() {
         const list = document.getElementById('entry-list');
         list.innerHTML = '';
@@ -288,79 +295,66 @@ document.addEventListener('DOMContentLoaded', () => {
         totalEntries = 0;
         for(let key in playersMap) delete playersMap[key];
         
-    const hostNameInput = document.getElementById('host-name-input');
-    const hostName = hostNameInput.value.trim() || '配信者'; // 入力が空なら'配信者'をデフォルトに
-    playersMap['host'] = { id: 'host', group: 1, colorId: 5, name: hostName };
-    totalEntries = 1;
+        const hostNameInput = document.getElementById('host-name-input');
+        const hostName = hostNameInput.value.trim() || '配信者';
+        playersMap['host'] = { id: 'host', group: 1, colorId: 5, name: hostName };
+        totalEntries = 1;
 
         updateEntryScreen();
     }
 
-function updateEntryScreen() {
-    const teamNames = ["Pink Team", "Green Team", "Blue Team", "Yellow Team"];
-    
-    // チームごとの参加者リストを作成 (IDも保持)
-    const teams = {};
-    for (let i = 1; i <= state.players; i++) {
-        teams[i] = []; // { id, name } の配列に
-    }
-    for (const playerId in playersMap) {
-        const player = playersMap[playerId];
-        if (teams[player.group]) {
-            // ★変更: プレイヤーIDと名前をオブジェクトで追加
-            teams[player.group].push({ id: playerId, name: player.name });
+    function updateEntryScreen() {
+        const teamNames = ["Pink Team", "Green Team", "Blue Team", "Yellow Team"];
+        
+        const teams = {};
+        for (let i = 1; i <= state.players; i++) {
+            teams[i] = [];
         }
-    }
-
-function kickPlayer(playerId) {
-    if (playersMap[playerId]) {
-        delete playersMap[playerId]; // プレイヤー情報を削除
-        totalEntries--; // 総参加者数を減らす
-        
-        // エントリー画面を再描画
-        updateEntryScreen();
-        
-        // 効果音を鳴らすなど（任意）
-        playSe('kick'); // もしkick.mp3などがあれば
-    }
-}
-
-    // 画面の表示を更新
-    for (let i = 1; i <= state.players; i++) {
-        const slot = document.getElementById(`entry-slot-${i}`);
-        if (slot) {
-            const members = teams[i];
-            const memberCount = members.length;
-            let text = `<strong>${teamNames[i-1]} (${memberCount > 0 ? `${memberCount}名` : '募集中'})</strong>`;
-            
-            if (memberCount > 0) {
-                // 参加者リストを生成
-                const memberListHTML = members.map(member => {
-                    // 配信者(host)にはキックボタンを付けない
-                    if (member.id === 'host') {
-                        return `<div>${member.name}</div>`;
-                    }
-                    // ★追加: キックボタン付きのHTMLを生成
-                    return `<div>
-                                ${member.name}
-                                <button class="kick-btn" data-player-id="${member.id}">×</button>
-                            </div>`;
-
-                }).join('');
-                text += `<br>${memberListHTML}`;
+        for (const playerId in playersMap) {
+            const player = playersMap[playerId];
+            if (teams[player.group]) {
+                teams[player.group].push({ id: playerId, name: player.name });
             }
-            slot.innerHTML = text;
+        }
+
+        for (let i = 1; i <= state.players; i++) {
+            const slot = document.getElementById(`entry-slot-${i}`);
+            if (slot) {
+                const members = teams[i];
+                const memberCount = members.length;
+                let text = `<strong>${teamNames[i-1]} (${memberCount > 0 ? `${memberCount}名` : '募集中'})</strong>`;
+                
+                if (memberCount > 0) {
+                    const memberListHTML = members.map(member => {
+                        if (member.id === 'host') {
+                            return `<div>${member.name}</div>`;
+                        }
+                        return `<div>
+                                    ${member.name}
+                                    <button class="kick-btn" data-player-id="${member.id}">×</button>
+                                </div>`;
+                    }).join('');
+                    text += `<br>${memberListHTML}`;
+                }
+                slot.innerHTML = text;
+            }
+        }
+
+        document.querySelectorAll('.kick-btn').forEach(btn => {
+            btn.onclick = () => {
+                const playerIdToKick = btn.dataset.playerId;
+                kickPlayer(playerIdToKick);
+            };
+        });
+    }
+    
+    function kickPlayer(playerId) {
+        if (playersMap[playerId]) {
+            delete playersMap[playerId];
+            totalEntries--;
+            updateEntryScreen();
         }
     }
-
-    // ★追加: キックボタンにイベントを設定
-    document.querySelectorAll('.kick-btn').forEach(btn => {
-        btn.onclick = () => {
-            const playerIdToKick = btn.dataset.playerId;
-            kickPlayer(playerIdToKick);
-        };
-    });
-}
 
     function startGame() {
         document.getElementById('entry-modal').classList.add('hidden');
@@ -436,6 +430,7 @@ function kickPlayer(playerId) {
         const count = state.players;
         for(let i=0; i<count; i++) {
             const cvs = document.getElementById(`cvs-${i}`);
+            if(!cvs) continue;
             const ctx = cvs.getContext('2d');
             const map = state.maps[i];
             
@@ -459,7 +454,7 @@ function kickPlayer(playerId) {
                 }
             }
 
-            if (state.mode === 'solo' && i === 0) {
+            if ((state.mode === 'solo' && i === 0) || (state.mode === 'stream' && i === 0)) {
                 const cx = soloState.cursor.x;
                 const cy = soloState.cursor.y;
                 ctx.strokeStyle = '#e17055'; 
@@ -477,7 +472,7 @@ function kickPlayer(playerId) {
     }
 
     function handleKeyDown(e) {
-        if (state.mode !== 'solo' || !state.isRunning) return;
+        if ((state.mode !== 'solo' && state.mode !== 'stream') || !state.isRunning) return;
 
         if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
             e.preventDefault();
@@ -513,13 +508,17 @@ function kickPlayer(playerId) {
     }
 
     function onCanvasMouseDown(e) {
-        if (!state.isRunning || state.mode !== 'solo') return;
+        const mapIndex = parseInt(e.target.dataset.index, 10);
+        if (!state.isRunning || (state.mode === 'stream' && mapIndex !== 0)) return;
+
         soloState.isDrawing = true;
         soloState.currentStroke = [];
         handleMousePaint(e);
     }
     function onCanvasMouseMove(e) {
-        if (!state.isRunning || state.mode !== 'solo' || !soloState.isDrawing) return;
+        const mapIndex = parseInt(e.target.dataset.index, 10);
+        if (!state.isRunning || !soloState.isDrawing || (state.mode === 'stream' && mapIndex !== 0)) return;
+        
         handleMousePaint(e);
     }
     function onCanvasMouseUp(e) {
@@ -667,68 +666,68 @@ function kickPlayer(playerId) {
         link.click();
     }
 
-function processComment(msg, authorName, authorId) {
-    if (!authorId) authorId = authorName;
+    function processComment(msg, authorName, authorId) {
+        if (!authorId) authorId = authorName;
 
-    if (msg.includes('参加') || msg.includes('join')) {
-        if (playersMap[authorId]) return; // 既にどこかのチームに参加済みなら何もしない
-        if (state.isRunning) return; // ゲーム開始後は参加不可
+        // 配信者のコメントは色変更・描画処理を無視する
+        if (authorId === 'host') return;
 
-        // ★★★ ここからが新しいロジック ★★★
-        // 2番チームから順に空きを探す
-        let assigned = false;
-        for (let teamId = 2; teamId <= state.players; teamId++) {
-            // そのチームに既に誰かいるかチェック
-            const isTeamFull = Object.values(playersMap).some(p => p.group === teamId);
+        if (msg.includes('参加') || msg.includes('join')) {
+            if (playersMap[authorId]) return;
+            if (state.isRunning) return;
             
-            if (!isTeamFull) {
-                // チームが空いていれば、そこに参加させる
-                playersMap[authorId] = { group: teamId, colorId: 5, name: authorName };
-                totalEntries++;
-                playSe('join');
-                updateEntryScreen();
-                assigned = true;
-                break; // 割り当てが完了したのでループを抜ける
+            let assigned = false;
+            for (let teamId = 2; teamId <= state.players; teamId++) {
+                const isTeamFull = Object.values(playersMap).some(p => p.group === teamId);
+                if (!isTeamFull) {
+                    playersMap[authorId] = { group: teamId, colorId: 5, name: authorName };
+                    totalEntries++;
+                    playSe('join');
+                    updateEntryScreen();
+                    assigned = true;
+                    break;
+                }
+            }
+            return;
+        }
+
+        let newColorId = -1;
+        for (const def of COLOR_DEFINITIONS) {
+            if (msg.includes(def.name)) {
+                newColorId = def.id;
+                break;
             }
         }
-        // ★★★ ここまでが新しいロジック ★★★
-        return;
-    }
+        
+        if (newColorId !== -1) {
+            if (playersMap[authorId]) {
+                playersMap[authorId].colorId = newColorId;
+            }
+            return;
+        }
 
-    let newColorId = -1;
-    for (const def of COLOR_DEFINITIONS) {
-        if (msg.includes(def.name)) {
-            newColorId = def.id;
-            break;
+        if (!state.isRunning) return;
+
+        let playerInfo = playersMap[authorId];
+        if (!playerInfo) return;
+
+        // 視聴者はPink Team(group 1)には描画できない
+        if (playerInfo.group === 1) return;
+
+        const normalizeMsg = msg.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+        const match = normalizeMsg.match(/(\d+)/);
+        
+        if (match) {
+            const cellNum = parseInt(match[1], 10);
+            const index = cellNum - 1;
+            const x = index % state.gridSize;
+            const y = Math.floor(index / state.gridSize);
+
+            const targetMapIndex = playerInfo.group - 1;
+
+            tryPaint(targetMapIndex, x, y, playerInfo.colorId);
         }
     }
-    
-    if (newColorId !== -1) {
-        if (playersMap[authorId]) {
-            playersMap[authorId].colorId = newColorId;
-        }
-        return;
-    }
-
-    if (!state.isRunning) return;
-
-    let playerInfo = playersMap[authorId];
-    if (!playerInfo) return;
-
-    const normalizeMsg = msg.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
-    const match = normalizeMsg.match(/(\d+)/);
-    
-    if (match) {
-        const cellNum = parseInt(match[1], 10);
-        const index = cellNum - 1;
-        const x = index % state.gridSize;
-        const y = Math.floor(index / state.gridSize);
-
-        const targetMapIndex = playerInfo.group - 1;
-
-        tryPaint(targetMapIndex, x, y, playerInfo.colorId);
-    }
-}
 
     function tryPaint(mapIndex, x, y, colorId) {
         if (!state.maps[mapIndex]) return;
