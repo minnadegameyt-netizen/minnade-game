@@ -349,3 +349,21 @@ canvas {
 .kick-btn:hover {
     background-color: #ff7675;
 }
+
+/* style.css の末尾に追加 */
+
+.setup-input {
+    width: 100%;
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #636e72;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.setup-input:focus {
+    outline: none;
+    border-color: #74b9ff;
+}

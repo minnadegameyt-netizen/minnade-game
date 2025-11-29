@@ -288,8 +288,10 @@ document.addEventListener('DOMContentLoaded', () => {
         totalEntries = 0;
         for(let key in playersMap) delete playersMap[key];
         
-        playersMap['host'] = { group: 1, colorId: 5, name: '配信者' };
-        totalEntries = 1;
+    const hostNameInput = document.getElementById('host-name-input');
+    const hostName = hostNameInput.value.trim() || '配信者'; // 入力が空なら'配信者'をデフォルトに
+    playersMap['host'] = { id: 'host', group: 1, colorId: 5, name: hostName };
+    totalEntries = 1;
 
         updateEntryScreen();
     }
