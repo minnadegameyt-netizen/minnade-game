@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let voteCounts = [0, 0, 0, 0];
     let timerInterval = null;
     let youtubeInterval = null;
+    let questionStartTime = null; // ★変更点: 投票受付開始時刻を記録する変数を追加
 
     // --- YouTube API用 ---
     let YOUTUBE_API_KEY = "";
@@ -222,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function startVotingPhase() {
         isVoting = true;
         let timeLeft = voteTimeLimit;
+        questionStartTime = new Date(); // ★変更点: 投票受付開始時刻を記録
         
         if (gameMode === 'streamer') {
             votingStatus.classList.remove('hidden');
@@ -361,11 +363,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.nextPageToken) nextPageToken = data.nextPageToken;
             if (data.items) {
                 data.items.forEach(item => {
-                    const msg = item.snippet.displayMessage;
-                    if (msg.match(/[1１]/)) vote(0);
-                    else if (msg.match(/[2２]/)) vote(1);
-                    else if (msg.match(/[3３]/)) vote(2);
-                    else if (msg.match(/[4４]/)) vote(3);
+                    // ★変更点: この問題の投票受付開始時刻より後のコメントのみを対象とする
+                    const messageTimestamp = new Date(item.snippet.publishedAt);
+                    if (questionStartTime && messageTimestamp >= questionStartTime) {
+                        const msg = item.snippet.displayMessage;
+                        if (msg.match(/[1１]/)) vote(0);
+                        else if (msg.match(/[2２]/)) vote(1);
+                        else if (msg.match(/[3３]/)) vote(2);
+                        else if (msg.match(/[4４]/)) vote(3);
+                    }
                 });
                 updateVoteBars();
             }
