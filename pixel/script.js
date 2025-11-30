@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('mode-solo').classList.add('selected');
         document.getElementById('mode-stream').classList.remove('selected');
 
+        document.getElementById('row-host-name').classList.add('hidden');
         document.getElementById('row-players').classList.add('hidden');
         document.getElementById('row-time').classList.add('hidden');
         
