@@ -2,33 +2,26 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-<!-- Google Analytics Control Script -->
-<script>
-  (function() {
-    var GA_ID = 'G-TS77Z86Q2V';
-
-    var isLocal = window.location.hostname === 'localhost' || 
-                  window.location.hostname === '127.0.0.1' || 
-                  window.location.hostname.startsWith('192.168.') ||
-                  window.location.protocol === 'file:';
-
-    var isAdmin = localStorage.getItem('analytics_ignore') === 'true';
-
-    if (!isLocal && !isAdmin) {
-      var script = document.createElement('script');
-      script.async = true;
-      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
-      document.head.appendChild(script);
-
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', GA_ID);
-    } else {
-      console.log('Google Analytics blocked (Local or Admin)');
-    }
-  })();
-</script>
+    <!-- Google Analytics Control Script -->
+    <script>
+      (function() {
+        var GA_ID = 'G-TS77Z86Q2V';
+        var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.') || window.location.protocol === 'file:';
+        var isAdmin = localStorage.getItem('analytics_ignore') === 'true';
+        if (!isLocal && !isAdmin) {
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+          document.head.appendChild(script);
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', GA_ID);
+        } else {
+          console.log('Google Analytics blocked (Local or Admin)');
+        }
+      })();
+    </script>
     <title>視聴者参加型：みんなでゲーム</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
@@ -43,7 +36,6 @@
             margin: 0 auto;
             padding-bottom: 40px;
         }
-        
         #home-page {
             overflow-y: auto;
             min-height: calc(100vh - 100px);
@@ -78,6 +70,37 @@
     </header>
 
     <main id="home-page">
+
+        <!-- 自動ランキングセクション (スライダー版) -->
+        <div class="ranking-section" id="ranking-section" style="display: none;">
+            <h2 class="ranking-title">🏆 人気ゲームランキング</h2>
+            
+            <!-- 期間切り替えタブ -->
+            <div class="ranking-tabs">
+                <button class="rank-tab active" onclick="switchRanking('total', this)">全期間</button>
+                <button class="rank-tab" onclick="switchRanking('yearly', this)">年間</button>
+                <button class="rank-tab" onclick="switchRanking('monthly', this)">月間</button>
+                <button class="rank-tab" onclick="switchRanking('weekly', this)">週間</button>
+                <button class="rank-tab" onclick="switchRanking('daily', this)">デイリー</button>
+            </div>
+
+            <!-- スライダーエリア -->
+            <div class="ranking-slider-wrapper">
+                <button class="slider-arrow prev" id="slider-prev" onclick="moveSlide(-1)">&#10094;</button>
+                
+                <div class="ranking-viewport">
+                    <div class="ranking-track" id="ranking-track">
+                        <!-- ここにカードが並びます -->
+                    </div>
+                </div>
+
+                <button class="slider-arrow next" id="slider-next" onclick="moveSlide(1)">&#10095;</button>
+            </div>
+            
+            <!-- 読み込み中/エラーメッセージ用 -->
+            <div id="ranking-message-area" style="display:none;"></div>
+        </div>
+
         <div class="game-selection">
             <!-- ゲームカード1: 高校野球シミュレーション -->
             <div class="game-card">
@@ -87,7 +110,6 @@
                 <div class="mode-buttons">
                     <a href="baseball/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
                     <a href="baseball/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
-                    
                     <button id="home-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="home-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
@@ -101,7 +123,6 @@
                 <div class="mode-buttons">
                     <a href="war/index.html?mode=demo" class="game-link-btn btn-green">デモプレイ（個人）</a>
                     <a href="war/index.html?mode=stream" class="game-link-btn btn-blue">配信で遊ぶ</a>
-                    
                     <button id="war-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="war-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
@@ -117,7 +138,6 @@
                 <div class="mode-buttons">
                     <a href="quiz/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
                     <a href="quiz/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
-                    
                     <button id="quiz-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="quiz-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
@@ -133,7 +153,6 @@
                 <div class="mode-buttons">
                     <a href="kanji/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
                     <a href="kanji/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
-                    
                     <button id="kanji-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="kanji-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
@@ -153,7 +172,7 @@
                 </div>
             </div>
             
-            <!-- ゲームカード6:  -->
+            <!-- ゲームカード6: 陣取りゲーム -->
             <div class="game-card">
                 <h2>配信者 VS 視聴者 陣取ゲーム</h2>
                 <div class="thumbnail-placeholder" style="border-color: #4299e1; color: #4299e1;">
@@ -168,7 +187,7 @@
                 </div>
             </div>
 
-            <!-- ゲームカード: Streamer Pixel Art -->
+            <!-- Pixel Art ゲーム用 -->
             <div class="game-card">
                 <h2>ピクセル　イラストレーター</h2>
                 <div class="thumbnail-placeholder" style="border-color: #ff7675; color: #ff7675;">
@@ -241,8 +260,6 @@
                     💡 キーの取得方法を見る
                 </button>
                 <div id="api-help-content" style="display: none; background: #222; padding: 15px; border-radius: 5px; margin-top: 10px; font-size: 0.85em; color: #ddd; line-height: 1.6;">
-                    
-                    <!-- ★修正: リンクを追加 -->
                     <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #555;">
                         <strong>📚 詳細な手順（画像付き）はこちら:</strong><br>
                         <a href="https://note.com/dontokoi_games/n/n6be3795087d4?sub_rt=share_pw" target="_blank" style="color:#63b3ed; text-decoration: underline; display: block; margin-top: 5px;">
@@ -252,7 +269,6 @@
                             よくある質問 / ヘルプ
                         </a>
                     </div>
-
                     <strong>🔑 YouTube API Key の取得方法 (簡易版):</strong>
                     <ol style="padding-left: 20px; margin: 5px 0;">
                         <li><a href="https://console.cloud.google.com/" target="_blank" style="color:#63b3ed;">Google Cloud Console</a> にアクセス</li>
@@ -400,7 +416,6 @@
             <div class="help-scroll-area">
                 <h3>🎨 ゲームの目的</h3>
                 <p>真っ白なキャンバスにドット絵を描くゲームです。勝敗はありません。素敵な絵を完成させましょう！</p>
-                
                 <h3> solo Solo Play</h3>
                 <ul>
                     <li><strong>色選択:</strong> 右のパレットをクリックして色を選びます。</li>
@@ -408,7 +423,6 @@
                     <li><strong>キーボード操作:</strong> 矢印キーでカーソル移動、[Z]キーまたは[スペース]キーで塗ることができます。</li>
                     <li><strong>元に戻す:</strong> [Ctrl]+[Z]キーで直前の操作を取り消せます。</li>
                 </ul>
-                
                 <h3>📡 Stream Mode</h3>
                 <ul>
                     <li><strong>参加:</strong> コメントで「参加」と入力すると、自動でチームが決まります。</li>
@@ -439,22 +453,15 @@
                 <!-- シンプルなXの文字、またはSVG -->
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
             </a>
-            
             <!-- Note -->
             <a href="https://note.com/dontokoi_games/" target="_blank" class="sns-icon note-icon" title="公式Note">
-                <!-- Noteのロゴ（SVGパス簡略版、または画像） -->
-                <!-- ここでは簡易的に文字 "n" またはSVG -->
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                     <path d="M0 0h24v24H0z" fill="none"/>
-                    <!-- Noteのロゴに近い形状 (簡易) -->
                     <path d="M21 4H3a1 1 0 00-1 1v14a1 1 0 001 1h18a1 1 0 001-1V5a1 1 0 00-1-1zm-1.06 9.21l-3.37 3.37a.75.75 0 01-1.06 0L11.93 13 8.35 16.58a.75.75 0 11-1.06-1.06l4.12-4.12a.75.75 0 011.06 0l3.58 3.58 3.03-3.03a.75.75 0 011.06 1.06z"/>
-                    <!-- ※正確なロゴを使いたい場合は、公式からSVGやPNGを取得して img タグで埋め込んでください -->
-                    <!-- ここでは汎用的なアイコンを表示しています -->
                     <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-weight="bold" font-family="sans-serif" font-size="14">note</text>
                 </svg>
             </a>
         </div>
-
         <div class="footer-links">
             <a href="terms.html">利用規約</a>
             <a href="privacy.html">プライバシーポリシー</a>
@@ -464,156 +471,422 @@
     </footer>
 
     <!-- ▼▼▼ スクリプト ▼▼▼ -->
+    
+    <!-- 1. Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-check-compat.js"></script>
+
+    <!-- 2. メインスクリプト -->
     <script>
+        // --- Firebase設定 ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCw2YxffEV5JUVAqSRbYHTZ0_-Yd1Uf3gc",
+            authDomain: "minnade-game.firebaseapp.com",
+            projectId: "minnade-game",
+            storageBucket: "minnade-game.firebasestorage.app",
+            messagingSenderId: "659173248268",
+            appId: "1:659173248268:web:770956559c38af62b80d29",
+            measurementId: "G-LHW83ZHKRC"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const appCheck = firebase.appCheck();
+        appCheck.activate(
+            '6Ldf8hwsAAAAAK35RN1edQfICYo_rQzxyPTuyVmB', // ★ここに「サイトキー」を貼る
+            true
+        );
+        const db = firebase.firestore();
+
+        // --- ゲームデータ定義 ---
+        const gameData = {
+            "baseball": {
+                title: "高校野球シミュレーション",
+                imgClass: "img", imgPath: "baseball/img/p_normal.png", color: "#48bb78",
+                buttons: [
+                    { label: "個人で遊ぶ", url: "baseball/index.html?mode=solo", class: "btn-green" },
+                    { label: "配信で遊ぶ", url: "baseball/index.html?mode=streamer", class: "btn-blue" },
+                    { label: "遊び方・機能説明", modalId: "home-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "war": {
+                title: "視聴者参加型世論調査",
+                imgClass: "img", imgPath: "war/thumbnail.png", color: "#e53e3e",
+                buttons: [
+                    { label: "デモプレイ", url: "war/index.html?mode=demo", class: "btn-green" },
+                    { label: "配信で遊ぶ", url: "war/index.html?mode=stream", class: "btn-blue" },
+                    { label: "遊び方・機能説明", modalId: "war-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "quiz": {
+                title: "みんなでクイズ！",
+                imgClass: "icon", imgContent: "Q", color: "#f6ad55",
+                buttons: [
+                    { label: "個人で遊ぶ", url: "quiz/index.html?mode=solo", class: "btn-green" },
+                    { label: "配信で遊ぶ", url: "quiz/index.html?mode=streamer", class: "btn-blue" },
+                    { label: "遊び方・機能説明", modalId: "quiz-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "kanji": {
+                title: "難読漢字クイズ",
+                imgClass: "icon", imgContent: "漢", color: "#e53e3e",
+                buttons: [
+                    { label: "個人で遊ぶ", url: "kanji/index.html?mode=solo", class: "btn-green" },
+                    { label: "配信で遊ぶ", url: "kanji/index.html?mode=streamer", class: "btn-blue" },
+                    { label: "遊び方・機能説明", modalId: "kanji-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "mystery": {
+                title: "The Secret Site",
+                imgClass: "icon", imgContent: "404", color: "#000000",
+                buttons: [
+                    { label: "PLAY START", url: "mystery/index.html", class: "btn-purple", style: "background-color: #6b46c1;" },
+                    { label: "遊び方・機能説明", modalId: "mystery-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "territory": {
+                title: "配信者 VS 視聴者 陣取ゲーム",
+                imgClass: "icon", imgContent: "🌐", color: "#4299e1",
+                buttons: [
+                    { label: "デモプレイ", url: "territory/index.html?mode=demo", class: "btn-green" },
+                    { label: "配信で遊ぶ", url: "territory/index.html?mode=stream", class: "btn-blue" },
+                    { label: "遊び方・機能説明", modalId: "territory-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "pixel": {
+                title: "ピクセル イラストレーター",
+                imgClass: "icon", imgContent: "🎨", color: "#ff7675",
+                buttons: [
+                    { label: "個人で遊ぶ", url: "pixel/index.html?mode=solo", class: "btn-green" },
+                    { label: "遊び方", modalId: "pixel-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            }
+        };
+
+        // --- スライダー状態管理 ---
+        let currentSlide = 0;
+        let maxSlides = 0;
+        function getCardsPerSlide() {
+            return window.innerWidth <= 768 ? 1 : 3;
+        }
+
+        // --- ランキング切り替え (F5対策済み) ---
+        window.switchRanking = function(period, btnElement) {
+            document.querySelectorAll('.rank-tab').forEach(btn => btn.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+
+            showMessage('集計中...');
+            currentSlide = 0;
+            updateSlidePosition();
+            const dates = getDates();
+
+            if (period === 'total') {
+                const cacheKey = 'ranking_data_total';
+                const cacheTimeKey = 'ranking_time_total';
+                const cachedData = localStorage.getItem(cacheKey);
+                const cachedTime = localStorage.getItem(cacheTimeKey);
+                const now = new Date().getTime();
+                const CACHE_DURATION = 60 * 60 * 1000; // 1時間
+
+                if (cachedData && cachedTime && (now - cachedTime < CACHE_DURATION)) {
+                    console.log("Using cached ranking data");
+                    renderHTML(JSON.parse(cachedData));
+                    return;
+                }
+
+                db.collection('games').orderBy('count', 'desc').limit(15).get()
+                .then(snapshot => {
+                    if (snapshot.empty) { showMessage('データがありません'); return; }
+                    let dataList = [];
+                    snapshot.forEach(doc => dataList.push({ id: doc.id, count: doc.data().count }));
+                    
+                    localStorage.setItem(cacheKey, JSON.stringify(dataList));
+                    localStorage.setItem(cacheTimeKey, now);
+                    
+                    renderHTML(dataList);
+                })
+                .catch(err => showError(err));
+
+            } else {
+                let docId = "";
+                if (period === 'daily') docId = `daily_${dates.daily}`;
+                else if (period === 'weekly') docId = `weekly_${dates.weekly}`;
+                else if (period === 'monthly') docId = `monthly_${dates.monthly}`;
+                else if (period === 'yearly') docId = `yearly_${dates.yearly}`;
+
+                db.collection('ranking').doc(docId).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        renderRankingFromMap(doc.data());
+                    } else {
+                        showMessage('まだデータがありません。<br>最初に遊んでランキングを作ろう！');
+                        document.getElementById('ranking-track').innerHTML = ""; 
+                        updateArrows(0);
+                    }
+                })
+                .catch(err => showError(err));
+            }
+        };
+
+        function renderRankingFromMap(dataMap) {
+            let dataList = Object.keys(dataMap).map(key => ({ id: key, count: dataMap[key] }));
+            dataList.sort((a, b) => b.count - a.count);
+            renderHTML(dataList.slice(0, 15));
+        }
+
+        function renderHTML(dataList) {
+            const track = document.getElementById('ranking-track');
+            const messageArea = document.getElementById('ranking-message-area');
+            messageArea.style.display = 'none';
+
+            let html = "";
+            let rank = 1;
+
+            dataList.forEach(item => {
+                const data = gameData[item.id];
+                if (data) {
+                    let imgHtml = "";
+                    if (data.imgClass === "img") {
+                        imgHtml = `<img src="${data.imgPath}" alt="${data.title}" class="ranking-img">`;
+                    } else {
+                        imgHtml = `<div class="thumbnail-placeholder" style="border-color: ${data.color}; color: ${data.color};"><span style="font-size: 2em;">${data.imgContent}</span></div>`;
+                    }
+
+                    let rankClass = "rank-common";
+                    let crownText = rank + "th";
+                    if(rank === 1) { rankClass = "rank-1 rank-top"; crownText = "👑 1st"; }
+                    if(rank === 2) { rankClass = "rank-2 rank-top"; crownText = "🥈 2nd"; }
+                    if(rank === 3) { rankClass = "rank-3 rank-top"; crownText = "🥉 3rd"; }
+
+                    let buttonsHtml = '<div class="mode-buttons">';
+                    data.buttons.forEach(btn => {
+                        let styleAttr = btn.style ? `style="${btn.style}"` : "";
+                        if (btn.url) {
+                            buttonsHtml += `<a href="${btn.url}" class="game-link-btn ${btn.class}" ${styleAttr} onclick="handleGameClick(event, '${item.id}', '${btn.url}');">${btn.label}</a>`;
+                        } else if (btn.modalId) {
+                            buttonsHtml += `<button class="game-link-btn ${btn.class}" ${styleAttr} onclick="openModal('${btn.modalId}')">${btn.label}</button>`;
+                        }
+                    });
+                    buttonsHtml += '</div>';
+
+                    html += `
+                        <div class="ranking-card ${rankClass}">
+                            <div class="crown">${crownText}</div>
+                            <h3>${data.title}</h3>
+                            <div class="thumbnail-wrapper">${imgHtml}</div>
+                            <p style="font-size:0.8em; color:#a0aec0; margin-bottom:5px;">プレイ回数: ${item.count}回</p>
+                            ${buttonsHtml}
+                        </div>
+                    `;
+                    rank++;
+                }
+            });
+
+            track.innerHTML = html;
+            document.getElementById('ranking-section').style.display = "block";
+            
+            const cardsPerPage = getCardsPerSlide();
+            maxSlides = Math.ceil(dataList.length / cardsPerPage) - 1;
+            if (maxSlides < 0) maxSlides = 0;
+            
+            updateArrows(dataList.length);
+        }
+
+        // --- スライド制御 ---
+        window.moveSlide = function(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide > maxSlides) currentSlide = maxSlides;
+            updateSlidePosition();
+            updateArrows();
+        };
+
+        function updateSlidePosition() {
+            const track = document.getElementById('ranking-track');
+            const cardWidth = 220; 
+            const gap = 15;        
+            const cardsPerPage = getCardsPerSlide();
+            const moveAmount = (cardWidth + gap) * cardsPerPage * currentSlide;
+            track.style.transform = `translateX(-${moveAmount}px)`;
+        }
+
+        function updateArrows(itemCount) {
+            const prevBtn = document.getElementById('slider-prev');
+            const nextBtn = document.getElementById('slider-next');
+            if (maxSlides === 0) {
+                prevBtn.disabled = true; nextBtn.disabled = true; return;
+            }
+            prevBtn.disabled = (currentSlide === 0);
+            nextBtn.disabled = (currentSlide === maxSlides);
+        }
+
+        function showMessage(msg) {
+            const area = document.getElementById('ranking-message-area');
+            const track = document.getElementById('ranking-track');
+            area.innerHTML = `<p class="ranking-message">${msg}</p>`;
+            area.style.display = 'block';
+            track.innerHTML = ""; 
+            document.getElementById('ranking-section').style.display = "block";
+            updateArrows(0);
+        }
+
+        function showError(err) {
+            console.error(err);
+            showMessage('データの読み込みに失敗しました');
+        }
+
+        // --- ユーティリティ ---
+        function getDates() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const date = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+            date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay()||7));
+            const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+            const weekNo = Math.ceil(( ( (date - yearStart) / 86400000) + 1)/7);
+            return { daily: `${y}-${m}-${d}`, weekly: `${y}-W${weekNo}`, monthly: `${y}-${m}`, yearly: `${y}` };
+        }
+
+        // --- 遷移制御 ---
+        window.handleGameClick = function(event, gameId, url) {
+            event.preventDefault(); 
+            incrementCount(gameId).finally(() => { window.location.href = url; });
+        };
+
+        // --- カウントアップ関数 ---
+        window.incrementCount = function(gameId) {
+            const sessionKey = `counted_${gameId}`;
+            if (sessionStorage.getItem(sessionKey)) {
+                return Promise.resolve(); 
+            }
+
+            const dates = getDates();
+            const batch = db.batch();
+            const totalRef = db.collection('games').doc(gameId);
+            batch.set(totalRef, { count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+            const periods = [
+                { id: `daily_${dates.daily}` },
+                { id: `weekly_${dates.weekly}` },
+                { id: `monthly_${dates.monthly}` },
+                { id: `yearly_${dates.yearly}` }
+            ];
+            periods.forEach(p => {
+                const docRef = db.collection('ranking').doc(p.id);
+                let updateData = {};
+                updateData[gameId] = firebase.firestore.FieldValue.increment(1);
+                batch.set(docRef, updateData, { merge: true });
+            });
+            
+            sessionStorage.setItem(sessionKey, "true");
+            return batch.commit().catch(err => console.error("Count Error:", err));
+        };
+
+        window.openModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'flex';
+        };
+
+        // --- 初期化 ---
         document.addEventListener('DOMContentLoaded', () => {
+            switchRanking('total');
+            
+            window.addEventListener('resize', () => {
+                currentSlide = 0; 
+                const cards = document.querySelectorAll('.ranking-card').length;
+                if(cards > 0) {
+                     const cardsPerPage = getCardsPerSlide();
+                     maxSlides = Math.ceil(cards / cardsPerPage) - 1;
+                     if(maxSlides < 0) maxSlides = 0;
+                }
+                updateSlidePosition();
+                updateArrows();
+            });
+
+            // 既存イベントリスナーなど
             const mobileWarning = document.getElementById('mobile-warning-overlay');
             const closeBtn = document.getElementById('mobile-warning-close-btn');
-            if (mobileWarning && closeBtn) {
-                closeBtn.addEventListener('click', () => {
-                    mobileWarning.style.display = 'none';
-                });
-            }
-            // --- API設定モーダルの処理 ---
+            if (mobileWarning && closeBtn) { closeBtn.addEventListener('click', () => { mobileWarning.style.display = 'none'; }); }
+
             const apiModal = document.getElementById('global-api-modal');
             const apiOpenBtn = document.getElementById('api-settings-btn');
             const apiSaveBtn = document.getElementById('save-api-btn');
             const apiCloseBtn = document.getElementById('close-api-btn');
             const apiInput = document.getElementById('global-api-key');
             const videoInput = document.getElementById('global-video-id');
-
-            apiOpenBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const savedKey = sessionStorage.getItem('youtube_api_key');
-                const savedVideoId = sessionStorage.getItem('youtube_target_video_id');
-                if (savedKey) apiInput.value = savedKey;
-                if (savedVideoId) videoInput.value = savedVideoId;
-                apiModal.style.display = 'flex';
+            apiOpenBtn.addEventListener('click', (e) => { e.preventDefault(); const k = sessionStorage.getItem('youtube_api_key'); const v = sessionStorage.getItem('youtube_target_video_id'); if (k) apiInput.value = k; if (v) videoInput.value = v; apiModal.style.display = 'flex'; });
+            apiSaveBtn.addEventListener('click', () => { 
+                const k = apiInput.value.trim(); let v = videoInput.value.trim();
+                if (v.includes('v=')) v = v.split('v=')[1].split('&')[0];
+                else if (v.includes('youtu.be/')) v = v.split('youtu.be/')[1].split('?')[0];
+                if (k && v) { sessionStorage.setItem('youtube_api_key', k); sessionStorage.setItem('youtube_target_video_id', v); alert('設定を保存しました。'); apiModal.style.display = 'none'; }
+                else { alert('APIキーとVideo IDを入力してください。'); }
             });
-
-            apiSaveBtn.addEventListener('click', () => {
-                const apiKey = apiInput.value.trim();
-                let videoId = videoInput.value.trim();
-
-                if (videoId.includes('v=')) {
-                    videoId = videoId.split('v=')[1].split('&')[0];
-                } else if (videoId.includes('youtu.be/')) {
-                    videoId = videoId.split('youtu.be/')[1].split('?')[0];
-                } else if (videoId.includes('youtube.com/live/')) {
-                    videoId = videoId.split('/live/')[1].split('?')[0];
-                }
-
-                if (apiKey && videoId) {
-                    sessionStorage.setItem('youtube_api_key', apiKey);
-                    sessionStorage.setItem('youtube_target_video_id', videoId);
-                    alert('設定を保存しました。\n各ゲームの配信モードが有効になります。');
-                    apiModal.style.display = 'none';
-                } else {
-                    alert('APIキーとVideo IDの両方を入力してください。\n（設定を削除したい場合は、ブラウザを閉じてください）');
-                }
-            });
-
             apiCloseBtn.addEventListener('click', () => { apiModal.style.display = 'none'; });
             apiModal.addEventListener('click', (e) => { if (e.target === apiModal) apiModal.style.display = 'none'; });
 
-            // ヘルプアコーディオン
             const helpToggleBtn = document.getElementById('toggle-help-btn');
             const helpContent = document.getElementById('api-help-content');
-            if (helpToggleBtn) {
-                helpToggleBtn.addEventListener('click', () => {
-                    if (helpContent.style.display === 'none') {
-                        helpContent.style.display = 'block';
-                        helpToggleBtn.textContent = '🔽 閉じる';
-                    } else {
-                        helpContent.style.display = 'none';
-                        helpToggleBtn.textContent = '💡 キーの取得方法を見る';
-                    }
-                });
-            }
+            if (helpToggleBtn) { helpToggleBtn.addEventListener('click', () => { if (helpContent.style.display === 'none') { helpContent.style.display = 'block'; helpToggleBtn.textContent = '🔽 閉じる'; } else { helpContent.style.display = 'none'; helpToggleBtn.textContent = '💡 キーの取得方法を見る'; } }); }
 
-            // --- 各ゲームのモーダル処理 ---
-            
-            // 野球
-            const helpModal = document.getElementById('home-help-modal');
-            const helpBtn = document.getElementById('home-how-to-play-btn');
-            const closeHelpBtn = document.getElementById('close-home-help-btn');
-            if (helpBtn) {
-                helpBtn.addEventListener('click', () => { helpModal.style.display = 'flex'; });
-                closeHelpBtn.addEventListener('click', () => { helpModal.style.display = 'none'; });
-                helpModal.addEventListener('click', (e) => { if (e.target === helpModal) helpModal.style.display = 'none'; });
-            }
-
-            // 世論調査
-            const warHelpModal = document.getElementById('war-help-modal');
-            const warHelpBtn = document.getElementById('war-how-to-play-btn');
-            const closeWarHelpBtn = document.getElementById('close-war-help-btn');
-            if (warHelpBtn) {
-                warHelpBtn.addEventListener('click', () => { warHelpModal.style.display = 'flex'; });
-                closeWarHelpBtn.addEventListener('click', () => { warHelpModal.style.display = 'none'; });
-                warHelpModal.addEventListener('click', (e) => { if(e.target === warHelpModal) warHelpModal.style.display = 'none'; });
-            }
-
-            // クイズ
-            const quizHelpModal = document.getElementById('quiz-help-modal');
-            const quizHelpBtn = document.getElementById('quiz-how-to-play-btn');
-            const closeQuizHelpBtn = document.getElementById('close-quiz-help-btn');
-            if (quizHelpBtn) {
-                quizHelpBtn.addEventListener('click', () => { quizHelpModal.style.display = 'flex'; });
-                closeQuizHelpBtn.addEventListener('click', () => { quizHelpModal.style.display = 'none'; });
-                quizHelpModal.addEventListener('click', (e) => { if(e.target === quizHelpModal) quizHelpModal.style.display = 'none'; });
-            }
-            
-            // 漢字
-            const kanjiHelpModal = document.getElementById('kanji-help-modal');
-            const kanjiHelpBtn = document.getElementById('kanji-how-to-play-btn');
-            const closeKanjiHelpBtn = document.getElementById('close-kanji-help-btn');
-            if (kanjiHelpBtn) {
-                kanjiHelpBtn.addEventListener('click', () => { kanjiHelpModal.style.display = 'flex'; });
-                closeKanjiHelpBtn.addEventListener('click', () => { kanjiHelpModal.style.display = 'none'; });
-                kanjiHelpModal.addEventListener('click', (e) => { if(e.target === kanjiHelpModal) kanjiHelpModal.style.display = 'none'; });
-            }
-
-            // ミステリー
-            const mysteryHelpModal = document.getElementById('mystery-help-modal');
-            const mysteryHelpBtn = document.getElementById('mystery-how-to-play-btn');
-            const closeMysteryHelpBtn = document.getElementById('close-mystery-help-btn');
-            if (mysteryHelpBtn) {
-                mysteryHelpBtn.addEventListener('click', () => { mysteryHelpModal.style.display = 'flex'; });
-                closeMysteryHelpBtn.addEventListener('click', () => { mysteryHelpModal.style.display = 'none'; });
-                mysteryHelpModal.addEventListener('click', (e) => { if(e.target === mysteryHelpModal) mysteryHelpModal.style.display = 'none'; });
-            }
-            
-            // 配信者 VS 視聴者 陣取ゲーム
-            const territoryHelpModal = document.getElementById('territory-help-modal');
-            const territoryHelpBtn = document.getElementById('territory-how-to-play-btn');
-            const closeTerritoryHelpBtn = document.getElementById('close-territory-help-btn');
-            if (territoryHelpBtn) {
-                territoryHelpBtn.addEventListener('click', () => { territoryHelpModal.style.display = 'flex'; });
-                closeTerritoryHelpBtn.addEventListener('click', () => { territoryHelpModal.style.display = 'none'; });
-                territoryHelpModal.addEventListener('click', (e) => { if(e.target === territoryHelpModal) territoryHelpModal.style.display = 'none'; });
-            }
-
-            // Pixel Art
-            const pixelHelpModal = document.getElementById('pixel-help-modal');
-            const pixelHelpBtn = document.getElementById('pixel-how-to-play-btn');
-            const closePixelHelpBtn = document.getElementById('close-pixel-help-btn');
-            if (pixelHelpBtn) {
-                pixelHelpBtn.addEventListener('click', () => { pixelHelpModal.style.display = 'flex'; });
-                closePixelHelpBtn.addEventListener('click', () => { pixelHelpModal.style.display = 'none'; });
-                pixelHelpModal.addEventListener('click', (e) => { if(e.target === pixelHelpModal) pixelHelpModal.style.display = 'none'; });
-            }
-
-            // --- 共通支援モーダル ---
-            const supportModal = document.getElementById('home-support-modal');
-            // 全ての支援ボタンを取得してイベントを設定
-            const supportBtns = document.querySelectorAll('#home-support-btn, #war-support-btn, #quiz-support-btn, #kanji-support-btn, #mystery-support-btn, #territory-support-btn');
-            supportBtns.forEach(btn => {
-                btn.addEventListener('click', () => { supportModal.style.display = 'flex'; });
+            // 各ゲームモーダル設定
+            const modalIds = [
+                { btn: 'home-how-to-play-btn', modal: 'home-help-modal', close: 'close-home-help-btn' },
+                { btn: 'war-how-to-play-btn', modal: 'war-help-modal', close: 'close-war-help-btn' },
+                { btn: 'quiz-how-to-play-btn', modal: 'quiz-help-modal', close: 'close-quiz-help-btn' },
+                { btn: 'kanji-how-to-play-btn', modal: 'kanji-help-modal', close: 'close-kanji-help-btn' },
+                { btn: 'mystery-how-to-play-btn', modal: 'mystery-help-modal', close: 'close-mystery-help-btn' },
+                { btn: 'territory-how-to-play-btn', modal: 'territory-help-modal', close: 'close-territory-help-btn' },
+                { btn: 'pixel-how-to-play-btn', modal: 'pixel-help-modal', close: 'close-pixel-help-btn' }
+            ];
+            modalIds.forEach(item => {
+                const btn = document.getElementById(item.btn);
+                const modal = document.getElementById(item.modal);
+                const close = document.getElementById(item.close);
+                if(btn && modal && close) {
+                    btn.addEventListener('click', () => modal.style.display = 'flex');
+                    close.addEventListener('click', () => modal.style.display = 'none');
+                    modal.addEventListener('click', (e) => { if(e.target === modal) modal.style.display = 'none'; });
+                }
             });
+
+            const supportModal = document.getElementById('home-support-modal');
+            const supportBtns = document.querySelectorAll('#home-support-btn, #war-support-btn, #quiz-support-btn, #kanji-support-btn, #mystery-support-btn, #territory-support-btn');
+            supportBtns.forEach(btn => { btn.addEventListener('click', () => { supportModal.style.display = 'flex'; }); });
             const closeSupportBtn = document.getElementById('close-home-support-btn');
-            if (closeSupportBtn) {
-                closeSupportBtn.addEventListener('click', () => { supportModal.style.display = 'none'; });
-                supportModal.addEventListener('click', (e) => { if (e.target === supportModal) supportModal.style.display = 'none'; });
-            }
+            if (closeSupportBtn) { closeSupportBtn.addEventListener('click', () => { supportModal.style.display = 'none'; }); supportModal.addEventListener('click', (e) => { if (e.target === supportModal) supportModal.style.display = 'none'; }); }
+
+            // 下部ゲーム一覧への集計機能付与
+            const linkMap = {
+                'territory': 'territory/index.html',
+                'baseball': 'baseball/index.html',
+                'quiz': 'quiz/index.html',
+                'war': 'war/index.html',
+                'kanji': 'kanji/index.html',
+                'mystery': 'mystery/index.html',
+                'pixel': 'pixel/index.html'
+            };
+            document.querySelectorAll('.game-selection .game-link-btn').forEach(btn => {
+                const href = btn.getAttribute('href');
+                if(!href || href === "#" || href.startsWith("javascript")) return;
+                
+                for (const [key, path] of Object.entries(linkMap)) {
+                    if (href.includes(path)) {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault(); 
+                            incrementCount(key).finally(() => { window.location.href = href; });
+                        });
+                        break;
+                    }
+                }
+            });
         });
     </script>
 

@@ -74,13 +74,20 @@ body {
 
 /* --- メインコンテンツ --- */
 #home-page {
-    flex: 1; /* 残りの高さをすべて使う */
+    flex: 1;
     display: flex;
-    justify-content: center;
-    align-items: center; /* 垂直方向中央揃え */
+    
+    /* ▼▼▼ ここを修正・追加しました ▼▼▼ */
+    flex-direction: column;  /* 横並びを「縦並び」に変更 */
+    justify-content: flex-start; /* 上から順に表示 */
+    gap: 40px; /* ランキングとゲーム一覧の間隔を開ける */
+    /* ▲▲▲ 修正ここまで ▲▲▲ */
+
+    align-items: center;
     padding: 20px;
     box-sizing: border-box;
     width: 100%;
+    padding-top: 40px;
 }
 
 /* --- 3列レイアウト --- */
@@ -687,4 +694,189 @@ body {
 .sns-icon.note-icon:hover {
     background-color: #41c9b4; /* Noteグリーン */
     border-color: #41c9b4;
+}
+
+/* --- 自動ランキング用スタイル (スライダー版) --- */
+.ranking-section {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto 50px auto;
+    text-align: center;
+    position: relative;
+}
+
+.ranking-title {
+    font-size: 1.8em;
+    color: #ecc94b;
+    margin-bottom: 15px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    font-family: 'Orbitron', sans-serif;
+}
+
+/* 期間切り替えタブ */
+.ranking-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.rank-tab {
+    background-color: #2d3748;
+    color: #a0aec0;
+    border: 1px solid #4a5568;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+.rank-tab:hover { background-color: #4a5568; color: #fff; }
+.rank-tab.active {
+    background-color: #ecc94b;
+    color: #1a202c;
+    border-color: #ecc94b;
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(236, 201, 75, 0.5);
+}
+
+/* スライダー全体枠 */
+.ranking-slider-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* padding: 0 50px;  ←これを下記に変更 */
+    padding: 0 70px;  /* 矢印ボタンが被らないように広げる */
+}
+
+/* 2. 表示窓の幅を広げる */
+.ranking-viewport {
+    /* 220px * 3枚 + 15px * 2隙間 = 690px */
+    width: 690px;
+    overflow: hidden;
+    padding: 20px 15px; /* 左右のpaddingをなくす */
+    margin: 0 auto;  /* 中央寄せ */
+}
+
+/* 2. トラックの設定（変更なし、確認用） */
+.ranking-track {
+    display: flex;
+    gap: 15px;
+    transition: transform 0.5s ease-in-out;
+    transform: translateX(0);
+    width: max-content; /* 中身の幅に合わせる */
+}
+
+/* 矢印ボタン */
+.slider-arrow {
+    background-color: rgba(45, 55, 72, 0.8);
+    color: #ecc94b;
+    border: 2px solid #ecc94b;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+.slider-arrow:hover {
+    background-color: #ecc94b;
+    color: #1a202c;
+    transform: translateY(-50%) scale(1.1);
+}
+.slider-arrow.prev { left: 0; }
+.slider-arrow.next { right: 0; }
+.slider-arrow:disabled {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ランキングカード（サイズ固定） */
+.ranking-card {
+    box-sizing: border-box; /* ★重要：paddingを含めて220pxにする設定 */
+    background-color: #2d3748;
+    border-radius: 10px;
+    padding: 15px 10px;
+    text-align: center;
+    width: 220px;      /* 固定幅 */
+    min-width: 220px;  /* 縮まないように */
+    box-shadow: 0 8px 15px rgba(0,0,0,0.4);
+    position: relative;
+    border: 2px solid transparent;
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0; 
+}
+
+.ranking-card h3 {
+    font-size: 0.9em;
+    margin: 8px 0;
+    height: 2.4em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.3;
+}
+
+.thumbnail-wrapper {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.ranking-img, .ranking-card .thumbnail-placeholder {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #4a5568;
+    background-color: #1a202c;
+}
+.ranking-card .thumbnail-placeholder {
+    display: flex; justify-content: center; align-items: center; border-style: solid;
+}
+.ranking-card .thumbnail-placeholder span { font-size: 1.2em; }
+
+/* ボタン群 */
+.ranking-card .mode-buttons {
+    width: 100%; margin-top: 10px; display: flex; flex-direction: column; gap: 6px;
+}
+.ranking-card .game-link-btn { padding: 6px 10px; font-size: 0.8em; }
+
+/* 順位ごとの装飾 */
+.rank-top { z-index: 2; transform: scale(1.02); }
+.ranking-card:hover { transform: translateY(-5px); z-index: 5; }
+
+/* 1位 */
+.rank-1 { border-color: #ecc94b; background: linear-gradient(to bottom, #2d3748, #3a2e18); }
+.rank-1 .crown { color: #ecc94b; font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
+/* 2位 */
+.rank-2 { border-color: #a0aec0; background: linear-gradient(to bottom, #2d3748, #2d3748); }
+.rank-2 .crown { color: #a0aec0; font-size: 1em; font-weight: bold; }
+/* 3位 */
+.rank-3 { border-color: #ed8936; background: linear-gradient(to bottom, #2d3748, #3b261b); }
+.rank-3 .crown { color: #ed8936; font-size: 1em; font-weight: bold; }
+/* 4位以降 */
+.rank-common { border-color: #4a5568; }
+.rank-common .crown { color: #a0aec0; font-size: 0.9em; font-weight: bold; }
+
+/* メッセージ表示用 */
+.ranking-message { color: #a0aec0; padding: 20px; }
+
+/* スマホ対応（1枚ずつスライド） */
+@media (max-width: 768px) {
+    .ranking-viewport { 
+        width: 220px; /* スマホは1枚分ピッタリ */
+    }
 }
