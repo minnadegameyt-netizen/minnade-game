@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
         9: '#805ad5' // アイテム (Purple)
     };
 
+    const NUMBER_COLOR_ON_PAINTED = '#dfe6e9';
+    const NUMBER_COLOR_ON_EMPTY = '#dfe6e9';
+
     // --- ゲーム状態 ---
     let mapData = []; 
     let gameMode = 'demo'; // デフォルトはdemo
@@ -51,24 +54,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 高解像度ディスプレイ対応 ---
     function setupCanvasHiDPI() {
         const dpr = window.devicePixelRatio || 1;
-        // キャンバスの内部解像度をDPR倍にする
         canvas.width = DISPLAY_SIZE * dpr;
         canvas.height = DISPLAY_SIZE * dpr;
-        
-        // CSS上のサイズは固定
         canvas.style.width = `${DISPLAY_SIZE}px`;
         canvas.style.height = `${DISPLAY_SIZE}px`;
-        
-        // 描画コンテキストをスケーリング
         ctx.scale(dpr, dpr);
     }
 
     // --- 初期化 ---
     function init() {
-        // 初期設定
         setupCanvasHiDPI();
-
-        // URLパラメータから初期モードを設定
         const urlParams = new URLSearchParams(window.location.search);
         const initialMode = urlParams.get('mode');
         if (initialMode === 'stream') {
@@ -357,9 +352,19 @@ document.addEventListener('DOMContentLoaded', () => {
         scores.forEach((p, index) => {
             const div = document.createElement('div');
             div.className = 'rank-item';
+            
+            const winnerScore = scores[0].score > 0 ? scores[0].score : 1;
+            const barWidth = (p.score / winnerScore) * 100;
+
             div.innerHTML = `
-                <div class="rank-bar" style="width: ${(p.score/scores[0].score)*100}%; background:${COLORS[p.id]}"></div>
-                <div class="rank-text"><span class="rank-num">${index+1}.</span><span style="color:${COLORS[p.id]}">${p.name}</span><span class="rank-score">${p.score}</span></div>
+                <div class="rank-info">
+                    <span class="rank-num">${index + 1}.</span>
+                    <span class="rank-name" style="color:${COLORS[p.id]}">${p.name}</span>
+                </div>
+                <div class="rank-bar-wrapper">
+                    <div class="rank-bar" style="width: ${barWidth}%; background-color:${COLORS[p.id]}"></div>
+                </div>
+                <span class="rank-score">${p.score}</span>
             `;
             listEl.appendChild(div);
         });
@@ -513,29 +518,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 const px = x * CELL_SIZE;
                 const py = y * CELL_SIZE;
                 
+                // 1. 背景色の描画
+                ctx.fillStyle = COLORS[val] || COLORS[0];
                 if (val === 9) {
                     ctx.fillStyle = COLORS[9];
-                    ctx.fillRect(px, py, CELL_SIZE, CELL_SIZE);
-                    ctx.fillStyle = '#000';
-                    ctx.font = 'bold 16px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('?', px + CELL_SIZE/2, py + CELL_SIZE/2 + 1);
-                } else {
-                    ctx.fillStyle = COLORS[val];
-                    ctx.fillRect(px, py, CELL_SIZE, CELL_SIZE);
                 }
-                
+                ctx.fillRect(px, py, CELL_SIZE, CELL_SIZE);
+
+                // 2. 枠線の描画
                 ctx.strokeStyle = '#1a202c';
                 ctx.lineWidth = 1;
                 ctx.strokeRect(px, py, CELL_SIZE, CELL_SIZE);
                 
-                if (val === 0) {
-                    ctx.fillStyle = '#dfe6e9';
-                    ctx.font = 'bold 14px "Noto Sans JP", sans-serif'; 
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText((y * GRID_SIZE) + x + 1, px + CELL_SIZE/2, py + CELL_SIZE/2 + 2);
+                // 3. 数字・記号の描画
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                if (val === 9) { // アイテムマスの「？」
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 20px "Noto Sans JP", sans-serif';
+                    ctx.fillText('?', px + CELL_SIZE/2, py + CELL_SIZE/2 + 1);
+                } else { // 通常マスの数字
+                    ctx.fillStyle = (val === 0) ? NUMBER_COLOR_ON_EMPTY : NUMBER_COLOR_ON_PAINTED;
+                    ctx.font = 'bold 12px "Noto Sans JP", sans-serif';
+                    ctx.fillText((y * GRID_SIZE) + x + 1, px + CELL_SIZE/2, py + CELL_SIZE/2 + 1);
                 }
             }
         }
@@ -640,7 +646,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function onCanvasClick(e) {
         const rect = canvas.getBoundingClientRect();
-        // 比率計算を厳密に
         const scaleX = canvas.width / rect.width / (window.devicePixelRatio || 1);
         const scaleY = canvas.height / rect.height / (window.devicePixelRatio || 1);
         
