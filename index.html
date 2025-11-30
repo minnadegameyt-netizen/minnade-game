@@ -101,6 +101,32 @@
             <div id="ranking-message-area" style="display:none;"></div>
         </div>
 
+        <!-- ▼ 配信中チャンネルバナー ▼ -->
+        <div class="live-banner-container">
+            <button id="open-live-list-btn" class="live-banner">
+                <span class="live-icon">🔴 LIVE</span>
+                <span class="live-text">現在 <strong id="live-count">0</strong> 名が配信中！ 配信リストを見る</span>
+                <span class="live-arrow">▶</span>
+            </button>
+        </div>
+
+        <!-- ▼ 配信リストモーダル ▼ -->
+        <div id="live-list-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content live-modal-content">
+                <h2>🔴 現在配信中のチャンネル</h2>
+                <p style="font-size: 0.9em; color: #a0aec0; margin-bottom: 20px;">
+                    ※登録から2時間以内の配信を表示しています。
+                </p>
+                
+                <div id="live-list-container" class="live-list-grid">
+                    <!-- ここにJavaScriptで配信カードが追加されます -->
+                    <p>読み込み中...</p>
+                </div>
+
+                <button id="close-live-list-btn" class="btn-gray" style="margin-top: 20px;">閉じる</button>
+            </div>
+        </div>
+
         <div class="game-selection">
             <!-- ゲームカード1: 高校野球シミュレーション -->
             <div class="game-card">
@@ -285,6 +311,20 @@
                     </ul>
                 </div>
             </div>
+            
+            <!-- ▼ 配信登録エリア（追加） ▼ -->
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #4a5568;">
+                <h3 style="font-size: 1.1em; color: #ecc94b; margin-bottom: 10px;">🔴 配信中リストに掲載する</h3>
+                <p style="font-size: 0.85em; color: #a0aec0; margin-bottom: 10px;">
+                    あなたの配信をトップページに掲載して視聴者を集めましょう！<br>
+                    ※「公開」状態のライブ配信のみ登録できます。
+                </p>
+                <button id="register-stream-btn" class="btn-orange" style="width: 100%;">
+                    📺 この配信をリストに登録！
+                </button>
+                <p id="register-status" style="margin-top: 8px; font-size: 0.9em; min-height: 1.2em;"></p>
+            </div>
+
             <div class="modal-buttons">
                 <button id="save-api-btn" class="btn-green">設定を保存して閉じる</button>
                 <button id="close-api-btn" class="btn-gray">閉じる</button>
@@ -887,6 +927,161 @@
                     }
                 }
             });
+
+            // ▼▼▼ 配信リスト機能 ▼▼▼
+
+            // 1. バナーとモーダルの開閉
+            const liveModal = document.getElementById('live-list-modal');
+            const openLiveBtn = document.getElementById('open-live-list-btn');
+            const closeLiveBtn = document.getElementById('close-live-list-btn');
+            
+            if(openLiveBtn) {
+                openLiveBtn.addEventListener('click', () => {
+                    loadStreams(); // 開くたびに最新取得
+                    liveModal.style.display = 'flex';
+                });
+            }
+            if(closeLiveBtn) {
+                closeLiveBtn.addEventListener('click', () => { liveModal.style.display = 'none'; });
+            }
+
+            // 2. 配信データの読み込み & バナーの人数更新
+// ▼▼▼ 2. 配信データの読み込み & バナーの人数更新 (修正版) ▼▼▼
+            function loadStreams() {
+                const listContainer = document.getElementById('live-list-container');
+                const countSpan = document.getElementById('live-count');
+                const now = new Date().getTime();
+                const EXPIRE_MS = 2 * 60 * 60 * 1000; // 2時間
+
+                db.collection('streams').orderBy('createdAt', 'desc').limit(20).get()
+                .then(snapshot => {
+                    let html = "";
+                    let validCount = 0;
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (now - data.createdAt.toMillis() < EXPIRE_MS) {
+                            validCount++;
+                            
+                            // 登録者数の整形 (例: 12345 -> 1.2万人)
+                            let subText = "";
+                            if (data.subscriberCount) {
+                                const count = Number(data.subscriberCount);
+                                if (count >= 100000000) subText = (count / 100000000).toFixed(1) + "億人";
+                                else if (count >= 10000) subText = (count / 10000).toFixed(1) + "万人";
+                                else subText = count + "人";
+                                subText = `<span style="font-size:0.8em; color:#718096; margin-left:8px;">(登録者: ${subText})</span>`;
+                            }
+
+                            html += `
+                                <div class="stream-card">
+                                    <a href="https://www.youtube.com/watch?v=${data.videoId}" target="_blank" class="stream-thumb-link">
+                                        <img src="${data.thumbnail}" class="stream-thumb" alt="サムネイル">
+                                    </a>
+                                    <div class="stream-info">
+                                        <div class="stream-title">${escapeHtml(data.title)}</div>
+                                        <div class="stream-channel">
+                                            <span>📺</span> ${escapeHtml(data.channelTitle)}
+                                            ${subText} <!-- ここに追加 -->
+                                        </div>
+                                        <a href="https://www.youtube.com/watch?v=${data.videoId}" target="_blank" class="watch-btn">視聴する</a>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+
+                    if(countSpan) countSpan.textContent = validCount;
+                    if(listContainer && liveModal.style.display !== 'none') {
+                        listContainer.innerHTML = html || '<p style="text-align:center; color:#a0aec0; grid-column:1/-1;">現在配信中のチャンネルはありません。</p>';
+                    }
+                })
+                .catch(err => console.error("Load streams error:", err));
+            }
+
+            // 初回読み込み
+            loadStreams();
+
+            // ▼▼▼ 3. 配信登録処理 (修正版：登録者数も取得) ▼▼▼
+            const registerBtn = document.getElementById('register-stream-btn');
+            const registerStatus = document.getElementById('register-status');
+
+            if(registerBtn) {
+                registerBtn.addEventListener('click', async () => {
+                    const apiKey = document.getElementById('global-api-key').value.trim();
+                    let videoId = document.getElementById('global-video-id').value.trim();
+
+                    if (videoId.includes('v=')) videoId = videoId.split('v=')[1].split('&')[0];
+                    else if (videoId.includes('youtu.be/')) videoId = videoId.split('youtu.be/')[1].split('?')[0];
+
+                    if (!apiKey || !videoId) {
+                        registerStatus.textContent = "⚠️ APIキーとVideo IDを入力してください";
+                        registerStatus.style.color = "#fc8181";
+                        return;
+                    }
+
+                    registerStatus.textContent = "🔄 YouTubeに確認中...";
+                    registerStatus.style.color = "#ecc94b";
+                    registerBtn.disabled = true;
+
+                    try {
+                        // 1. 動画情報を取得
+                        const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,liveStreamingDetails&id=${videoId}&key=${apiKey}`);
+                        const vData = await vRes.json();
+
+                        if (!vData.items || vData.items.length === 0) {
+                            throw new Error("動画が見つかりません。IDを確認してください。");
+                        }
+
+                        const video = vData.items[0];
+                        const snippet = video.snippet;
+                        const channelId = snippet.channelId;
+
+                        // 生放送チェック (テスト時はコメントアウトで緩和してもOK)
+                        if (snippet.liveBroadcastContent === 'none') {
+                            throw new Error("ライブ配信中の動画ではありません。");
+                        }
+
+                        // 2. チャンネル情報を取得 (登録者数用)
+                        const cRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`);
+                        const cData = await cRes.json();
+                        let subscriberCount = 0;
+                        if (cData.items && cData.items.length > 0) {
+                            subscriberCount = cData.items[0].statistics.subscriberCount;
+                        }
+
+                        // Firebaseに保存
+                        await db.collection('streams').doc(videoId).set({
+                            videoId: videoId,
+                            title: snippet.title,
+                            channelTitle: snippet.channelTitle,
+                            thumbnail: snippet.thumbnails.medium.url,
+                            subscriberCount: subscriberCount, // 追加
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+
+                        registerStatus.textContent = "✅ リストに登録しました！";
+                        registerStatus.style.color = "#48bb78";
+                        
+                        loadStreams(); // リスト更新
+
+                    } catch (err) {
+                        console.error(err);
+                        registerStatus.textContent = "❌ エラー: " + (err.message || "登録に失敗しました");
+                        registerStatus.style.color = "#fc8181";
+                    } finally {
+                        registerBtn.disabled = false;
+                    }
+                });
+            }
+
+            // XSS対策用
+            function escapeHtml(str) {
+                if(!str) return "";
+                return str.replace(/[&<>"']/g, function(m) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+                });
+            }
         });
     </script>
 

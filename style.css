@@ -700,7 +700,7 @@ body {
 .ranking-section {
     width: 100%;
     max-width: 1000px;
-    margin: 0 auto 50px auto;
+    margin: 0 auto 0px auto;
     text-align: center;
     position: relative;
 }
@@ -879,4 +879,173 @@ body {
     .ranking-viewport { 
         width: 220px; /* スマホは1枚分ピッタリ */
     }
+}
+
+/* --- 配信中バナー --- */
+.live-banner-container {
+    width: 100%;
+    max-width: 1130px; /* 1000px → 1400px に拡大（下のゲーム一覧と同じ幅に） */
+    margin: 0 auto 0px auto;
+    text-align: center;
+    padding: 0 20px; /* 画面端ギリギリすぎないように少しだけ余白確保 */
+    box-sizing: border-box;
+}
+
+.live-banner {
+    width: 100%;
+    background: linear-gradient(90deg, #2d3748 0%, #1a202c 100%);
+    border: 2px solid #e53e3e;
+    color: #fff;
+    padding: 15px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s;
+    box-shadow: 0 4px 10px rgba(229, 62, 62, 0.2);
+}
+
+.live-banner:hover {
+    background: linear-gradient(90deg, #4a5568 0%, #2d3748 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(229, 62, 62, 0.4);
+}
+
+.live-icon {
+    background-color: #e53e3e;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9em;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.live-text {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+.live-text strong {
+    color: #e53e3e;
+    font-size: 1.4em;
+    margin: 0 5px;
+}
+
+.live-arrow { color: #a0aec0; }
+
+/* --- 配信リスト（モーダル内） --- */
+.live-modal-content {
+    max-width: 800px;
+    width: 95%;
+    max-height: 85vh;
+}
+
+.live-list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 10px;
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.stream-card {
+    background-color: #1a202c;
+    border: 1px solid #4a5568;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: left;
+    transition: transform 0.2s;
+}
+.stream-card:hover { transform: translateY(-3px); border-color: #e53e3e; }
+
+.stream-thumb-link { display: block; position: relative; }
+.stream-thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+.stream-info { padding: 12px; }
+.stream-title {
+    font-size: 0.95em; font-weight: bold; color: #fff;
+    margin-bottom: 5px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.stream-channel { font-size: 0.85em; color: #a0aec0; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.channel-icon { width: 20px; height: 20px; border-radius: 50%; }
+.watch-btn {
+    display: block; text-align: center;
+    background-color: #e53e3e; color: white;
+    text-decoration: none; padding: 6px; border-radius: 4px;
+    font-size: 0.9em; font-weight: bold;
+}
+.watch-btn:hover { background-color: #c53030; }
+
+/* --- 配信リストモーダルの「閉じる」ボタン調整 --- */
+#close-live-list-btn {
+    display: block;
+    width: 200px;           /* 横幅を制限してボタンらしく */
+    margin: 25px auto 0;    /* 中央寄せ & 上に少し余白 */
+    padding: 12px 0;        /* 高さを出して押しやすく */
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 30px;    /* 丸みをつけて親しみやすく */
+    background-color: #718096;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3); /* 影をつけて立体的に */
+}
+
+#close-live-list-btn:hover {
+    background-color: #4a5568;
+    transform: translateY(-2px); /* ホバーで少し浮く */
+    box-shadow: 0 6px 10px rgba(0,0,0,0.4);
+}
+
+#close-live-list-btn:active {
+    transform: translateY(1px); /* 押したときの沈み込み */
+}
+
+/* --- 配信者用設定モーダル内の登録ボタン --- */
+#register-stream-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 20px; /* ここを増やして高さを出す */
+    font-size: 1.2em; /* 文字も少し大きく */
+    font-weight: bold;
+    border-radius: 8px;
+    background-color: #dd6b20; /* オレンジ */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    
+    /* 2行表示になったとき用 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1.4;
+}
+
+#register-stream-btn:hover {
+    background-color: #c05621;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.4);
+}
+
+#register-stream-btn:active {
+    transform: translateY(1px);
+}
+
+#register-stream-btn:disabled {
+    background-color: #718096;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
