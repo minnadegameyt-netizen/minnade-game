@@ -168,7 +168,7 @@
             </div>
         </div>
 
-        <div class="game-selection">
+        <div class="game-selection" id="game-list">
             <!-- ゲームカード1: 高校野球シミュレーション -->
             <div class="game-card">
                 <h2>高校野球シミュレーション</h2>
@@ -298,7 +298,19 @@
                 </div>
             </div>
 
+            <div class="game-card">
+                <h2>Coming Soon</h2>
+                <div class="thumbnail-placeholder" style="border-color: #718096; color: #718096; border-style: dashed;">
+                    <span style="font-size: 2em;">?</span>
+                </div>
+                <p>さらなる新作も計画中...<br>続報をお待ちください。</p>
+                <div class="mode-buttons">
+                    <button class="game-link-btn btn-gray" disabled style="cursor: default; opacity: 0.6;">構想中</button>
+                </div>
+            </div>
+
         </div>
+        <div id="pagination-controls" class="pagination-container"></div>
     </main>
 
     <!-- ▼▼▼ 配信設定モーダル ▼▼▼ -->
@@ -592,6 +604,66 @@
         </div>
         <p>&copy; 2025 Dontokoi Games. All Rights Reserved.</p>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ページネーション機能
+            const itemsPerPage = 9; // 1ページあたりの表示数
+            const gameList = document.getElementById('game-list');
+            const cards = gameList.querySelectorAll('.game-card');
+            const paginationContainer = document.getElementById('pagination-controls');
+            const totalPages = Math.ceil(cards.length / itemsPerPage);
+
+            // ページ数が1以下の場合はページネーションを表示しない
+            if (totalPages <= 1) {
+                paginationContainer.style.display = 'none';
+                return;
+            }
+
+            function showPage(page) {
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+
+                cards.forEach((card, index) => {
+                    if (index >= start && index < end) {
+                        card.style.display = 'flex'; // 表示 (flexレイアウトを維持)
+                    } else {
+                        card.style.display = 'none'; // 非表示
+                    }
+                });
+
+                // ボタンのアクティブ状態更新
+                const buttons = paginationContainer.querySelectorAll('.page-btn');
+                buttons.forEach(btn => {
+                    if (parseInt(btn.dataset.page) === page) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+
+            function createPagination() {
+                paginationContainer.innerHTML = "";
+                for (let i = 1; i <= totalPages; i++) {
+                    const btn = document.createElement('button');
+                    btn.textContent = i;
+                    btn.className = 'page-btn';
+                    btn.dataset.page = i;
+                    btn.addEventListener('click', () => {
+                        showPage(i);
+                        // ページ切り替え時にリストの一番上へスクロール（任意）
+                        // document.getElementById('ranking-section').scrollIntoView({ behavior: 'smooth' });
+                    });
+                    paginationContainer.appendChild(btn);
+                }
+            }
+
+            // 初期化
+            createPagination();
+            showPage(1); // 最初は1ページ目を表示
+        });
+    </script>
 
     <!-- ▼▼▼ スクリプト ▼▼▼ -->
     

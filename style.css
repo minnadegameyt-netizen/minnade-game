@@ -1140,3 +1140,43 @@ body {
 }
 .feature-btn:hover { transform: scale(1.05); }
 @media (max-width: 768px) { .feature-banners { flex-direction: column; } }
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 30px auto;
+    padding-bottom: 20px;
+    width: 100%;
+}
+
+.page-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #4a5568;
+    background-color: #2d3748;
+    color: #a0aec0;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-btn:hover {
+    background-color: #4a5568;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.page-btn.active {
+    background-color: #ecc94b;
+    border-color: #ecc94b;
+    color: #1a202c;
+    box-shadow: 0 0 10px rgba(236, 201, 75, 0.5);
+    transform: scale(1.1);
+}
