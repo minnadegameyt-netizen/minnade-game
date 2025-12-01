@@ -801,8 +801,8 @@ else if (pageId === 'd2_noise') {
 
                     <!-- 手前の画像 -->
                     <img id="target-image" src="assets/puzzle_noise.webp" 
-                        style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition: all 1s;" 
-                        alt="Corrupted Data">
+    style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition: all 1s;" 
+    alt="Corrupted Data" width="400" height="400">
                 </div>
                 
                 <p style="color:#aaa; margin-top:15px;">
@@ -918,8 +918,8 @@ else if (pageId === 'd2_noise') {
                         <span class="blink">● REC</span> [CAM_04]
                     </div>
                     <!-- 動画: 最初は暗い動画 -->
-                    <video id="video-feed" class="cam-video" autoplay loop muted playsinline>
-                        <source src="assets/cam_dark.mp4" type="video/mp4">
+                    <video id="video-feed" class="cam-video" autoplay loop muted playsinline fetchpriority="high">
+    <source src="assets/cam_dark.mp4" type="video/mp4">
                     </video>
                 </div>
                 <div class="input-group">
@@ -1074,7 +1074,7 @@ else if (pageId === 'd4_sound') {
             <div class="site-center">
                 <h2>Geo-Location Analysis</h2>
                 <div style="width:300px; height:250px; margin:0 auto; border:1px solid #555; overflow:hidden; position:relative;">
-                    <img src="assets/evidence_view.webp" style="width:100%; height:100%; object-fit:cover;" alt="Night View">
+                    <img src="assets/evidence_view.webp" style="width:100%; height:100%; object-fit:cover;" alt="Night View" width="300" height="250">
                     <div style="position:absolute; bottom:0; left:0; background:rgba(0,0,0,0.7); color:#00ff41; font-size:0.7em; padding:5px; width:100%; text-align:left;">
                        LAT: 34.9841 N<br>
                        LON: 138.4022 E<br>

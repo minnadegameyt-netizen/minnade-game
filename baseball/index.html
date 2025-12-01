@@ -34,6 +34,7 @@
     <title>視聴者参加型育成ゲーム</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Orbitron:wght@700&display=swap">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -62,7 +63,11 @@
         <div class="game-selection">
             <div class="game-card">
                 <h2>高校野球シミュレーション</h2>
-                <img src="img/p_normal.webp" alt="高校野球シミュレーション サムネイル">
+                <picture>
+    <source srcset="img/p_normal.webp" type="image/webp">
+    <!-- ↓ このimgタグに width と height を追加 -->
+    <img src="img/p_normal.png" alt="高校野球シミュレーション サムネイル" width="220" height="220">
+</picture>
                 <p>高校球児として3年間を過ごし、甲子園を目指そう！</p>
                 <div class="mode-buttons">
                     <button id="start-solo-btn">個人で遊ぶ</button>
