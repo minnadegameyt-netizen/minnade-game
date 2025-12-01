@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Analytics Control Script (移植) -->
+    <script>
+      (function() {
+        var GA_ID = 'G-TS77Z86Q2V';
+        var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.') || window.location.protocol === 'file:';
+        var isAdmin = localStorage.getItem('analytics_ignore') === 'true';
+        if (!isLocal && !isAdmin) {
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+          document.head.appendChild(script);
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', GA_ID);
+        } else {
+          console.log('Google Analytics blocked (Local or Admin)');
+        }
+      })();
+    </script>
+    <title>アハ体験バトル</title>
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&family=Orbitron:wght@700&display=swap">
+</head>
+<body>
+
+    <!-- ▼▼▼ 設定モーダル ▼▼▼ -->
+    <div id="setup-modal" class="modal-overlay">
+        <div class="modal-content">
+
+            <!-- ローディング画面 -->
+            <div id="loading-overlay" class="modal-loading-overlay hidden">
+                <div class="spinner"></div>
+                <p>画像を準備中です...</p>
+            </div>
+
+            <h2>GAME SETTINGS</h2>
+            
+            <!-- 効果音設定 -->
+            <div class="setup-group">
+                <label>Sound Effect</label>
+                <div class="btn-group" id="sound-select">
+                    <button class="setup-btn selected" data-val="on">ON</button>
+                    <button class="setup-btn" data-val="off">OFF</button>
+                </div>
+            </div>
+
+            <div class="setup-group">
+                <label>問題数</label>
+                <div class="btn-group" id="questions-select">
+                    <button class="setup-btn" data-val="3">3問</button>
+                    <button class="setup-btn selected" data-val="5">5問</button>
+                    <button class="setup-btn" data-val="7">7問</button>
+                </div>
+            </div>
+
+            <div class="setup-group">
+                <label>投票時間（シンキングタイム）</label>
+                <div class="btn-group" id="time-select">
+                    <button class="setup-btn" data-val="20">20秒</button>
+                    <button class="setup-btn selected" data-val="25">25秒</button>
+                    <button class="setup-btn" data-val="30">30秒</button>
+                </div>
+            </div>
+            
+            <div class="setup-footer">
+                <a href="../index.html" class="back-link">ホームに戻る</a>
+                <button id="setup-done-btn" class="action-btn">次へ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ▼▼▼ 待機画面（READY） ▼▼▼ -->
+    <div id="ready-screen" class="modal-overlay hidden">
+        <div class="modal-content" style="border-color: #63b3ed; box-shadow: 0 0 30px rgba(99, 179, 237, 0.3);">
+            <h2 style="color: #63b3ed; font-size: 2.5em; font-family: 'Orbitron', sans-serif;">READY?</h2>
+            <p style="color: #cbd5e0;">配信者 vs 視聴者<br>アハ体験バトルを開始します。</p>
+            <button id="game-start-btn" class="action-btn" style="font-size: 1.5em; margin-top: 20px; background-color: #3182ce;">START</button>
+            <div style="margin-top:15px;">
+                <button id="back-to-setup-btn" style="background:transparent; border:none; color:#718096; cursor:pointer; text-decoration:underline;">設定に戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ▼▼▼ カウントダウン演出 ▼▼▼ -->
+    <div id="countdown-overlay" class="modal-overlay hidden" style="background: transparent; pointer-events: none;">
+        <div id="countdown-text" class="anim-text">3</div>
+    </div>
+
+    <!-- ▼▼▼ 問題切り替えトランジション ▼▼▼ -->
+    <div id="transition-layer" class="transition-layer hidden">
+        <div class="transition-bg"></div>
+        <div id="transition-text" class="transition-text">QUESTION 1</div>
+    </div>
+    
+    <!-- ▼▼▼ 結果モーダル ▼▼▼ -->
+    <div id="result-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 id="result-title">GAME OVER</h2>
+            <p id="result-message"></p>
+            <div class="final-scores">
+                <div class="score-box host">配信者: <span id="final-host-score">0</span>点</div>
+                <div class="score-box viewer">視聴者: <span id="final-viewer-score">0</span>点</div>
+            </div>
+            <button onclick="location.reload()" class="action-btn">もう一度プレイ</button>
+        </div>
+    </div>
+
+    <!-- メインのゲーム画面 -->
+    <div id="game-container" class="hidden">
+        <header>
+            <div class="score-box host">配信者: <span id="host-score">0</span>点</div>
+            <div class="timer">TIME: <span id="timer">--</span></div>
+            <div class="score-box viewer">視聴者: <span id="viewer-score">0</span>点</div>
+        </header>
+
+        <main id="image-area">
+            <img id="base-image" src="" alt="元の画像" width="1280" height="720" fetchpriority="high">
+            <img id="changed-image" src="" alt="変化後の画像" width="1280" height="720" fetchpriority="high">
+            <div id="change-timer-box" class="change-timer-box hidden">
+                <span style="font-size: 0.6em; color: #a0aec0; margin-right: 5px;">CHANGE</span>
+                <span id="change-timer-val">0.0</span><span style="font-size: 0.8em;">s</span>
+            </div>
+            <div id="question-overlay" class="hidden">
+                <h2>どこが変わった？</h2>
+            </div>
+        </main>
+
+        <footer>
+            <div id="options-container" class="hidden">
+                
+                <!-- 配信者エリア（左） -->
+                <div class="options-wrapper host-wrapper">
+                    <div class="column-header">
+                        <span class="role-icon">👤</span> 配信者の回答
+                    </div>
+                    <div id="host-options" class="options-column"></div>
+                </div>
+
+                <!-- 視聴者エリア（右） -->
+                <div class="options-wrapper viewer-wrapper">
+                    <div class="column-header">
+                        <span class="role-icon">💬</span> 視聴者の投票
+                    </div>
+                    <div class="viewer-instruction">
+                        コメントで <strong>A</strong> <strong>B</strong> <strong>C</strong> <strong>D</strong> を入力！
+                        <span style="font-size: 0.85em; opacity: 0.8;">(小文字 a b c d でもOK)</span>
+                    </div>
+                    <div id="viewer-options" class="options-column"></div>
+                </div>
+
+            </div>
+
+            <div id="voting-status" class="hidden">
+                <p>視聴者の投票を受付中... (計: <span id="vote-total">0</span>票)</p>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module" src="stages.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>

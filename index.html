@@ -272,6 +272,20 @@
                 </div>
             </div>
 
+            <div class="game-card">
+                <h2>アハ体験 VSバトル</h2>
+                <div class="thumbnail-placeholder" style="border-color: #a29bfe; color: #a29bfe;">
+                    <span style="font-size: 2em;">👀</span>
+                </div>
+                <p>徐々に変化する絵を見て、どこが変わったか当てよう！<br>配信者と視聴者の観察力が試される対戦型間違い探し。</p>
+                <div class="mode-buttons">
+                    <a href="aha/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
+                    <a href="aha/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    <button id="aha-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
+                    <button id="aha-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
+                </div>
+            </div>
+
             <!-- ゲームカード7: Coming Soon -->
             <div class="game-card">
                 <h2>Coming Soon</h2>
@@ -518,6 +532,31 @@
         </div>
     </div>
 
+    <!-- アハ体験バトル用 -->
+    <div id="aha-help-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content help-content">
+            <h2>アハ体験 VSバトル の遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>👀 ゲームの目的</h3>
+                <p>徐々に変化していく一枚の絵を見て、どこが変化したかを当てる対戦型の「間違い探し」ゲームです。配信者チームと視聴者チームの合計スコアを競います。</p>
+                
+                <h3>🎮 参加方法</h3>
+                <ul>
+                    <li><strong>配信者:</strong> 画面左側に表示される4つの選択肢の中から、正解だと思うものをクリックして回答します。</li>
+                    <li><strong>視聴者:</strong> 画面右側に表示される選択肢に対応するアルファベット（A, B, C, D）をコメントで投票します。一番票が多かったものが視聴者チームの回答となります。</li>
+                </ul>
+
+                <h3>💡 ゲームの流れ</h3>
+                <p>
+                    まず変化前の「ベース画像」が表示され、数秒間の観察タイムがあります。<br>
+                    その後、画像が変化し、クイズがスタートします。<br>
+                    制限時間内に回答し、正解するとチームにポイントが入ります。これを繰り返し、最終的な合計点で勝敗が決まります。
+                </p>
+            </div>
+            <button id="close-aha-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
+        </div>
+    </div>
+
     <!-- 支援モーダル (共通) -->
     <div id="home-support-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="text-align: center;">
@@ -649,6 +688,16 @@
                 buttons: [
                     { label: "個人で遊ぶ", url: "pixel/index.html?mode=solo", class: "btn-green" },
                     { label: "遊び方", modalId: "pixel-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "aha": {
+                title: "アハ体験 VSバトル",
+                imgClass: "icon", imgContent: "👀", color: "#a29bfe",
+                buttons: [
+                    { label: "個人で遊ぶ", url: "aha/index.html?mode=solo", class: "btn-green" },
+                    { label: "配信で遊ぶ", url: "aha/index.html?mode=streamer", class: "btn-blue" },
+                    { label: "遊び方・機能説明", modalId: "aha-help-modal", class: "btn-gray" },
                     { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
                 ]
             }
@@ -928,8 +977,9 @@
                 { btn: 'kanji-how-to-play-btn', modal: 'kanji-help-modal', close: 'close-kanji-help-btn' },
                 { btn: 'mystery-how-to-play-btn', modal: 'mystery-help-modal', close: 'close-mystery-help-btn' },
                 { btn: 'territory-how-to-play-btn', modal: 'territory-help-modal', close: 'close-territory-help-btn' },
-                { btn: 'pixel-how-to-play-btn', modal: 'pixel-help-modal', close: 'close-pixel-help-btn' }
-            ];
+                { btn: 'pixel-how-to-play-btn', modal: 'pixel-help-modal', close: 'close-pixel-help-btn' },
+            { btn: 'aha-how-to-play-btn', modal: 'aha-help-modal', close: 'close-aha-help-btn' }
+        ];
             modalIds.forEach(item => {
                 const btn = document.getElementById(item.btn);
                 const modal = document.getElementById(item.modal);
@@ -942,7 +992,7 @@
             });
 
             const supportModal = document.getElementById('home-support-modal');
-            const supportBtns = document.querySelectorAll('#home-support-btn, #war-support-btn, #quiz-support-btn, #kanji-support-btn, #mystery-support-btn, #territory-support-btn');
+        const supportBtns = document.querySelectorAll('#home-support-btn, #war-support-btn, #quiz-support-btn, #kanji-support-btn, #mystery-support-btn, #territory-support-btn, #aha-support-btn');
             supportBtns.forEach(btn => { btn.addEventListener('click', () => { supportModal.style.display = 'flex'; }); });
             const closeSupportBtn = document.getElementById('close-home-support-btn');
             if (closeSupportBtn) { closeSupportBtn.addEventListener('click', () => { supportModal.style.display = 'none'; }); supportModal.addEventListener('click', (e) => { if (e.target === supportModal) supportModal.style.display = 'none'; }); }
@@ -955,7 +1005,8 @@
                 'war': 'war/index.html',
                 'kanji': 'kanji/index.html',
                 'mystery': 'mystery/index.html',
-                'pixel': 'pixel/index.html'
+                'pixel': 'pixel/index.html',
+                'aha': 'aha/index.html'
             };
             document.querySelectorAll('.game-selection .game-link-btn').forEach(btn => {
                 const href = btn.getAttribute('href');
