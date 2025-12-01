@@ -105,14 +105,26 @@
     
     <!-- ▼▼▼ 結果モーダル ▼▼▼ -->
     <div id="result-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2 id="result-title">GAME OVER</h2>
-            <p id="result-message"></p>
-            <div class="final-scores">
-                <div class="score-box host">配信者: <span id="final-host-score">0</span>点</div>
-                <div class="score-box viewer">視聴者: <span id="final-viewer-score">0</span>点</div>
+        <div class="modal-content result-content-wide">
+            <!-- レイアウト調整用コンテナ -->
+            <div class="result-layout">
+                <!-- 左側：画像エリア -->
+                <div class="result-image-section">
+                    <p class="result-img-caption">LAST STAGE</p>
+                    <img id="result-last-image" src="" alt="Last Stage Image">
+                </div>
+
+                <!-- 右側：スコア・情報エリア -->
+                <div class="result-info-section">
+                    <h2 id="result-title">GAME OVER</h2>
+                    <p id="result-message"></p>
+                    <div class="final-scores">
+                        <div class="score-box host">配信者: <span id="final-host-score">0</span>点</div>
+                        <div class="score-box viewer">視聴者: <span id="final-viewer-score">0</span>点</div>
+                    </div>
+                    <button onclick="location.reload()" class="action-btn">もう一度プレイ</button>
+                </div>
             </div>
-            <button onclick="location.reload()" class="action-btn">もう一度プレイ</button>
         </div>
     </div>
 

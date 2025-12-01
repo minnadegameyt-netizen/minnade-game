@@ -12,7 +12,7 @@ export const stages = [
             {
                 change_image: "images/baseball_q2.webp",
                 correct_answer: "ボールがカボチャになった",
-                dummy_answers: ["人が減った", "バックが猫になった", "グローブの色が変わった"]
+                dummy_answers: ["人が減った", "バッグが減った", "グローブの色が変わった"]
             },
             {
                 change_image: "images/baseball_q3.webp",
@@ -39,7 +39,7 @@ export const stages = [
             },
             {
                 change_image: "images/cat_q2.webp",
-                correct_answer: "床の色が黄色になった",
+                correct_answer: "床の色が変わった",
                 dummy_answers: ["猫の耳の色が変わった", "監視カメラが消えた", "猫のヒゲが長くなった"]
             },
             {

@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
         timerInterval: null,
         changeTimerInterval: null, // 変化タイマー用
         preShowTime: 2000,         // 変化前の静止時間
-        transitionDuration: 20000, // ★修正: 20秒 (20000ms) に設定
-        resultDisplayTime: 4000,   // 正解表示時間
+        transitionDuration: 20000, // 20秒かけて変化
+        resultDisplayTime: 4000,   // 正解表示時間（自動遷移は廃止するが演出用に使用）
         currentChange: null
     };
 
@@ -291,14 +291,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }, gameState.preShowTime + gameState.transitionDuration);
     }
 
-    // --- ★修正: 変化タイマー制御 (カウントダウン) ---
+    // --- 変化タイマー制御 ---
     function startChangeTimer() {
         if(!changeTimerBox) return;
         changeTimerBox.classList.remove('hidden');
         let startTime = Date.now();
         let duration = gameState.transitionDuration / 1000; // 20.0
 
-        // 初期表示: 20.0
+        // 初期表示
         changeTimerVal.textContent = duration.toFixed(1);
         changeTimerVal.style.color = "#ecc94b"; 
 
@@ -306,8 +306,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         gameState.changeTimerInterval = setInterval(() => {
             let elapsed = (Date.now() - startTime) / 1000;
-            
-            // ★カウントダウン計算: 残り時間 = 全体時間 - 経過時間
             let remaining = duration - elapsed;
 
             if (remaining <= 0) {
@@ -323,7 +321,6 @@ document.addEventListener('DOMContentLoaded', () => {
             clearInterval(gameState.changeTimerInterval);
             gameState.changeTimerInterval = null;
         }
-        // 完了時は0.0を表示
         if(changeTimerVal) {
             changeTimerVal.textContent = "0.0";
             changeTimerVal.style.color = "#48bb78";
@@ -347,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hostBtn.onclick = () => handleHostAnswer(choiceLabels[i]);
             hostOptionsContainer.appendChild(hostBtn);
             
-            // 視聴者用 (投票バー付き)
+            // 視聴者用
             const viewerBtn = document.createElement('button');
             viewerBtn.dataset.choice = choiceLabels[i];
             viewerBtn.innerHTML = `<span style="position:relative; z-index:2;">${choiceLabels[i]}. ${text}</span><div class="vote-bar"></div>`;
@@ -406,6 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleResult() {
         let viewerChoice = null;
 
+        // 視聴者の投票集計
         if (gameMode === 'streamer') {
             let maxVotes = -1;
             let maxIndex = -1;
@@ -421,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 viewerChoice = ['A', 'B', 'C', 'D'][maxIndex];
             }
         } else {
-            // ソロモード
+            // ソロモードはランダム
             viewerChoice = ['A', 'B', 'C', 'D'][Math.floor(Math.random() * 4)];
         }
         
@@ -439,13 +437,62 @@ document.addEventListener('DOMContentLoaded', () => {
         updateScores();
         revealAnswers(correctChoiceLabel, viewerChoice);
         
+        // ★修正: 自動遷移をやめて、手動ナビゲーションボタンを表示
         setTimeout(() => {
+            showNavigationButtons();
+        }, 1000); // 1秒だけ余韻を持たせてボタン表示
+    }
+
+    // --- ★追加: 結果確認後の手動ナビゲーション表示 ---
+    function showNavigationButtons() {
+        // 配信者エリアのボタンをクリアして、ナビゲーションボタンに置き換える
+        hostOptionsContainer.innerHTML = '';
+        
+        // 1. 比較ボタン（押している間だけ変化前を表示）
+        const compareBtn = document.createElement('button');
+        compareBtn.textContent = '👀 変化前を見る (長押しで逆再生)';
+        compareBtn.style.background = 'linear-gradient(145deg, #718096, #4a5568)';
+        compareBtn.style.borderColor = '#a0aec0';
+        compareBtn.style.gridColumn = "1 / -1"; // 横幅いっぱいに
+        
+        // イベント: マウスダウン/タッチ開始で変化後の画像を消す
+        const showBase = () => { changedImage.style.opacity = '0'; };
+        const showChanged = () => { changedImage.style.opacity = '1'; };
+        
+        compareBtn.addEventListener('mousedown', showBase);
+        compareBtn.addEventListener('mouseup', showChanged);
+        compareBtn.addEventListener('mouseleave', showChanged);
+        compareBtn.addEventListener('touchstart', (e) => { e.preventDefault(); showBase(); });
+        compareBtn.addEventListener('touchend', (e) => { e.preventDefault(); showChanged(); });
+        
+        // 2. 次へボタン
+        const nextBtn = document.createElement('button');
+        const isLastQuestion = gameState.currentQuestionIndex >= gameState.questions.length - 1;
+        nextBtn.textContent = isLastQuestion ? '🏆 結果発表へ' : '➡ 次の問題へ';
+        nextBtn.style.background = 'linear-gradient(145deg, #48bb78, #38a169)';
+        nextBtn.style.borderColor = '#68d391';
+        nextBtn.style.marginTop = '10px';
+        nextBtn.style.gridColumn = "1 / -1"; // 横幅いっぱいに
+        
+        nextBtn.onclick = () => {
+            // 画像状態を戻しておく
+            changedImage.style.opacity = '1';
             nextQuestion();
-        }, gameState.resultDisplayTime);
+        };
+
+        hostOptionsContainer.appendChild(compareBtn);
+        hostOptionsContainer.appendChild(nextBtn);
     }
 
     function getCorrectChoiceLabel() {
         const buttons = hostOptionsContainer.querySelectorAll('button');
+        // 結果表示前に呼び出すので、既存のボタンから探す必要があるが、
+        // handleResult内でhostOptionsContainerをクリアする前に呼んでいるのでOK
+        // もしクリア後ならgameStateから再計算が必要
+        if (buttons.length === 0) {
+            // ボタンが無い場合の予備ロジック（通常ここには来ない）
+            return null;
+        }
         for (const btn of buttons) {
             if (btn.textContent.includes(gameState.currentChange.correct_answer)) {
                 return btn.dataset.choice;
@@ -496,6 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btn.dataset.choice === viewerChoice) btn.classList.add('selected');
         });
 
+        // 少し遅れて正解を表示
         setTimeout(() => {
             viewerBtns.forEach(btn => {
                 if (btn.dataset.choice === correctLabel) btn.classList.add('correct');
@@ -510,9 +558,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const finalViewer = document.getElementById('final-viewer-score');
         const resultTitle = document.getElementById('result-title');
         const resultMessage = document.getElementById('result-message');
+        const resultImage = document.getElementById('result-last-image');
 
         finalHost.textContent = gameState.hostScore;
         finalViewer.textContent = gameState.viewerScore;
+
+        // ★修正: 最後の問題のインデックスを安全に取得
+        // gameState.currentQuestionIndex は nextQuestion() で加算されて length と等しくなっているため -1 する
+        let lastIndex = gameState.currentQuestionIndex;
+        if (lastIndex >= gameState.questions.length) {
+            lastIndex = gameState.questions.length - 1;
+        }
+
+        if (lastIndex >= 0 && gameState.questions[lastIndex]) {
+            resultImage.src = gameState.questions[lastIndex].base_image;
+        }
         
         let title, message;
         if (gameState.hostScore > gameState.viewerScore) {

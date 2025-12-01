@@ -304,6 +304,64 @@ button.wrong {
     position: relative;
 }
 
+/* --- 結果画面用の拡張スタイル --- */
+.modal-content.result-content-wide {
+    width: 900px; /* 画像が入る分、幅を広くする */
+    padding: 40px;
+}
+
+.result-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+}
+
+.result-image-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.result-image-section img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 3px solid #4a5568;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.result-img-caption {
+    font-family: 'Orbitron', monospace;
+    color: #a0aec0;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    letter-spacing: 2px;
+}
+
+.result-info-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* レスポンシブ対応（画面が狭い場合） */
+@media (max-width: 900px) {
+    .result-layout {
+        flex-direction: column;
+    }
+    .modal-content.result-content-wide {
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .result-image-section img {
+        max-width: 300px;
+    }
+}
+
 .modal-content h2 { color: #ecc94b; margin-top: 0; margin-bottom: 25px; font-size: 1.8em; }
 
 /* 設定グループ */
@@ -406,4 +464,61 @@ button.wrong {
     font-size: 1.1em;
     margin: 0 3px;
     border-bottom: 2px solid #f6ad55;
+}
+
+.modal-content.result-content-wide {
+    width: 900px; /* 画像が入る分、幅を広くする */
+    padding: 40px;
+}
+
+.result-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+}
+
+.result-image-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.result-image-section img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 3px solid #4a5568;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.result-img-caption {
+    font-family: 'Orbitron', monospace;
+    color: #a0aec0;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    letter-spacing: 2px;
+}
+
+.result-info-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* レスポンシブ対応（画面が狭い場合） */
+@media (max-width: 900px) {
+    .result-layout {
+        flex-direction: column;
+    }
+    .modal-content.result-content-wide {
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .result-image-section img {
+        max-width: 300px;
+    }
 }
