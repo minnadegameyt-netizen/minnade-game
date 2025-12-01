@@ -89,8 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 初期化 ---
     function init() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('mode')) gameMode = urlParams.get('mode');
+
+
+    gameMode = 'solo'; 
 
         setupSettings();
         
