@@ -11,14 +11,14 @@ const assetsToLoad = [
     'bgm/event_start.mp3', 'bgm/gameover.mp3', 'bgm/quiz_correct.mp3', 'bgm/quiz_incorrect.mp3',
     'bgm/roulette.mp3', 'bgm/roulette_stop.mp3', 'bgm/hit.mp3', 'bgm/out.mp3', 'bgm/cheer.mp3',
     // 画像
-    'img/p_normal.png', 'img/p_smile.png', 'img/p_sad.png', 'img/p_surprised.png', 'img/p_shy.png',
-    'img/tanaka_normal.png', 'img/tanaka_smile.png', 'img/tanaka_sad.png',
-    'img/kantoku.png', 
-    'img/sakurai_happy.png', 'img/sakurai_blush.png', 'img/sakurai_sad.png', 'img/sakurai_shy.png', 'img/sakurai_smile.png', 'img/sakurai_surprised.png',
-    'img/kazami_angry.png', 'img/kazami_blush.png', 'img/kazami_normal.png', 'img/kazami_sad.png', 'img/kazami_shy.png', 'img/kazami_smile.png', 'img/kazami_surprised.png',
-    'img/hoshikawa_blush.png', 'img/hoshikawa_normal.png', 'img/hoshikawa_smile.png',
-    'img/suzuki_confident.png',
-    'img/mysterious_man.png',
+    'img/p_normal.webp', 'img/p_smile.webp', 'img/p_sad.webp', 'img/p_surprised.webp', 'img/p_shy.webp',
+    'img/tanaka_normal.webp', 'img/tanaka_smile.webp', 'img/tanaka_sad.webp',
+    'img/kantoku.webp', 
+    'img/sakurai_happy.webp', 'img/sakurai_blush.webp', 'img/sakurai_sad.webp', 'img/sakurai_shy.webp', 'img/sakurai_smile.webp', 'img/sakurai_surprised.webp',
+    'img/kazami_angry.webp', 'img/kazami_blush.webp', 'img/kazami_normal.webp', 'img/kazami_sad.webp', 'img/kazami_shy.webp', 'img/kazami_smile.webp', 'img/kazami_surprised.webp',
+    'img/hoshikawa_blush.webp', 'img/hoshikawa_normal.webp', 'img/hoshikawa_smile.webp',
+    'img/suzuki_confident.webp',
+    'img/mysterious_man.webp',
     
     // 動画
     'video/april.mp4', 'video/summer.mp4', 'video/school.mp4', 'video/winter.mp4',
@@ -73,7 +73,7 @@ function preloadAssets(paths) {
                 }
             }, timeoutMs);
 
-            if (['png', 'jpg', 'jpeg', 'gif', 'ico'].includes(extension)) {
+            if (['webp', 'jpg', 'jpeg', 'gif', 'ico'].includes(extension)) {
                 const img = new Image();
                 img.src = path;
                 assetCache.push(img);

@@ -3,16 +3,16 @@ import { playSfx } from '../sound.js';
 
 // --- 通常のデートイベント ---
 export function createDateEvent() {
-    let characterImageHappy = "img/sakurai_happy.png";
+    let characterImageHappy = "img/sakurai_happy.webp";
     let dateMessage = "今日は楽しかったね！また来ようね！";
 
     switch (state.player.girlfriendRoute) {
         case 'rikujo':
-            characterImageHappy = "img/kazami_smile.png";
+            characterImageHappy = "img/kazami_smile.webp";
             dateMessage = "すっごく楽しかった！また誘ってね！";
             break;
         case 'manager':
-            characterImageHappy = "img/hoshikawa_smile.png";
+            characterImageHappy = "img/hoshikawa_smile.webp";
             dateMessage = "ふふ、楽しかった。いい気分転換になった。";
             break;
     }
@@ -38,18 +38,18 @@ export function createDateEvent() {
 // --- ★新規追加: 告白のための呼び出しイベント（電話で発生） ---
 export function createConfessionSetupEvent() {
     let targetName = "桜井さん";
-    let image = "img/sakurai_shy.png";
+    let image = "img/sakurai_shy.webp";
     let reaction = "え…？ 大事な話…？ うん、わかった。次の日曜日、空けておくね。";
 
     switch (state.player.girlfriendRoute) {
         case 'rikujo':
             targetName = "風見さん";
-            image = "img/kazami_shy.png";
+            image = "img/kazami_shy.webp";
             reaction = "えっ、改まってなによ…。わかった、グラウンドの裏で待ってる。";
             break;
         case 'manager':
             targetName = "星川さん";
-            image = "img/hoshikawa_normal.png";
+            image = "img/hoshikawa_normal.webp";
             reaction = "…うん、わかった。大事なお話…。待ってます。";
             break;
     }
@@ -57,7 +57,7 @@ export function createConfessionSetupEvent() {
     return {
         id: "confession_setup", title: "決意の電話", type: "command",
         scenes: [
-            { character: "主人公", image: "img/p_shy.png", text: "（もう気持ちは固まった。電話で済ませるようなことじゃない。直接会って伝えよう）" },
+            { character: "主人公", image: "img/p_shy.webp", text: "（もう気持ちは固まった。電話で済ませるようなことじゃない。直接会って伝えよう）" },
             {
                 text: "どうする？", choices: ["電話して呼び出す", "まだ心の準備が…"],
                 action: (choice) => {
@@ -69,7 +69,7 @@ export function createConfessionSetupEvent() {
                     return { log: null };
                 }
             },
-            { character: "主人公", image: "img/p_normal.png", text: `もしもし、${targetName}？\n今度の日曜、時間作れないかな。どうしても直接、伝えたいことがあるんだ。` },
+            { character: "主人公", image: "img/p_normal.webp", text: `もしもし、${targetName}？\n今度の日曜、時間作れないかな。どうしても直接、伝えたいことがあるんだ。` },
             { character: targetName, image: image, text: reaction },
             {
                 text: "（約束を取り付けた…！ 次のデートで、必ず想いを伝えるぞ！）",
@@ -114,8 +114,8 @@ export function createConfessionEvent() {
     const CONFESSION_SUCCESS_THRESHOLD = 45; 
     
     // ▼▼▼ 1. 変数定義の追加（会った直後の会話用） ▼▼▼
-    let characterImageBlush = "img/sakurai_blush.png";
-    let characterImageNormal = "img/sakurai_shy.png";
+    let characterImageBlush = "img/sakurai_blush.webp";
+    let characterImageNormal = "img/sakurai_shy.webp";
     
     // 会った直後のセリフ（デフォルト：桜井さん）
     let meetingLine = "来てくれたんだね。急に呼び出してごめん。";
@@ -129,8 +129,8 @@ export function createConfessionEvent() {
     // ▼▼▼ 2. ルートごとのセリフ設定 ▼▼▼
     switch (state.player.girlfriendRoute) {
         case 'rikujo':
-            characterImageBlush = "img/kazami_blush.png";
-            characterImageNormal = "img/kazami_normal.png"; // 通常顔に変更
+            characterImageBlush = "img/kazami_blush.webp";
+            characterImageNormal = "img/kazami_normal.webp"; // 通常顔に変更
             
             // 会った直後
             meetingLine = "来てくれてありがとう。練習、疲れてないか？";
@@ -143,8 +143,8 @@ export function createConfessionEvent() {
             break;
 
         case 'manager':
-            characterImageBlush = "img/hoshikawa_blush.png";
-            characterImageNormal = "img/hoshikawa_normal.png";
+            characterImageBlush = "img/hoshikawa_blush.webp";
+            characterImageNormal = "img/hoshikawa_normal.webp";
             
             // 会った直後
             meetingLine = "待たせてごめん。来てくれてありがとう。";
@@ -162,11 +162,11 @@ export function createConfessionEvent() {
         executed: false,
         scenes: [
             // ▼▼▼ 3. シーンの追加（会ってからの導入会話） ▼▼▼
-            { character: "主人公", image: "img/p_normal.png", text: meetingLine },
+            { character: "主人公", image: "img/p_normal.webp", text: meetingLine },
             { character: "彼女", image: characterImageNormal, text: girlArrivalLine },
             
             // ここから心の声（既存の流れ）
-            { character: "主人公", image: "img/p_shy.png", text: "（…彼女の顔を見たら、心臓が跳ね上がった。今日こそ、この気持ちを伝えるんだ…！）" },
+            { character: "主人公", image: "img/p_shy.webp", text: "（…彼女の顔を見たら、心臓が跳ね上がった。今日こそ、この気持ちを伝えるんだ…！）" },
             
             {
                 text: "どうする？", choices: ["告白する", "今はやめておく"],
@@ -193,7 +193,7 @@ export function createConfessionEvent() {
                     return { log: null }; 
                 }
             },
-            { character: "主人公", image: "img/p_smile.png", text: `${heroConfessionLine}\n好きです。俺と、付き合ってください！` },
+            { character: "主人公", image: "img/p_smile.webp", text: `${heroConfessionLine}\n好きです。俺と、付き合ってください！` },
             { character: "彼女", image: characterImageNormal, text: girlReactionPre },
             { text: "（ドクン…ドクン…）" },
             { character: "彼女", image: characterImageBlush, text: successMessage, action: () => playSfx('point') },

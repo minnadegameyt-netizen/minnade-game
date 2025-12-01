@@ -25,7 +25,7 @@ function calculateDateForTurn(targetTurn) {
 }
 
 const testEventScene = {
-    character: "主人公", image: "img/p_sad.png", text: "期末テストだ！<br>学力に応じて赤点マスの数が変わるぞ！",
+    character: "主人公", image: "img/p_sad.webp", text: "期末テストだ！<br>学力に応じて赤点マスの数が変わるぞ！",
     miniGame: "testRoulette",
     action: result => {
         let log = `テスト結果は… <span style="font-weight:bold;">${result}</span>！<br>`;
@@ -60,7 +60,7 @@ export const allEvents = [
         scenes: [
             { text: "彼女から電話だ…。深刻そうな声だ…。" },
             { 
-                character: "彼女", image: "img/sakurai_sad.png", // ベース画像、後で上書き
+                character: "彼女", image: "img/sakurai_sad.webp", // ベース画像、後で上書き
                 text: "ねぇ…私たち、最近全然会えてないよね。なんだか、気持ちが離れていってる気がするの…。" 
             },
             {
@@ -106,20 +106,20 @@ export const allEvents = [
     {
         id: "opening", title: "入学式", type: "date", year: 1, month: 4, week: 1, executed: false,
         scenes: [
-            { character: "田中", image: "img/tanaka_normal.png", text: "いやー、入学式って長くて疲れるな。オレはもうクタクタだよ。" },
-            { character: "主人公", image: "img/p_normal.png", text: "それより田中、いよいよだな！俺たちの高校野球が始まるんだ！" },
-            { character: "田中", image: "img/tanaka_smile.png", text: "そうだな！オレの華麗な守備と、お前の活躍で甲子園に行くぜ！" },
-            { character: "主人公", image: "img/p_smile.png", text: "（今日から高校生活がスタートだ！甲子園目指して頑張るぞ！）", action: () => { state.player.health = state.player.maxHealth; state.player.condition = "絶好調"; return "体力とやる気が最大になった！" } }
+            { character: "田中", image: "img/tanaka_normal.webp", text: "いやー、入学式って長くて疲れるな。オレはもうクタクタだよ。" },
+            { character: "主人公", image: "img/p_normal.webp", text: "それより田中、いよいよだな！俺たちの高校野球が始まるんだ！" },
+            { character: "田中", image: "img/tanaka_smile.webp", text: "そうだな！オレの華麗な守備と、お前の活躍で甲子園に行くぜ！" },
+            { character: "主人公", image: "img/p_smile.webp", text: "（今日から高校生活がスタートだ！甲子園目指して頑張るぞ！）", action: () => { state.player.health = state.player.maxHealth; state.player.condition = "絶好調"; return "体力とやる気が最大になった！" } }
         ]
     },
     { // ★★★ 新規イベント ★★★
         id: "tanaka_lecture_1", title: "チーム総合力", type: "date", year: 1, month: 4, week: 2, executed: false,
         scenes: [
-            { character: "田中", image: "img/tanaka_normal.png", text: "なあ主人公、監督が言ってたんだけどさ、俺たち個人の能力が上がると、それが『チーム総合力』ってのに反映されるらしいぜ。" },
-            { character: "主人公", image: "img/p_sad.png", text: "…？何言ってんだ？練習したら強くなるのは当たり前だろ？" },
-            { character: "田中", image: "img/tanaka_smile.png", text: "まあ気にすんなって！オレの華麗な守備と、お前の打撃でガンガン総合力上げて、他の部員も引っ張っていこうぜ！" },
+            { character: "田中", image: "img/tanaka_normal.webp", text: "なあ主人公、監督が言ってたんだけどさ、俺たち個人の能力が上がると、それが『チーム総合力』ってのに反映されるらしいぜ。" },
+            { character: "主人公", image: "img/p_sad.webp", text: "…？何言ってんだ？練習したら強くなるのは当たり前だろ？" },
+            { character: "田中", image: "img/tanaka_smile.webp", text: "まあ気にすんなって！オレの華麗な守備と、お前の打撃でガンガン総合力上げて、他の部員も引っ張っていこうぜ！" },
             { 
-                character: "主人公", image: "img/p_sad.png", text: "（…よく分からないが、俺が強くなったら周りのみんなも強くなるんだな）", 
+                character: "主人公", image: "img/p_sad.webp", text: "（…よく分からないが、俺が強くなったら周りのみんなも強くなるんだな）", 
                 action: () => { 
                     state.player.condition = "絶好調";
                     state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 1);
@@ -132,8 +132,8 @@ export const allEvents = [
         id: "gw_1", title: "GWの出会い", type: "date", year: 1, month: 5, week: 1, executed: false,
         condition: () => state.player.girlfriendRoute === "none",
         scenes: [
-            { character: "田中", image: "img/tanaka_smile.png", text: "GWで暇だなー！主人公、気分転換にゲーセン行こうぜ！" },
-            { character: "主人公", image: "img/p_normal.png", text: "どうしようかな…", choices: ["行く", "断る"], action: c => {
+            { character: "田中", image: "img/tanaka_smile.webp", text: "GWで暇だなー！主人公、気分転換にゲーセン行こうぜ！" },
+            { character: "主人公", image: "img/p_normal.webp", text: "どうしようかな…", choices: ["行く", "断る"], action: c => {
                 if (c === "断る") {
                     state.player.girlfriendRoute = "rikujo";
                     return { log: "家で休んで体力が少し回復した。", endsEvent: true };
@@ -141,9 +141,9 @@ export const allEvents = [
                 return null;
             }},
             { text: "（…あれって…ゲームセンターの隅で、UFOキャッチャーをしていた女の子に、ガラの悪い男たちが絡んでいる…）" },
-            { character: "不良A", image: "img/mysterious_man.png", text: "お嬢ちゃん一人？俺らが取り方教えてやろうか？" },
-            { character: "？？？", image: "img/sakurai_surprised.png", text: "いえ、大丈夫です…。" },
-            { character: "主人公", image: "img/p_sad.png", text: "（どう見ても怖がってるじゃないか…でも、直接割って入るのは危険すぎる…）" },
+            { character: "不良A", image: "img/mysterious_man.webp", text: "お嬢ちゃん一人？俺らが取り方教えてやろうか？" },
+            { character: "？？？", image: "img/sakurai_surprised.webp", text: "いえ、大丈夫です…。" },
+            { character: "主人公", image: "img/p_sad.webp", text: "（どう見ても怖がってるじゃないか…でも、直接割って入るのは危険すぎる…）" },
             { text: "どうする？", choices: ["こっそり店員を呼ぶ", "関わらない"], action: c => c === "こっそり店員を呼ぶ" ? (state.player.girlfriendFlag.gw = 1, "勇気を出して店員に事情を話し、事なきを得た…。僕たちに気づいた女の子は、ぺこりとお辞儀をして去っていった。") : (state.player.girlfriendRoute = "rikujo", state.player.health = Math.min(state.player.maxHealth, state.player.health + 5), "見て見ぬふりをした…。情けない…。") }
         ]
     },
@@ -169,9 +169,9 @@ export const allEvents = [
     {
         id: "fitness_test_1", title: "体力測定", type: "date", year: 1, month: 6, week: 3, executed: false,
         scenes: [
-            { character: "監督", image: "img/kantoku.png", text: "今日は体力測定、まずはシャトルランだ！" },
-            { character: "鈴木くん", image: "img/suzuki_confident.png", text: "フン、野球部なんかに負けるかよ。持久力ならサッカー部が上だってこと、見せてやるぜ！" },
-            { character: "主人公", image: "img/p_normal.png", text: "（なんだあいつ…見てろよ、絶対負けないからな！）" },
+            { character: "監督", image: "img/kantoku.webp", text: "今日は体力測定、まずはシャトルランだ！" },
+            { character: "鈴木くん", image: "img/suzuki_confident.webp", text: "フン、野球部なんかに負けるかよ。持久力ならサッカー部が上だってこと、見せてやるぜ！" },
+            { character: "主人公", image: "img/p_normal.webp", text: "（なんだあいつ…見てろよ、絶対負けないからな！）" },
             {
                 text: "【シャトルラン勝負！】<br>制限時間内に 'run' と打ちまくれ！目標は15回だ！",
                 miniGame: "shuttleRun",
@@ -195,17 +195,17 @@ export const allEvents = [
         id: "gw_2", title: "夏の出会い", type: "date", year: 1, month: 8, week: 1, executed: false,
         condition: () => state.player.girlfriendFlag.gw === 1,
         scenes: [
-            { character: "田中", image: "img/tanaka_smile.png", text: "夏休みといえば、やっぱりゲーセンだよな！なあ、主人公！" },
-            { character: "主人公", image: "img/p_normal.png", text: "またかよ…。お、あれは確か…" },
+            { character: "田中", image: "img/tanaka_smile.webp", text: "夏休みといえば、やっぱりゲーセンだよな！なあ、主人公！" },
+            { character: "主人公", image: "img/p_normal.webp", text: "またかよ…。お、あれは確か…" },
             { text: "（GWに助けた女の子が、一人で音楽ゲームに熱中している。今日は楽しそうで良かったな…）" },
-            { character: "田中", image: "img/tanaka_normal.png", text: "おっと、わりぃ！ちょっと腹の調子が…。トイレ行ってくる！" },
+            { character: "田中", image: "img/tanaka_normal.webp", text: "おっと、わりぃ！ちょっと腹の調子が…。トイレ行ってくる！" },
             { text: "（田中がトイレに行った、その時だった）" },
-            { character: "不良A", image: "img/mysterious_man.png", text: "よぉ、また会ったな、お嬢ちゃん。今日は邪魔者もいねぇみたいだし、俺らと遊ぼうぜ？" },
+            { character: "不良A", image: "img/mysterious_man.webp", text: "よぉ、また会ったな、お嬢ちゃん。今日は邪魔者もいねぇみたいだし、俺らと遊ぼうぜ？" },
             { text: "（まずい！この前の不良たちが、再び女の子に絡み始めた！）" },
-            { character: "？？？", image: "img/sakurai_surprised.png", text: "…！" },
+            { character: "？？？", image: "img/sakurai_surprised.webp", text: "…！" },
             { text: "（恐怖に固まる女の子と、目が合ってしまった…！彼女は俺を覚えているようだ！）" },
             {
-                character: "主人公", image: "img/p_sad.png", text: "（どうする！？今度は俺一人だ…！）",
+                character: "主人公", image: "img/p_sad.webp", text: "（どうする！？今度は俺一人だ…！）",
                 choices: ["彼女の手を引いて逃げる", "見て見ぬふりをする"],
                 action: (choice) => {
                     if (choice === "見て見ぬふりをする") {
@@ -218,9 +218,9 @@ export const allEvents = [
                 }
             },
             { text: "（俺は無我夢中で彼女の手を取り、ゲームセンターの外へ走り出した！）" },
-            { character: "？？？", image: "img/sakurai_shy.png", text: "はぁ…はぁ…。あ、ありがとう…。また助けてもらっちゃったね。" },
-            { character: "主人公", image: "img/p_smile.png", text: "いや、無事でよかったよ。" },
-            { character: "？？？", image: "img/sakurai_smile.png", text: "ごめんなさい、私のためにこんなことして…" },
+            { character: "？？？", image: "img/sakurai_shy.webp", text: "はぁ…はぁ…。あ、ありがとう…。また助けてもらっちゃったね。" },
+            { character: "主人公", image: "img/p_smile.webp", text: "いや、無事でよかったよ。" },
+            { character: "？？？", image: "img/sakurai_smile.webp", text: "ごめんなさい、私のためにこんなことして…" },
             {
                 text: "（少し話した後に別れた。って言うかあの制服うちの学校と同じだよな。…あ、田中を忘れてた）",
                 action: () => {
@@ -237,11 +237,11 @@ export const allEvents = [
         id: "rikujo_1", title: "忘れ物", type: "date", year: 1, month: 8, week: 4, executed: false,
         condition: () => state.player.girlfriendRoute === "rikujo",
         scenes: [
-            { character: "主人公", image: "img/p_sad.png", text: "ふぅ、今日も疲れたな…。ん？あれ、部室にスマホ忘れたかも！" },
+            { character: "主人公", image: "img/p_sad.webp", text: "ふぅ、今日も疲れたな…。ん？あれ、部室にスマホ忘れたかも！" },
             { text: "どうする？", choices: ["取りに戻る", "諦める"], action: c => c === "諦める" ? { log: "まあ、いいか…。明日でいっか。", endsEvent: true } : null },
             { text: "（部室に戻る途中、日が落ちかけたグラウンドで誰かが何かを探しているのが見えた）" },
-            { character: "？？？", image: "img/kazami_sad.png", text: "はぁ…どこにもない…。どうしよう…" },
-            { character: "主人公", image: "img/p_surprised.png", text: "（陸上部のジャージ…？ずいぶん長い時間探しているみたいだ。なんだかすごく困ってるみたいだけど…）" },
+            { character: "？？？", image: "img/kazami_sad.webp", text: "はぁ…どこにもない…。どうしよう…" },
+            { character: "主人公", image: "img/p_surprised.webp", text: "（陸上部のジャージ…？ずいぶん長い時間探しているみたいだ。なんだかすごく困ってるみたいだけど…）" },
             {
                 text: "どうする？",
                 choices: ["声をかけてみる", "関わらないでおこう"],
@@ -252,10 +252,10 @@ export const allEvents = [
                     return null;
                 }
             },
-            { character: "主人公", image: "img/p_shy.png", text: "あの…何か探し物？" },
-            { character: "？？？", image: "img/kazami_surprised.png", text: "…うん、家の鍵落としちゃって…" },
-            { character: "主人公", image: "img/p_normal.png", text: "そっか、大変だ。俺も一緒に探すよ。二人の方が早いでしょ？" },
-            { character: "？？？", image: "img/kazami_smile.png", text: "本当！？ありがとう！助かる！" },
+            { character: "主人公", image: "img/p_shy.webp", text: "あの…何か探し物？" },
+            { character: "？？？", image: "img/kazami_surprised.webp", text: "…うん、家の鍵落としちゃって…" },
+            { character: "主人公", image: "img/p_normal.webp", text: "そっか、大変だ。俺も一緒に探すよ。二人の方が早いでしょ？" },
+            { character: "？？？", image: "img/kazami_smile.webp", text: "本当！？ありがとう！助かる！" },
             {
                 text: "（こうして俺は、陸上部の彼女と一緒に鍵を探すことになった）",
                 action: () => {
@@ -272,14 +272,14 @@ export const allEvents = [
         condition: () => state.player.girlfriendFlag.gw === 2,
         scenes: [
             { text: "（放課後、廊下を歩いていると、見覚えのある姿が目に入った）" },
-            { character: "主人公", image: "img/p_normal.png", text: "（あ、ゲームセンターの時の子だ。やっぱりうちの学校だったんだな）" },
+            { character: "主人公", image: "img/p_normal.webp", text: "（あ、ゲームセンターの時の子だ。やっぱりうちの学校だったんだな）" },
             { text: "（俺に気づいた彼女が、駆け寄ってきた）" },
-            { character: "？？？", image: "img/sakurai_smile.png", text: "あ、この前の！やっぱり同じ学校だったんだね！私、桜井っていいます。" },
-            { character: "主人公", image: "img/p_shy.png", text: "俺は野球部の主人公。この前は災難だったね。" },
-            { character: "桜井さん", image: "img/sakurai_shy.png", text: "ううん、助けてくれて本当にありがとう。ゲーム好きな友達がいなくて、一人でいるからああなっちゃうんだよね…" },
+            { character: "？？？", image: "img/sakurai_smile.webp", text: "あ、この前の！やっぱり同じ学校だったんだね！私、桜井っていいます。" },
+            { character: "主人公", image: "img/p_shy.webp", text: "俺は野球部の主人公。この前は災難だったね。" },
+            { character: "桜井さん", image: "img/sakurai_shy.webp", text: "ううん、助けてくれて本当にありがとう。ゲーム好きな友達がいなくて、一人でいるからああなっちゃうんだよね…" },
             { text: "（…！これって…）" },
-            { character: "桜井さん", image: "img/sakurai_smile.png", text: "主人公くんって…その…ゲームとか好き…？" },
-            { character: "主人公", image: "img/p_smile.png", text: "（…！連絡先を聞く絶好のチャンスだ！）" },
+            { character: "桜井さん", image: "img/sakurai_smile.webp", text: "主人公くんって…その…ゲームとか好き…？" },
+            { character: "主人公", image: "img/p_smile.webp", text: "（…！連絡先を聞く絶好のチャンスだ！）" },
             {
                 text: "どうする？",
                 choices: ["「今度一緒に行こうよ！」", "「野球以外はあんまり興味ないかな…」"],
@@ -291,7 +291,7 @@ export const allEvents = [
                     return null;
                 }
             },
-            { character: "桜井さん", image: "img/sakurai_happy.png", text: "…！うん、わかった…！" },
+            { character: "桜井さん", image: "img/sakurai_happy.webp", text: "…！うん、わかった…！" },
             {
                 text: "（こうして俺は、桜井さんと連絡先を交換することができた！）",
                 action: () => {
@@ -310,13 +310,13 @@ export const allEvents = [
         scenes: [
             { text: "（昼休み、教室で弁当を食べていると、クラスの入口が少し騒がしい…）" },
             { character: "クラスメイトA", text: "野球部の主人公くんに用だってさ。えーっと…" },
-            { character: "？？？", image: "img/kazami_smile.png", text: "やっほー！同じ学年だったのねー！" },
-            { character: "主人公", image: "img/p_surprised.png", text: "（え、俺？って、この前の陸上部の子だ！）" },
+            { character: "？？？", image: "img/kazami_smile.webp", text: "やっほー！同じ学年だったのねー！" },
+            { character: "主人公", image: "img/p_surprised.webp", text: "（え、俺？って、この前の陸上部の子だ！）" },
             { text: "（彼女はすごい勢いでクラスメイトたちの間を抜けて俺の席までやってきた）" },
-            { character: "？？？", image: "img/kazami_smile.png", text: "この前は、鍵を探すの手伝ってくれてありがとう。これ、お礼に作ったの。良かったら食べて！" },
-            { character: "主人公", image: "img/p_smile.png", text: "手作りクッキーだ！わざわざありがとう。すごくいい匂いがする！" },
-            { character: "風見さん", image: "img/kazami_smile.png", text: "うん！私の名前は風見。陸上部で短距離やってるんだ。きみは…主人公くん、だよね？" },
-            { character: "主人公", image: "img/p_smile.png", text: "ああ、そうだよ。よろしくな、風見さん。" },
+            { character: "？？？", image: "img/kazami_smile.webp", text: "この前は、鍵を探すの手伝ってくれてありがとう。これ、お礼に作ったの。良かったら食べて！" },
+            { character: "主人公", image: "img/p_smile.webp", text: "手作りクッキーだ！わざわざありがとう。すごくいい匂いがする！" },
+            { character: "風見さん", image: "img/kazami_smile.webp", text: "うん！私の名前は風見。陸上部で短距離やってるんだ。きみは…主人公くん、だよね？" },
+            { character: "主人公", image: "img/p_smile.webp", text: "ああ、そうだよ。よろしくな、風見さん。" },
             { 
                 text: "（俺はクッキーを受け取った、どうやら風見さんは男子から人気みたいで、殺伐とした雰囲気が流れている）",
                 action: () => { 
@@ -328,18 +328,18 @@ export const allEvents = [
             }
         ]
     },
-    { id: "quiz_1", title: "野球知識テスト", type: "date", year: 1, month: 9, week: 3, executed: false, scenes: [{ character: "監督", image: "img/kantoku.png", text: "お前ら、野球のルールや歴史についてどれだけ知っているか、抜き打ちテストを行う！" }, { character: "主人公", image: "img/p_surprised.png", text: "えぇーっ！？" }, { text: "【野球知識テスト】<br>全3問だ。一度でも間違えたら終了だぞ！", miniGame: "baseballQuiz", action: c => { let t = `結果は <span style="color: #ecc94b;">${c}</span> 問正解だった。<br>`; if (c > 0) playSfx('point'); if (c === 1) { state.player.intelligence = Math.min(state.maxStats.playerStats, state.player.intelligence + 1); state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 1); t += `学力と監督評価が <span style="color: #ecc94b;">1</span> アップした。`; } else if (c === 2) { state.player.intelligence = Math.min(state.maxStats.playerStats, state.player.intelligence + 2); state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 2); t += `学力と監督評価が <span style="color: #ecc94b;">2</span> アップした。`; } else if (c === 3) { state.player.intelligence = Math.min(state.maxStats.playerStats, state.player.intelligence + 4); state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 4); state.player.specialAbilities["野球脳"] = true; t += `全問正解！学力と監督評価が <span style="color: #ecc94b;">4</span> アップ！<br>特殊能力「野球脳」を手に入れた！`; } else { playSfx('negative'); t += "一問も正解できなかった…。"; } return t; } }] },
+    { id: "quiz_1", title: "野球知識テスト", type: "date", year: 1, month: 9, week: 3, executed: false, scenes: [{ character: "監督", image: "img/kantoku.webp", text: "お前ら、野球のルールや歴史についてどれだけ知っているか、抜き打ちテストを行う！" }, { character: "主人公", image: "img/p_surprised.webp", text: "えぇーっ！？" }, { text: "【野球知識テスト】<br>全3問だ。一度でも間違えたら終了だぞ！", miniGame: "baseballQuiz", action: c => { let t = `結果は <span style="color: #ecc94b;">${c}</span> 問正解だった。<br>`; if (c > 0) playSfx('point'); if (c === 1) { state.player.intelligence = Math.min(state.maxStats.playerStats, state.player.intelligence + 1); state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 1); t += `学力と監督評価が <span style="color: #ecc94b;">1</span> アップした。`; } else if (c === 2) { state.player.intelligence = Math.min(state.maxStats.playerStats, state.player.intelligence + 2); state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 2); t += `学力と監督評価が <span style="color: #ecc94b;">2</span> アップした。`; } else if (c === 3) { state.player.intelligence = Math.min(state.maxStats.playerStats, state.player.intelligence + 4); state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 4); state.player.specialAbilities["野球脳"] = true; t += `全問正解！学力と監督評価が <span style="color: #ecc94b;">4</span> アップ！<br>特殊能力「野球脳」を手に入れた！`; } else { playSfx('negative'); t += "一問も正解できなかった…。"; } return t; } }] },
     { id: "autumn_tournament_1", title: "秋の地方大会", type: "date", year: 1, month: 10, week: 1, executed: false, scenes: [{ action: () => { setTournamentState('autumn_1', 1); return "秋の大会が始まる！新チームで俺が活躍する番だ！" } }] },
     {
         id: "rikujo_3", title: "体育祭", type: "date", year: 1, month: 10, week: 4, executed: false,
         condition: () => state.player.girlfriendFlag.rikujo === 2,
         scenes: [
-            { character: "田中", image: "img/tanaka_smile.png", text: "体育祭のメインイベント、クラス対抗リレーだ！アンカーはお前だぞ、主人公！頼んだぜ！" },
-            { character: "主人公", image: "img/p_normal.png", text: "任せとけ！…って、相手チームのアンカー…風見さん！？" },
+            { character: "田中", image: "img/tanaka_smile.webp", text: "体育祭のメインイベント、クラス対抗リレーだ！アンカーはお前だぞ、主人公！頼んだぜ！" },
+            { character: "主人公", image: "img/p_normal.webp", text: "任せとけ！…って、相手チームのアンカー…風見さん！？" },
             { text: "（俺に気づいた風見さんが、ニヤリと挑戦的な笑みを浮かべて近づいてきた）" },
-            { character: "風見さん", image: "img/kazami_normal.png", text: "ねえ、主人公くん。ただ走るだけじゃつまらないから、賭けない？" },
-            { character: "主人公", image: "img/p_surprised.png", text: "賭け？" },
-            { character: "風見さん", image: "img/kazami_smile.png", text: "うん。勝った方が、負けた方に何でも一つお願いできるっていうの！どう？" },
+            { character: "風見さん", image: "img/kazami_normal.webp", text: "ねえ、主人公くん。ただ走るだけじゃつまらないから、賭けない？" },
+            { character: "主人公", image: "img/p_surprised.webp", text: "賭け？" },
+            { character: "風見さん", image: "img/kazami_smile.webp", text: "うん。勝った方が、負けた方に何でも一つお願いできるっていうの！どう？" },
             {
                 text: "面白そうな提案だ…！受けるか？",
                 choices: ["望むところだ！", "いや、やめておく"],
@@ -352,9 +352,9 @@ export const allEvents = [
                 }
             },
             { text: "（勝負はアンカー対決にもつれ込んだ。ほぼ同時にバトンを受け取る！デッドヒートの末、わずかに俺が先にゴールテープを切った！）" },
-            { character: "風見さん", image: "img/kazami_angry.png", text: "くぅぅ…！本気で走ったのに…負けた…。" },
-            { character: "主人公", image: "img/p_smile.png", text: "俺の勝ちだな、風見さん。じゃあ、約束通りお願いを聞いてもらおうか。" },
-            { character: "風見さん", image: "img/kazami_shy.png", text: "はいはい…で、何？" },
+            { character: "風見さん", image: "img/kazami_angry.webp", text: "くぅぅ…！本気で走ったのに…負けた…。" },
+            { character: "主人公", image: "img/p_smile.webp", text: "俺の勝ちだな、風見さん。じゃあ、約束通りお願いを聞いてもらおうか。" },
+            { character: "風見さん", image: "img/kazami_shy.webp", text: "はいはい…で、何？" },
             {
                 text: "（よっしゃ！ここで決めるしかない！）",
                 choices: ["「じゃあ…連絡先、教えてよ」", "「ジュース奢って！」"],
@@ -372,8 +372,8 @@ export const allEvents = [
                     }
                 }
             },
-            { character: "風見さん", image: "img/kazami_blush.png", text: "仕方ない！勝負に負けたしねー" },
-            { character: "田中", image: "img/tanaka_surprised.png", text: "…これが青春か…" },
+            { character: "風見さん", image: "img/kazami_blush.webp", text: "仕方ない！勝負に負けたしねー" },
+            { character: "田中", image: "img/tanaka_surprised.webp", text: "…これが青春か…" },
 
             {
                 text: "（こうして俺は、勝負に勝ち、風見さんの連絡先をゲットした！）",
@@ -428,7 +428,7 @@ export const allEvents = [
             },
             { 
                 condition: () => state.player.isGirlfriend,
-                character: "主人公", image: "img/p_smile.png", 
+                character: "主人公", image: "img/p_smile.webp", 
                 text: "ああ、本当にきれいだな。一緒に見れて良かったよ。" 
             },
             {
@@ -446,10 +446,10 @@ export const allEvents = [
     { // ★★★ 新規イベント ★★★
         id: "new_year_2", title: "初詣 (2年)", type: "date", year: 2, month: 1, week: 1, executed: false,
         scenes: [
-            { character: "田中", image: "img/tanaka_smile.png", text: "あけおめ！主人公、初詣行こうぜ！" },
-            { character: "主人公", image: "img/p_smile.png", text: "ああ、いいな。行こう！" },
+            { character: "田中", image: "img/tanaka_smile.webp", text: "あけおめ！主人公、初詣行こうぜ！" },
+            { character: "主人公", image: "img/p_smile.webp", text: "ああ、いいな。行こう！" },
             { text: "（神社で、今年1年の活躍を祈願した）" },
-            { character: "田中", image: "img/tanaka_normal.png", text: "よし、今年最初の運試しだ！おみくじ引くぞ！" },
+            { character: "田中", image: "img/tanaka_normal.webp", text: "よし、今年最初の運試しだ！おみくじ引くぞ！" },
             { text: "（二人でおみくじを引く…ガラガラガラ……）" },
             {
                 action: () => {
@@ -497,7 +497,7 @@ export const allEvents = [
             },
             { 
                 condition: () => state.player.isGirlfriend,
-                character: "主人公", image: "img/p_smile.png", 
+                character: "主人公", image: "img/p_smile.webp", 
                 text: "ありがとう！すごく嬉しいよ。大事に食べるよ。" 
             },
             {
@@ -515,7 +515,7 @@ export const allEvents = [
     {
         id: "new_members_2", title: "新入部員加入", type: "date", year: 2, month: 4, week: 1, executed: false,
         scenes: [
-            { character: "主人公", image: "img/p_smile.png", text: "新入部員が入ってきた！俺も先輩か…。<br>よし、いいところを見せないと！", 
+            { character: "主人公", image: "img/p_smile.webp", text: "新入部員が入ってきた！俺も先輩か…。<br>よし、いいところを見せないと！", 
             action: () => {
                 Object.keys(state.player).forEach(key => { if (typeof state.player[key] === 'number' && ["power", "meet", "speed", "shoulder", "defense", "intelligence"].includes(key)) { state.player[key] = Math.min(state.maxStats.playerStats, state.player[key] + 1); } });
                 return "やる気がみなぎり、全能力が1上がった！";
@@ -526,8 +526,8 @@ export const allEvents = [
     {
         id: "janken_juice_2", title: "ジュースじゃんけん", type: "date", year: 2, month: 5, week: 1, executed: false,
         scenes: [
-            { character: "田中", image: "img/tanaka_smile.png", text: "練習終わりは喉が渇くなぁ！おい主人公、ジュース賭けてじゃんけんしようぜ！" },
-            { character: "主人公", image: "img/p_normal.png", text: "いいぜ、負けないぞ！" },
+            { character: "田中", image: "img/tanaka_smile.webp", text: "練習終わりは喉が渇くなぁ！おい主人公、ジュース賭けてじゃんけんしようぜ！" },
+            { character: "主人公", image: "img/p_normal.webp", text: "いいぜ、負けないぞ！" },
             { 
                 miniGame: "janken", 
                 action: async (result) => {
@@ -585,7 +585,7 @@ export const allEvents = [
             }}
         ]
     },
-    { id: "fitness_test_2", title: "体力測定 (2年)", type: "date", year: 2, month: 6, week: 3, executed: false, scenes: [{ character: "監督", image: "img/kantoku.png", text: "よし、2回目の体力測定だ！去年より成長した姿を見せてみろ！" }, { text: "【シャトルラン勝負！】<br>目標は20回だ！", miniGame: "shuttleRun", action: s => { const t = 20; return s >= t ? (state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 3), `記録は <span style="color:#ecc94b;">${s}</span> 回！目標達成！<br>走力が 3 アップした！`) : (state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 1), `記録は <span style="color:#ecc94b;">${s}</span> 回…。目標未達…<br>悔しさをバネに走力が 1 アップした。`) } }] },
+    { id: "fitness_test_2", title: "体力測定 (2年)", type: "date", year: 2, month: 6, week: 3, executed: false, scenes: [{ character: "監督", image: "img/kantoku.webp", text: "よし、2回目の体力測定だ！去年より成長した姿を見せてみろ！" }, { text: "【シャトルラン勝負！】<br>目標は20回だ！", miniGame: "shuttleRun", action: s => { const t = 20; return s >= t ? (state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 3), `記録は <span style="color:#ecc94b;">${s}</span> 回！目標達成！<br>走力が 3 アップした！`) : (state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 1), `記録は <span style="color:#ecc94b;">${s}</span> 回…。目標未達…<br>悔しさをバネに走力が 1 アップした。`) } }] },
     { id: "summer_tournament_2", title: "夏の地方大会 (2年)", type: "date", year: 2, month: 7, week: 1, executed: false, scenes: [{ action: () => { setTournamentState('summer_2', 1); return "2年目の夏！今年こそ甲子園に行くぞ！" } }] },
     { id: "test_2_1", title: "期末テスト", type: "date", year: 2, month: 7, week: 3, executed: false, scenes: [testEventScene] },
     // --- 2年目8月2週: 謎の男（アイスティー派生） ---
@@ -609,7 +609,7 @@ export const allEvents = [
                 }
             },
             { character: "謎の男", text: "そうかそうか。じゃあ…アイスティーでも、いいかな？" },
-            { character: "主人公", image: "img/p_surprised.png", text: "（…！？ このシチュエーション、どこかで…）" },
+            { character: "主人公", image: "img/p_surprised.webp", text: "（…！？ このシチュエーション、どこかで…）" },
             { 
                 text: "どうする！？", 
                 choices: ["「はい」", "逃げる"], 
@@ -645,9 +645,9 @@ export const allEvents = [
     { // ★★★ 新規イベント ★★★
         id: "reading_autumn_2", title: "読書の秋", type: "date", year: 2, month: 9, week: 3, executed: false,
         scenes: [
-            { character: "田中", image: "img/tanaka_normal.png", text: "夏も終わって、少し落ち着いたな。秋の夜長ってやつは、どうも退屈だぜ。" },
-            { character: "主人公", image: "img/p_normal.png", text: "じゃあ、この前買った野球雑誌でも一緒に読まないか？次の大会に向けて、他校のデータでも研究しようぜ。" },
-            { character: "田中", image: "img/tanaka_smile.png", text: "お、いいなそれ！オレ、そういうの結構好きなんだよな。" },
+            { character: "田中", image: "img/tanaka_normal.webp", text: "夏も終わって、少し落ち着いたな。秋の夜長ってやつは、どうも退屈だぜ。" },
+            { character: "主人公", image: "img/p_normal.webp", text: "じゃあ、この前買った野球雑誌でも一緒に読まないか？次の大会に向けて、他校のデータでも研究しようぜ。" },
+            { character: "田中", image: "img/tanaka_smile.webp", text: "お、いいなそれ！オレ、そういうの結構好きなんだよな。" },
             { text: "（二人で雑誌を読みふけり、野球談義に花を咲かせた…）" },
             { 
                 action: () => {
@@ -701,11 +701,11 @@ export const allEvents = [
                 character: "DYNAMIC_GF_NAME", image: "DYNAMIC_GF_SMILE", 
                 text: "わ、主人公くんとだ！よろしくね！" 
             },
-            { character: "主人公", image: "img/p_shy.png", text: "お、おう…！こちらこそ！" },
+            { character: "主人公", image: "img/p_shy.webp", text: "お、おう…！こちらこそ！" },
             { text: "（二人で息を合わせて練習するうちに、自然と会話も弾んだ）" },
-            { character: "田中", image: "img/tanaka_normal.png", text: "俺はどの女子とペアかな～" },
-            { character: "鈴木くん", image: "suzuki_confident.png", text: "よっ、田中、俺と青春しようぜ" },
-            { character: "田中", image: "img/tanaka_normal.png", text: "…" },
+            { character: "田中", image: "img/tanaka_normal.webp", text: "俺はどの女子とペアかな～" },
+            { character: "鈴木くん", image: "suzuki_confident.webp", text: "よっ、田中、俺と青春しようぜ" },
+            { character: "田中", image: "img/tanaka_normal.webp", text: "…" },
             {
                 text: "本番、俺と彼女は息の合った走りを見せ、見事1位でゴールした！",
                 action: () => {
@@ -742,10 +742,10 @@ export const allEvents = [
 {
         id: "ob_visit_2", title: "伝説のOB", type: "date", year: 2, month: 11, week: 4, executed: false,
         scenes: [
-            { character: "田中", image: "img/tanaka_surprised.png", text: "おい主人公！見ろよ、あの人…この高校からプロ入りした伝説のOB、豪田先輩だぞ！" },
-            { character: "主人公", image: "img/p_surprised.png", text: "えっ、本当に！？なんで学校に…？" },
+            { character: "田中", image: "img/tanaka_surprised.webp", text: "おい主人公！見ろよ、あの人…この高校からプロ入りした伝説のOB、豪田先輩だぞ！" },
+            { character: "主人公", image: "img/p_surprised.webp", text: "えっ、本当に！？なんで学校に…？" },
             { text: "豪田先輩「よう、後輩たち。近くまで来たから顔を出してみたんだが、いい練習してるな。」" },
-            { character: "主人公", image: "img/p_normal.png", text: "（すごい…体がめちゃくちゃ大きい…。プロの選手に直接アドバイスをもらえるチャンスだ！）" },
+            { character: "主人公", image: "img/p_normal.webp", text: "（すごい…体がめちゃくちゃ大きい…。プロの選手に直接アドバイスをもらえるチャンスだ！）" },
             { 
                 text: "何について教わろうか？",
                 choices: ["打撃の極意", "守備・走塁の極意", "プロの心構え"],
@@ -794,7 +794,7 @@ export const allEvents = [
             },
             { 
                 condition: () => state.player.isGirlfriend,
-                character: "主人公", image: "img/p_smile.png", 
+                character: "主人公", image: "img/p_smile.webp", 
                 text: "ありがとう！はい、俺からもこれどうぞ…でも、君といられるだけで、最高のプレゼントだよ。" 
             },
             {
@@ -812,10 +812,10 @@ export const allEvents = [
     { // ★★★ 新規イベント ★★★
         id: "new_year_3", title: "最後の初詣", type: "date", year: 3, month: 1, week: 1, executed: false,
         scenes: [
-            { character: "田中", image: "img/tanaka_smile.png", text: "あけましておめでとう！主人公、最後の初詣だ。行こうぜ！" },
-            { character: "主人公", image: "img/p_smile.png", text: "ああ。今年こそ、絶対に甲子園に行くって誓わないとな。" },
+            { character: "田中", image: "img/tanaka_smile.webp", text: "あけましておめでとう！主人公、最後の初詣だ。行こうぜ！" },
+            { character: "主人公", image: "img/p_smile.webp", text: "ああ。今年こそ、絶対に甲子園に行くって誓わないとな。" },
             { text: "（神社で、最後の夏の勝利を固く祈願した）" },
-            { character: "田中", image: "img/tanaka_normal.png", text: "最後のおみくじだ…！頼むぞ…！" },
+            { character: "田中", image: "img/tanaka_normal.webp", text: "最後のおみくじだ…！頼むぞ…！" },
             { text: "（二人でおみくじを引く…ガラガラガラ……）" },
             {
                 action: () => {
@@ -844,10 +844,10 @@ export const allEvents = [
     { // ★★★ 新規イベント ★★★
         id: "kantoku_meeting_3", title: "監督との面談", type: "date", year: 3, month: 1, week: 4, executed: false,
         scenes: [
-            { character: "監督", image: "img/kantoku.png", text: "主人公、ちょっといいか。" },
-            { character: "主人公", image: "img/p_normal.png", text: "はい、監督。" },
-            { character: "監督", image: "img/kantoku.png", text: "お前も入学してから随分と成長したな。…だが、まだ足りん。最後の夏、お前がチームを甲子園に導くんだ。期待しているぞ。" },
-            { character: "主人公", image: "img/p_smile.png", text: "はい！必ず期待に応えてみせます！" },
+            { character: "監督", image: "img/kantoku.webp", text: "主人公、ちょっといいか。" },
+            { character: "主人公", image: "img/p_normal.webp", text: "はい、監督。" },
+            { character: "監督", image: "img/kantoku.webp", text: "お前も入学してから随分と成長したな。…だが、まだ足りん。最後の夏、お前がチームを甲子園に導くんだ。期待しているぞ。" },
+            { character: "主人公", image: "img/p_smile.webp", text: "はい！必ず期待に応えてみせます！" },
             { 
                 text: "（監督の言葉に、身が引き締まる思いだった。）",
                 action: () => {
@@ -882,7 +882,7 @@ export const allEvents = [
             },
             { 
                 condition: () => state.player.isGirlfriend,
-                character: "主人公", image: "img/p_smile.png", 
+                character: "主人公", image: "img/p_smile.webp", 
                 text: "ありがとう。君の応援があるから頑張れるよ。" 
             },
             {
@@ -909,7 +909,7 @@ export const allEvents = [
         scenes: [
             { text: "（グラウンドに、今年の新入部員の姿がある。俺たちにとって、最後の後輩たちだ）" },
             { character: "新入部員", text: "あの…主人公先輩！いつも試合見てます！憧れてこの高校に来ました！よろしくお願いします！" },
-            { character: "主人公", image: "img/p_smile.png", text: "（俺に憧れて…か。なんだか照れるな）ああ、よろしくな！期待してるぞ！" },
+            { character: "主人公", image: "img/p_smile.webp", text: "（俺に憧れて…か。なんだか照れるな）ああ、よろしくな！期待してるぞ！" },
             { 
                 text: "（後輩たちのまっすぐな眼差しに、最高学年としての責任と誇りが湧いてきた。）",
                 action: () => {
@@ -932,10 +932,10 @@ export const allEvents = [
         id: "final_summer_promise_3", title: "最後の夏を前に", type: "date", year: 3, month: 6, week: 2, executed: false,
         scenes: [
             { text: "（練習後、田中と二人きりで夕日に染まるグラウンドを眺める…）" },
-            { character: "田中", image: "img/tanaka_normal.png", text: "…いよいよだな、主人公。俺たちの、最後の夏だ。" },
-            { character: "主人公", image: "img/p_normal.png", text: "ああ。あっという間だったな。" },
-            { character: "田中", image: "img/tanaka_smile.png", text: "色々あったけどさ、お前がいたからここまで来れたよ。絶対、甲子園行こうな。" },
-            { character: "主人公", image: "img/p_smile.png", text: "当たり前だろ。最高の夏にしようぜ。" },
+            { character: "田中", image: "img/tanaka_normal.webp", text: "…いよいよだな、主人公。俺たちの、最後の夏だ。" },
+            { character: "主人公", image: "img/p_normal.webp", text: "ああ。あっという間だったな。" },
+            { character: "田中", image: "img/tanaka_smile.webp", text: "色々あったけどさ、お前がいたからここまで来れたよ。絶対、甲子園行こうな。" },
+            { character: "主人公", image: "img/p_smile.webp", text: "当たり前だろ。最高の夏にしようぜ。" },
             { 
                 text: "（俺たちは固く握手を交わした。）",
                 action: () => {
@@ -957,10 +957,10 @@ export const allEvents = [
         condition: () => state.gameState.year === 2 && state.gameState.month === 1 && !state.player.hasPhoneNumber,
         scenes: [
             { text: "（練習も終わり、気分転換にぶらぶら歩いて帰っていると、前から見慣れた顔が…）" },
-            { character: "星川さん", image: "img/hoshikawa_normal.png", text: "あ、主人公くん。練習お疲れ様。今帰り？" },
-            { character: "主人公", image: "img/p_shy.png", text: "星川さんこそ。うん、まあね。奇遇だな。（マネージャーか、何してんだろ…）" },
-            { character: "星川さん", image: "img/hoshikawa_normal.png", text: "私、これから駅前の本屋さんに寄って行こうと思って。次の対戦相手のデータ分析に役立つ本がないかなって。" },
-            { character: "主人公", image: "img/p_surprised.png", text: "（マネージャーの仕事って、そんなことまで…？すごいな…）" },
+            { character: "星川さん", image: "img/hoshikawa_normal.webp", text: "あ、主人公くん。練習お疲れ様。今帰り？" },
+            { character: "主人公", image: "img/p_shy.webp", text: "星川さんこそ。うん、まあね。奇遇だな。（マネージャーか、何してんだろ…）" },
+            { character: "星川さん", image: "img/hoshikawa_normal.webp", text: "私、これから駅前の本屋さんに寄って行こうと思って。次の対戦相手のデータ分析に役立つ本がないかなって。" },
+            { character: "主人公", image: "img/p_surprised.webp", text: "（マネージャーの仕事って、そんなことまで…？すごいな…）" },
             { 
                 text: "これはチャンスかもしれない…！", choices: ["「俺も付き合うよ」", "「そうなんだ、頑張って」"],
                 action: (choice) => {
@@ -969,12 +969,12 @@ export const allEvents = [
                     return null;
                 }
             },
-            { character: "星川さん", image: "img/hoshikawa_smile.png", text: "本当？ありがとう！主人公くんも何か探してる本があるの？" },
-            { character: "主人公", image: "img/p_shy.png", text: "（やばい、とっさに言っちゃったけど何も考えてなかった…！どうする！？）" },
+            { character: "星川さん", image: "img/hoshikawa_smile.webp", text: "本当？ありがとう！主人公くんも何か探してる本があるの？" },
+            { character: "主人公", image: "img/p_shy.webp", text: "（やばい、とっさに言っちゃったけど何も考えてなかった…！どうする！？）" },
             {
                 text: "ここは真面目なところを見せるべきか…？", choices: ["「バッティング理論の本を探してる」", "「新作の漫画でも見ようかなって…」"],
                 action: (choice) => {
-                    ui.showCharacter("img/hoshikawa_smile.png");
+                    ui.showCharacter("img/hoshikawa_smile.webp");
                     if (choice === "「バッティング理論の本を探してる」") {
                         state.player.girlfriendFlag.manager = 2;
                         state.player.intelligence = Math.min(state.maxStats.playerStats, state.player.intelligence + 1);
@@ -991,12 +991,12 @@ export const allEvents = [
         condition: () => state.player.girlfriendFlag.manager === 2,
         scenes: [
             { text: "（自主練習をしていると、グラウンドの隅に星川さんの姿が見えた）" },
-            { character: "主人公", image: "img/p_normal.png", text: "星川さん、どうしたの？もう部活は終わったはずだけど。" },
-            { character: "星川さん", image: "img/hoshikawa_smile.png", text: "うん。主人公くんが頑張ってるから、つい見に来ちゃった。…そうだ、これ、良かったら飲んで。差し入れ！" },
-            { character: "主人公", image: "img/p_surprised.png", text: "え、いいの？ありがとう！" },
+            { character: "主人公", image: "img/p_normal.webp", text: "星川さん、どうしたの？もう部活は終わったはずだけど。" },
+            { character: "星川さん", image: "img/hoshikawa_smile.webp", text: "うん。主人公くんが頑張ってるから、つい見に来ちゃった。…そうだ、これ、良かったら飲んで。差し入れ！" },
+            { character: "主人公", image: "img/p_surprised.webp", text: "え、いいの？ありがとう！" },
             { text: "（彼女が差し出してくれたのは、特製のスポーツドリンクだった）" },
-            { character: "星川さん", image: "img/hoshikawa_smile.png", text: "この前の本、ちゃんと読んでる？主人公くんが熱心だから、私も応援したくなっちゃうんだ。" },
-            { character: "主人公", image: "img/p_shy.png", text: "（俺のこと、見ててくれたんだ…）" },
+            { character: "星川さん", image: "img/hoshikawa_smile.webp", text: "この前の本、ちゃんと読んでる？主人公くんが熱心だから、私も応援したくなっちゃうんだ。" },
+            { character: "主人公", image: "img/p_shy.webp", text: "（俺のこと、見ててくれたんだ…）" },
             {
                 text: "（星川さんの応援に応えたい…！）",
                 action: () => {
@@ -1016,13 +1016,13 @@ export const allEvents = [
         condition: () => state.player.girlfriendFlag.manager === 3,
         scenes: [
             { text: "（部活の帰り道、星川さんが俺を待っていてくれた）" },
-            { character: "星川さん", image: "img/hoshikawa_smile.png", text: "主人公くん、お疲れ様。この前のドリンク、口に合ったかな？" },
-            { character: "主人公", image: "img/p_smile.png", text: "うん、すごく美味しかったよ。おかげで練習もはかどったし。ありがとう。" },
-            { character: "星川さん", image: "img/hoshikawa_smile.png", text: "ふふ、良かった。ねえ、今日も新しい野球雑誌が出てるはずだから、また本屋さん、付き合ってくれないかな？" },
+            { character: "星川さん", image: "img/hoshikawa_smile.webp", text: "主人公くん、お疲れ様。この前のドリンク、口に合ったかな？" },
+            { character: "主人公", image: "img/p_smile.webp", text: "うん、すごく美味しかったよ。おかげで練習もはかどったし。ありがとう。" },
+            { character: "星川さん", image: "img/hoshikawa_smile.webp", text: "ふふ、良かった。ねえ、今日も新しい野球雑誌が出てるはずだから、また本屋さん、付き合ってくれないかな？" },
             { text: "（彼女と野球の話をするのは楽しい。断る理由なんてなかった）" },
             { text: "（本屋で雑誌を読みながら、俺たちは夢中になって野球の戦術について語り合った）" },
-            { character: "星川さん", image: "img/hoshikawa_smile.png", text: "…ごめんね、つい熱くなっちゃった。主人公くんと話してると、時間忘れちゃうな。" },
-            { character: "主人公", image: "img/p_shy.png", text: "俺もだよ。すごく楽しい。…あのさ、" },
+            { character: "星川さん", image: "img/hoshikawa_smile.webp", text: "…ごめんね、つい熱くなっちゃった。主人公くんと話してると、時間忘れちゃうな。" },
+            { character: "主人公", image: "img/p_shy.webp", text: "俺もだよ。すごく楽しい。…あのさ、" },
             {
                 text: "（もっと話したい…。ここで誘うべきか？）", choices: ["「良かったら、この後ご飯でも行かない？」", "「それじゃ、また明日」"],
                 action: (choice) => {
@@ -1033,9 +1033,9 @@ export const allEvents = [
                     return null;
                 }
             },
-            { character: "星川さん", image: "img/hoshikawa_blush.png", text: "えっ…でも、ごめん、このあと家の用事があってさ…。" },
-            { character: "主人公", image: "img/p_sad.png", text: "そっか、急に誘ってごめんな。（…だめか）" },
-            { character: "星川さん", image: "img/hoshikawa_smile.png", text: "ううん！ほんとにタイミングが悪かったから…その、良かったら連絡先、交換しない？" },
+            { character: "星川さん", image: "img/hoshikawa_blush.webp", text: "えっ…でも、ごめん、このあと家の用事があってさ…。" },
+            { character: "主人公", image: "img/p_sad.webp", text: "そっか、急に誘ってごめんな。（…だめか）" },
+            { character: "星川さん", image: "img/hoshikawa_smile.webp", text: "ううん！ほんとにタイミングが悪かったから…その、良かったら連絡先、交換しない？" },
             {
                 text: "（最高の展開だ！俺は頷き、星川さんと連絡先を交換した）",
                 action: () => {
@@ -1054,7 +1054,7 @@ export const allEvents = [
         // ▼▼▼ 修正: 最後に && !state.gameState.dateInviteAttemptedThisTurn を追加 ▼▼▼
         condition: () => state.player.hasPhoneNumber && state.player.phoneCallCount >= 3 && !state.player.girlfriendFlag.isDateScheduled && !state.player.isGirlfriend && !state.gameState.phoneConfessionAttemptedThisTurn && !state.gameState.dateInviteAttemptedThisTurn,
         scenes: [
-            { character: "主人公", image: "img/p_normal.png", text: "（…そろそろデートに誘ってみようかな…）" },
+            { character: "主人公", image: "img/p_normal.webp", text: "（…そろそろデートに誘ってみようかな…）" },
             { character: "DYNAMIC_GF_NAME", image: "DYNAMIC_GF_SMILE", text: "もしもし、主人公くん？" },
             {
                 text: "どうする？", choices: ["デートに誘う", "やっぱりやめる"],
@@ -1089,9 +1089,9 @@ export const allEvents = [
         ]
     },
     { id: "random_test", title: "抜き打ちテスト", type: "random", chance: .05, scenes: [{ character: "先生", text: "席に着けー！今から抜き打ちテストを始めるぞー！" }, { text: "【抜き打ちテスト】<br>正しい答えを選べ！", miniGame: "generalQuiz", action: c => c > 0 ? (playSfx('point'), state.player.intelligence = Math.min(state.maxStats.playerStats, state.player.intelligence + 2), state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 2), "正解！学力と監督評価が 2 アップした！") : (playSfx('negative'), "不正解…評価が下がってしまった…。") }] },
-    { id: "ground_duty", title: "グラウンド整備", type: "random", chance: .05, scenes: [{ character: "監督", image: "img/kantoku.png", text: "おい、主人公！そこのグラウンド整備を手伝え！" }, { text: "どうする？", choices: ["真面目にやる", "サボる"], action: c => "真面目にやる" === c ? (playSfx('point'), state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 2), "監督の評価が 2 上がった！") : (playSfx('point'), state.player.health = Math.min(state.player.maxHealth, state.player.health + 5), "サボって体力が 5 回復した。") }] },
-    { id: "ufo", title: "UFO目撃？", type: "random", chance: .01, scenes: [{ character: "主人公", image: "img/p_surprised.png", text: "（ん？夜のグラウンドに妙な光が…まさか…！）" }, { text: "追いかけるか？", choices: ["追いかける", "気のせいだ"], action: c => "追いかける" === c ? (playSfx('point'), state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 10), state.player.health -= 20, `光を追いかけて全力疾走！走力が <span style="color:#ecc94b;">10</span> アップしたが、体力が <span style="color:red;">20</span> ダウンした…`) : "見間違いだろう…" }] },
-    { id: "cat", title: "猫の恩返し？", type: "random", chance: .03, scenes: [{ character: "主人公", image: "img/p_normal.png", text: "（道端で猫が弱ってる…。かわいそうに。よし、助けてやるか。）" }, { action: () => (playSfx('point'), state.player.power = Math.min(state.maxStats.playerStats, state.player.power + 1), state.player.meet = Math.min(state.maxStats.playerStats, state.player.meet + 1), state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 1), state.player.shoulder = Math.min(state.maxStats.playerStats, state.player.shoulder + 1), state.player.defense = Math.min(state.maxStats.playerStats, state.player.defense + 1), "数日後、なぜか絶好調に！猫のおかげ…？<br>野球の基本能力がすべて 1 ずつ上がった！") }] },
+    { id: "ground_duty", title: "グラウンド整備", type: "random", chance: .05, scenes: [{ character: "監督", image: "img/kantoku.webp", text: "おい、主人公！そこのグラウンド整備を手伝え！" }, { text: "どうする？", choices: ["真面目にやる", "サボる"], action: c => "真面目にやる" === c ? (playSfx('point'), state.team.coachEval = Math.min(state.maxStats.teamStats, state.team.coachEval + 2), "監督の評価が 2 上がった！") : (playSfx('point'), state.player.health = Math.min(state.player.maxHealth, state.player.health + 5), "サボって体力が 5 回復した。") }] },
+    { id: "ufo", title: "UFO目撃？", type: "random", chance: .01, scenes: [{ character: "主人公", image: "img/p_surprised.webp", text: "（ん？夜のグラウンドに妙な光が…まさか…！）" }, { text: "追いかけるか？", choices: ["追いかける", "気のせいだ"], action: c => "追いかける" === c ? (playSfx('point'), state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 10), state.player.health -= 20, `光を追いかけて全力疾走！走力が <span style="color:#ecc94b;">10</span> アップしたが、体力が <span style="color:red;">20</span> ダウンした…`) : "見間違いだろう…" }] },
+    { id: "cat", title: "猫の恩返し？", type: "random", chance: .03, scenes: [{ character: "主人公", image: "img/p_normal.webp", text: "（道端で猫が弱ってる…。かわいそうに。よし、助けてやるか。）" }, { action: () => (playSfx('point'), state.player.power = Math.min(state.maxStats.playerStats, state.player.power + 1), state.player.meet = Math.min(state.maxStats.playerStats, state.player.meet + 1), state.player.speed = Math.min(state.maxStats.playerStats, state.player.speed + 1), state.player.shoulder = Math.min(state.maxStats.playerStats, state.player.shoulder + 1), state.player.defense = Math.min(state.maxStats.playerStats, state.player.defense + 1), "数日後、なぜか絶好調に！猫のおかげ…？<br>野球の基本能力がすべて 1 ずつ上がった！") }] },
 /* events.js の allEvents 配列内に追加 */
 
     // --- 特殊能力取得イベント ---
@@ -1101,7 +1101,7 @@ export const allEvents = [
         scenes: [
             { text: "（…ふわぁ、なんだか不思議な夢を見たぞ）" },
             { character: "神様", text: "「野球を愛する若者よ…汝に力を授けよう…」" },
-            { character: "主人公", image: "img/p_surprised.png", text: "（枕元にボールが置いてある…これは夢じゃないのか！？）" },
+            { character: "主人公", image: "img/p_surprised.webp", text: "（枕元にボールが置いてある…これは夢じゃないのか！？）" },
             { 
                 action: () => {
                     playSfx('point');
@@ -1115,10 +1115,10 @@ export const allEvents = [
         id: "kantoku_secret_training", title: "監督の特別指導", type: "command", command: "チーム練習", chance: 0.2, // 条件を満たせば20%で発生
         condition: () => state.team.coachEval >= 70 && !state.player.specialAbilities["監督の秘蔵っ子"],
         scenes: [
-            { character: "監督", image: "img/kantoku.png", text: "おい、主人公。少し残れ。" },
-            { character: "主人公", image: "img/p_surprised.png", text: "（えっ、何か怒られるようなことしたっけ…？）" },
-            { character: "監督", image: "img/kantoku.png", text: "お前の最近の頑張りは目を見張るものがある。…どうだ、俺とお前で専用のメニューを組んでみないか？" },
-            { character: "主人公", image: "img/p_smile.png", text: "はい！ぜひお願いします！" },
+            { character: "監督", image: "img/kantoku.webp", text: "おい、主人公。少し残れ。" },
+            { character: "主人公", image: "img/p_surprised.webp", text: "（えっ、何か怒られるようなことしたっけ…？）" },
+            { character: "監督", image: "img/kantoku.webp", text: "お前の最近の頑張りは目を見張るものがある。…どうだ、俺とお前で専用のメニューを組んでみないか？" },
+            { character: "主人公", image: "img/p_smile.webp", text: "はい！ぜひお願いします！" },
             { 
                 action: () => {
                     playSfx('point');
@@ -1137,9 +1137,9 @@ export const allEvents = [
         scenes: [
             { text: "…試合終了のサイレンが、やけに遠くに聞こえる。" },
             { text: "俺たちの最後の夏は、甲子園の土を踏むことなく、ここで終わった。" },
-            { character: "田中", image: "img/tanaka_sad.png", text: "…終わっちまったな。悔しいな、主人公…。" },
-            { character: "主人公", image: "img/p_sad.png", text: "ああ…。でも、お前とここまで来れてよかった。" },
-            { character: "監督", image: "img/kantoku.png", text: "…胸を張って帰るぞ。お前たちは、最後までよく戦った。" },
+            { character: "田中", image: "img/tanaka_sad.webp", text: "…終わっちまったな。悔しいな、主人公…。" },
+            { character: "主人公", image: "img/p_sad.webp", text: "ああ…。でも、お前とここまで来れてよかった。" },
+            { character: "監督", image: "img/kantoku.webp", text: "…胸を張って帰るぞ。お前たちは、最後までよく戦った。" },
             {
                 action: () => {
                     playSfx('negative');
@@ -1156,9 +1156,9 @@ export const allEvents = [
         scenes: [
             { text: "あと一歩、届かなかった…。日本一の夢は、ここで潰えた。" },
             { text: "スタンドからの暖かい拍手が、俺たちを包み込む。" },
-            { character: "田中", image: "img/tanaka_sad.png", text: "負けちまったけど…最高の夏だったな。ここまで連れてきてくれて、ありがとうな、主人公。" },
-            { character: "主人公", image: "img/p_smile.png", text: "違うさ、みんなで来たんだ。…ああ、最高の夏だった。" },
-            { character: "監督", image: "img/kantoku.png", text: "立派だったぞ。お前たちは、俺の誇りだ。" },
+            { character: "田中", image: "img/tanaka_sad.webp", text: "負けちまったけど…最高の夏だったな。ここまで連れてきてくれて、ありがとうな、主人公。" },
+            { character: "主人公", image: "img/p_smile.webp", text: "違うさ、みんなで来たんだ。…ああ、最高の夏だった。" },
+            { character: "監督", image: "img/kantoku.webp", text: "立派だったぞ。お前たちは、俺の誇りだ。" },
             {
                 action: () => {
                     playSfx('point');
@@ -1175,10 +1175,10 @@ export const allEvents = [
         scenes: [
             { text: "最後のバッターを打ち取った…！<br>サイレンが鳴り響く！俺たちは…勝ったんだ！" },
             { text: "日本一の高校球児になったんだ！" },
-            { character: "田中", image: "img/tanaka_smile.png", text: "やった…やったぞ主人公！俺たち、本当に甲子園で優勝しちまったんだ！" },
-            { character: "主人公", image: "img/p_smile.png", text: "ああ…！信じられないよ…！" },
+            { character: "田中", image: "img/tanaka_smile.webp", text: "やった…やったぞ主人公！俺たち、本当に甲子園で優勝しちまったんだ！" },
+            { character: "主人公", image: "img/p_smile.webp", text: "ああ…！信じられないよ…！" },
             { text: "（チームメイトたちに駆け寄られ、俺は何度も胴上げされた）" },
-            { character: "監督", image: "img/kantoku.png", text: "…よくやった。お前は最高の選手だ。胸を張れ。" },
+            { character: "監督", image: "img/kantoku.webp", text: "…よくやった。お前は最高の選手だ。胸を張れ。" },
             {
                 action: () => {
                     playSfx('cheer');
@@ -1212,16 +1212,16 @@ export async function runEvent(event) {
         if (imagePath === "DYNAMIC_GF_SMILE" || characterName === "DYNAMIC_GF_NAME") {
             switch (state.player.girlfriendRoute) {
                 case 'rikujo':
-                    imagePath = "img/kazami_smile.png";
+                    imagePath = "img/kazami_smile.webp";
                     characterName = "風見さん";
                     break;
                 case 'manager':
-                    imagePath = "img/hoshikawa_smile.png";
+                    imagePath = "img/hoshikawa_smile.webp";
                     characterName = "星川さん";
                     break;
                 case 'game_center':
                 default:
-                    imagePath = "img/sakurai_smile.png";
+                    imagePath = "img/sakurai_smile.webp";
                     characterName = "桜井さん";
                     break;
             }

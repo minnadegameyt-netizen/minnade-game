@@ -94,8 +94,8 @@ function playBGM(key, action='play') { if (AUDIO_FILES[key]) { if(action==='play
 // ▼▼▼ 読み込む素材リスト（自分のファイル構成に合わせて確認してください） ▼▼▼
 const ASSETS_TO_LOAD = [
     // 画像
-    'assets/puzzle_noise.jpg',
-    'assets/evidence_view.jpg',
+    'assets/puzzle_noise.webp',
+    'assets/evidence_view.webp',
     
     // 動画 (特に重要)
     'assets/cam_dark.mp4',
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let asset;
             const ext = path.split('.').pop().toLowerCase();
 
-            if (['jpg', 'png', 'gif'].includes(ext)) {
+            if (['jpg', 'png','webp', 'gif'].includes(ext)) {
                 asset = new Image();
                 asset.onload = () => resolve();
                 asset.onerror = () => resolve(); // エラーでも止まらないようにする
@@ -800,7 +800,7 @@ else if (pageId === 'd2_noise') {
                     </div>
 
                     <!-- 手前の画像 -->
-                    <img id="target-image" src="assets/puzzle_noise.jpg" 
+                    <img id="target-image" src="assets/puzzle_noise.webp" 
                         style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition: all 1s;" 
                         alt="Corrupted Data">
                 </div>
@@ -1074,7 +1074,7 @@ else if (pageId === 'd4_sound') {
             <div class="site-center">
                 <h2>Geo-Location Analysis</h2>
                 <div style="width:300px; height:250px; margin:0 auto; border:1px solid #555; overflow:hidden; position:relative;">
-                    <img src="assets/evidence_view.jpg" style="width:100%; height:100%; object-fit:cover;" alt="Night View">
+                    <img src="assets/evidence_view.webp" style="width:100%; height:100%; object-fit:cover;" alt="Night View">
                     <div style="position:absolute; bottom:0; left:0; background:rgba(0,0,0,0.7); color:#00ff41; font-size:0.7em; padding:5px; width:100%; text-align:left;">
                        LAT: 34.9841 N<br>
                        LON: 138.4022 E<br>
@@ -1463,7 +1463,7 @@ function updateDevToolsContent() {
                     Status: 200 OK | Type: image/jpeg | Size: 404KB
                 </div>
                 <div>
-                    <span style="color:#569cd6;">GET</span> puzzle_noise.jpg
+                    <span style="color:#569cd6;">GET</span> puzzle_noise.webp
                     <button onclick="hackImage()" style="margin-left:10px; background:#333; color:#ddd; border:1px solid #555; cursor:pointer;">
                         ↻ Reload Image (Debug Mode)
                     </button>

@@ -74,7 +74,10 @@
     <div class="feature-banners">
         <!-- バナー1: お知らせ -->
         <div class="feature-card">
-            <img src="img/banner_news.png" alt="お知らせ">
+    <picture>
+        <source srcset="img/banner_news.webp" type="image/webp">
+        <img src="img/banner_news.png" alt="お知らせ" width="640" height="360">
+    </picture>
             <div class="feature-content">
                 <h3>📢 お知らせ・更新情報</h3>
                 <a href="https://note.com/dontokoi_games/" target="_blank" class="feature-btn btn-gray">最新情報を見る</a>
@@ -82,7 +85,10 @@
         </div>
         <!-- バナー2: 新作ゲーム -->
         <div class="feature-card">
-            <img src="img/banner_newgame.png" alt="新作ゲーム">
+    <picture>
+        <source srcset="img/banner_newgame.webp" type="image/webp">
+        <img src="img/banner_newgame.png" alt="新作ゲーム" width="640" height="360">
+    </picture>
             <div class="feature-content">
                 <h3>✨ 新作ゲーム登場！</h3>
                 <a href="mystery/index.html" class="feature-btn" style="background-color: #6b46c1;">今すぐプレイ</a>
@@ -90,7 +96,10 @@
         </div>
         <!-- バナー3: 初めての方へ (ここが新しいページへのリンク) -->
         <div class="feature-card">
-            <img src="img/banner_guide.png" alt="初めての方へ">
+    <picture>
+        <source srcset="img/banner_guide.webp" type="image/webp">
+        <img src="img/banner_guide.png" alt="初めての方へ" width="640" height="360">
+    </picture>
             <div class="feature-content">
                 <h3>🔰 初めての方へ</h3>
                 <a href="guide.html" class="feature-btn btn-green">遊び方ガイドを見る</a>
@@ -131,12 +140,12 @@
         <!-- ▼ 配信中チャンネルバナー ▼ -->
         <div class="live-banner-container">
             <button id="open-live-list-btn" class="live-banner">
-        <img src="img/chara_left.png" class="banner-chara chara-left" alt="">
+        <img src="img/chara_left.webp" class="banner-chara chara-left" alt="" width="200" height="250">
                 <div class="live-content">
                     <span class="live-icon">🔴 LIVE</span>
                     <span class="live-text">現在 <strong id="live-count">0</strong> 名が配信中！ 配信リストを見る</span>
                 </div>
-        <img src="img/chara_right.png" class="banner-chara chara-right" alt="">
+        <img src="img/chara_right.webp" class="banner-chara chara-right" alt="">
                 <span class="live-arrow">▶</span>
             </button>
         </div>
@@ -162,7 +171,10 @@
             <!-- ゲームカード1: 高校野球シミュレーション -->
             <div class="game-card">
                 <h2>高校野球シミュレーション</h2>
-                <img src="baseball/img/p_normal.png" alt="高校野球シミュレーション サムネイル" class="game-thumbnail">
+<picture>
+    <source srcset="baseball/img/p_normal.webp" type="image/webp">
+    <img src="baseball/img/p_normal.webp" alt="高校野球シミュレーション サムネイル" class="game-thumbnail" width="110" height="110">
+</picture>
                 <p>高校球児として3年間を過ごし、甲子園を目指そう！</p>
                 <div class="mode-buttons">
                     <a href="baseball/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
@@ -175,7 +187,7 @@
             <!-- ゲームカード2: 視聴者参加型世論調査 -->
             <div class="game-card">
                 <h2>視聴者参加型世論調査</h2>
-                <img src="war/thumbnail.png" alt="陣取り合戦 サムネイル" class="game-thumbnail">
+                <img src="war/thumbnail.webp" alt="陣取り合戦 サムネイル" class="game-thumbnail" width="110" height="110">
                 <p>コメント数で勢力を拡大せよ！<br>視聴者参加型の陣取りゲーム。</p>
                 <div class="mode-buttons">
                     <a href="war/index.html?mode=demo" class="game-link-btn btn-green">デモプレイ（個人）</a>
@@ -573,7 +585,7 @@
         const gameData = {
             "baseball": {
                 title: "高校野球シミュレーション",
-                imgClass: "img", imgPath: "baseball/img/p_normal.png", color: "#48bb78",
+                imgClass: "img", imgPath: "baseball/img/p_normal.webp", color: "#48bb78",
                 buttons: [
                     { label: "個人で遊ぶ", url: "baseball/index.html?mode=solo", class: "btn-green" },
                     { label: "配信で遊ぶ", url: "baseball/index.html?mode=streamer", class: "btn-blue" },
@@ -583,7 +595,7 @@
             },
             "war": {
                 title: "視聴者参加型世論調査",
-                imgClass: "img", imgPath: "war/thumbnail.png", color: "#e53e3e",
+                imgClass: "img", imgPath: "war/thumbnail.webp", color: "#e53e3e",
                 buttons: [
                     { label: "デモプレイ", url: "war/index.html?mode=demo", class: "btn-green" },
                     { label: "配信で遊ぶ", url: "war/index.html?mode=stream", class: "btn-blue" },
@@ -725,7 +737,7 @@
                 if (data) {
                     let imgHtml = "";
                     if (data.imgClass === "img") {
-                        imgHtml = `<img src="${data.imgPath}" alt="${data.title}" class="ranking-img">`;
+                        imgHtml = `<img src="${data.imgPath}" alt="${data.title}" class="ranking-img" width="60" height="60">`;
                     } else {
                         imgHtml = `<div class="thumbnail-placeholder" style="border-color: ${data.color}; color: ${data.color};"><span style="font-size: 2em;">${data.imgContent}</span></div>`;
                     }
