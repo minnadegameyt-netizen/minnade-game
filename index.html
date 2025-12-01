@@ -71,6 +71,33 @@
 
     <main id="home-page">
 
+    <div class="feature-banners">
+        <!-- バナー1: お知らせ -->
+        <div class="feature-card">
+            <img src="img/banner_news.png" alt="お知らせ">
+            <div class="feature-content">
+                <h3>📢 お知らせ・更新情報</h3>
+                <a href="https://note.com/dontokoi_games/" target="_blank" class="feature-btn btn-gray">最新情報を見る</a>
+            </div>
+        </div>
+        <!-- バナー2: 新作ゲーム -->
+        <div class="feature-card">
+            <img src="img/banner_newgame.png" alt="新作ゲーム">
+            <div class="feature-content">
+                <h3>✨ 新作ゲーム登場！</h3>
+                <a href="mystery/index.html" class="feature-btn" style="background-color: #6b46c1;">今すぐプレイ</a>
+            </div>
+        </div>
+        <!-- バナー3: 初めての方へ (ここが新しいページへのリンク) -->
+        <div class="feature-card">
+            <img src="img/banner_guide.png" alt="初めての方へ">
+            <div class="feature-content">
+                <h3>🔰 初めての方へ</h3>
+                <a href="guide.html" class="feature-btn btn-green">遊び方ガイドを見る</a>
+            </div>
+        </div>
+    </div>
+
         <!-- 自動ランキングセクション (スライダー版) -->
         <div class="ranking-section" id="ranking-section" style="display: none;">
             <h2 class="ranking-title">🏆 人気ゲームランキング</h2>
@@ -104,8 +131,12 @@
         <!-- ▼ 配信中チャンネルバナー ▼ -->
         <div class="live-banner-container">
             <button id="open-live-list-btn" class="live-banner">
-                <span class="live-icon">🔴 LIVE</span>
-                <span class="live-text">現在 <strong id="live-count">0</strong> 名が配信中！ 配信リストを見る</span>
+        <img src="img/chara_left.png" class="banner-chara chara-left" alt="">
+                <div class="live-content">
+                    <span class="live-icon">🔴 LIVE</span>
+                    <span class="live-text">現在 <strong id="live-count">0</strong> 名が配信中！ 配信リストを見る</span>
+                </div>
+        <img src="img/chara_right.png" class="banner-chara chara-right" alt="">
                 <span class="live-arrow">▶</span>
             </button>
         </div>
