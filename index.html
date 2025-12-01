@@ -1027,13 +1027,43 @@
             const apiInput = document.getElementById('global-api-key');
             const videoInput = document.getElementById('global-video-id');
             apiOpenBtn.addEventListener('click', (e) => { e.preventDefault(); const k = sessionStorage.getItem('youtube_api_key'); const v = sessionStorage.getItem('youtube_target_video_id'); if (k) apiInput.value = k; if (v) videoInput.value = v; apiModal.style.display = 'flex'; });
-            apiSaveBtn.addEventListener('click', () => { 
-                const k = apiInput.value.trim(); let v = videoInput.value.trim();
-                if (v.includes('v=')) v = v.split('v=')[1].split('&')[0];
-                else if (v.includes('youtu.be/')) v = v.split('youtu.be/')[1].split('?')[0];
-                if (k && v) { sessionStorage.setItem('youtube_api_key', k); sessionStorage.setItem('youtube_target_video_id', v); alert('設定を保存しました。'); apiModal.style.display = 'none'; }
-                else { alert('APIキーとVideo IDを入力してください。'); }
-            });
+// 変更後のコード（コピペ用）
+apiSaveBtn.addEventListener('click', () => { 
+    const k = apiInput.value.trim(); 
+    let v = videoInput.value.trim();
+
+    // ▼▼▼ URL自動変換ロジック（強化版） ▼▼▼
+    try {
+        // URL形式なら自動解析
+        if (v.startsWith('http')) {
+            const url = new URL(v);
+            if (url.searchParams.has('v')) {
+                // youtube.com/watch?v=XXX のパターン
+                v = url.searchParams.get('v');
+            } else if (url.pathname.includes('/live/')) {
+                // youtube.com/live/XXX のパターン（← これが今回の原因）
+                v = url.pathname.split('/live/')[1];
+            } else if (url.hostname === 'youtu.be') {
+                // youtu.be/XXX のパターン
+                v = url.pathname.slice(1);
+            }
+        }
+        // URLパラメータ(?si=...)などが残っていたら削除
+        v = v.split('?')[0];
+    } catch (e) {
+        console.log("URL解析エラー: そのままIDとして扱います");
+    }
+    // ▲▲▲▲▲▲
+
+    if (k && v) { 
+        sessionStorage.setItem('youtube_api_key', k); 
+        sessionStorage.setItem('youtube_target_video_id', v); 
+        alert('設定を保存しました。\nID: ' + v); // IDを確認できるように表示
+        apiModal.style.display = 'none'; 
+    } else { 
+        alert('APIキーとVideo IDを入力してください。'); 
+    }
+});
             apiCloseBtn.addEventListener('click', () => { apiModal.style.display = 'none'; });
             apiModal.addEventListener('click', (e) => { if (e.target === apiModal) apiModal.style.display = 'none'; });
 
@@ -1178,14 +1208,8 @@
                     const apiKey = document.getElementById('global-api-key').value.trim();
                     let videoId = document.getElementById('global-video-id').value.trim();
 
-                    if (videoId.includes('v=')) {
-                        videoId = videoId.split('v=')[1].split('&')[0];
-                    } else if (videoId.includes('youtu.be/')) {
-                        videoId = videoId.split('youtu.be/')[1].split('?')[0];
-                    } else if (videoId.includes('/live/')) {
-                        // ▼▼▼ ここを追加: /live/ 形式に対応 ▼▼▼
-                        videoId = videoId.split('/live/')[1].split('?')[0];
-                    }
+                    if (videoId.includes('v=')) videoId = videoId.split('v=')[1].split('&')[0];
+                    else if (videoId.includes('youtu.be/')) videoId = videoId.split('youtu.be/')[1].split('?')[0];
 
                     if (!apiKey || !videoId) {
                         registerStatus.textContent = "⚠️ APIキーとVideo IDを入力してください";
