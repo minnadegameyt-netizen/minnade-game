@@ -73,31 +73,34 @@
     <main id="home-page">
 
     <div class="feature-banners">
+        <!-- バナー1: お知らせ -->
         <div class="feature-card">
-            <picture>
-                <source srcset="img/banner_news.webp" type="image/webp">
-                <img src="img/banner_news.png" alt="お知らせ" width="640" height="360">
-            </picture>
+    <picture>
+        <source srcset="img/banner_news.webp" type="image/webp">
+        <img src="img/banner_news.png" alt="お知らせ" width="640" height="360">
+    </picture>
             <div class="feature-content">
                 <h3>📢 お知らせ・更新情報</h3>
                 <a href="https://note.com/dontokoi_games/" target="_blank" class="feature-btn btn-gray">最新情報を見る</a>
             </div>
         </div>
+        <!-- バナー2: 新作ゲーム -->
         <div class="feature-card">
-            <picture>
-                <source srcset="img/banner_newgame.webp" type="image/webp">
-                <img src="img/banner_newgame.png" alt="新作ゲーム" width="640" height="360">
-            </picture>
+    <picture>
+        <source srcset="img/banner_newgame.webp" type="image/webp">
+        <img src="img/banner_newgame.png" alt="新作ゲーム" width="640" height="360">
+    </picture>
             <div class="feature-content">
                 <h3>✨ 新作ゲーム登場！</h3>
                 <a href="mystery/index.html" class="feature-btn" style="background-color: #6b46c1;">今すぐプレイ</a>
             </div>
         </div>
+        <!-- バナー3: 初めての方へ (ここが新しいページへのリンク) -->
         <div class="feature-card">
-            <picture>
-                <source srcset="img/banner_guide.webp" type="image/webp">
-                <img src="img/banner_guide.png" alt="初めての方へ" width="640" height="360" fetchpriority="high">
-            </picture>
+    <picture>
+        <source srcset="img/banner_guide.webp" type="image/webp">
+        <img src="img/banner_guide.png" alt="初めての方へ" width="640" height="360" fetchpriority="high">
+    </picture>
             <div class="feature-content">
                 <h3>🔰 初めての方へ</h3>
                 <a href="guide.html" class="feature-btn btn-green">遊び方ガイドを見る</a>
@@ -105,9 +108,11 @@
         </div>
     </div>
 
-        <!-- 自動ランキングセクション -->
+        <!-- 自動ランキングセクション (スライダー版) -->
         <div class="ranking-section" id="ranking-section" style="display: none;">
             <h2 class="ranking-title">🏆 人気ゲームランキング</h2>
+            
+            <!-- 期間切り替えタブ -->
             <div class="ranking-tabs">
                 <button class="rank-tab active" onclick="switchRanking('total', this)">全期間</button>
                 <button class="rank-tab" onclick="switchRanking('yearly', this)">年間</button>
@@ -115,47 +120,62 @@
                 <button class="rank-tab" onclick="switchRanking('weekly', this)">週間</button>
                 <button class="rank-tab" onclick="switchRanking('daily', this)">デイリー</button>
             </div>
+
+            <!-- スライダーエリア -->
             <div class="ranking-slider-wrapper">
                 <button class="slider-arrow prev" id="slider-prev" onclick="moveSlide(-1)">&#10094;</button>
+                
                 <div class="ranking-viewport">
-                    <div class="ranking-track" id="ranking-track"></div>
+                    <div class="ranking-track" id="ranking-track">
+                        <!-- ここにカードが並びます -->
+                    </div>
                 </div>
+
                 <button class="slider-arrow next" id="slider-next" onclick="moveSlide(1)">&#10095;</button>
             </div>
+            
+            <!-- 読み込み中/エラーメッセージ用 -->
             <div id="ranking-message-area" style="display:none;"></div>
         </div>
 
-        <!-- 配信中チャンネルバナー -->
+        <!-- ▼ 配信中チャンネルバナー ▼ -->
         <div class="live-banner-container">
             <button id="open-live-list-btn" class="live-banner">
-                <img src="img/chara_left.webp" class="banner-chara chara-left" alt="" width="200" height="250">
+        <img src="img/chara_left.webp" class="banner-chara chara-left" alt="" width="200" height="250">
                 <div class="live-content">
                     <span class="live-icon">🔴 LIVE</span>
                     <span class="live-text">現在 <strong id="live-count">0</strong> 名が配信中！ 配信リストを見る</span>
                 </div>
-                <img src="img/chara_right.webp" class="banner-chara chara-right" alt="">
+        <img src="img/chara_right.webp" class="banner-chara chara-right" alt="">
                 <span class="live-arrow">▶</span>
             </button>
         </div>
 
-        <!-- 配信リストモーダル -->
+        <!-- ▼ 配信リストモーダル ▼ -->
         <div id="live-list-modal" class="modal-overlay" style="display: none;">
             <div class="modal-content live-modal-content">
                 <h2>🔴 現在配信中のチャンネル</h2>
-                <p style="font-size: 0.9em; color: #a0aec0; margin-bottom: 20px;">※登録から2時間以内の配信を表示しています。</p>
-                <div id="live-list-container" class="live-list-grid"><p>読み込み中...</p></div>
+                <p style="font-size: 0.9em; color: #a0aec0; margin-bottom: 20px;">
+                    ※登録から2時間以内の配信を表示しています。
+                </p>
+                
+                <div id="live-list-container" class="live-list-grid">
+                    <!-- ここにJavaScriptで配信カードが追加されます -->
+                    <p>読み込み中...</p>
+                </div>
+
                 <button id="close-live-list-btn" class="btn-gray" style="margin-top: 20px;">閉じる</button>
             </div>
         </div>
 
         <div class="game-selection" id="game-list">
-            <!-- 各ゲームカード (省略せずにそのまま使えます) -->
+            <!-- ゲームカード1: 高校野球シミュレーション -->
             <div class="game-card">
                 <h2>高校野球シミュレーション</h2>
-                <picture>
-                    <source srcset="baseball/img/p_normal.webp" type="image/webp">
-                    <img src="baseball/img/p_normal.png" alt="高校野球シミュレーション" width="110" height="110" class="game-thumbnail">
-                </picture>
+<picture>
+    <source srcset="baseball/img/p_normal.webp" type="image/webp">
+    <img src="baseball/img/p_normal.webp" alt="高校野球シミュレーション サムネイル" class="game-thumbnail" width="110" height="110">
+</picture>
                 <p>高校球児として3年間を過ごし、甲子園を目指そう！</p>
                 <div class="mode-buttons">
                     <a href="baseball/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
@@ -164,9 +184,11 @@
                     <button id="home-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
+            
+            <!-- ゲームカード2: 視聴者参加型世論調査 -->
             <div class="game-card">
                 <h2>視聴者参加型世論調査</h2>
-                <img src="war/thumbnail.webp" alt="陣取り合戦" class="game-thumbnail" width="110" height="110">
+                <img src="war/thumbnail.webp" alt="陣取り合戦 サムネイル" class="game-thumbnail" width="110" height="110">
                 <p>コメント数で勢力を拡大せよ！<br>視聴者参加型の陣取りゲーム。</p>
                 <div class="mode-buttons">
                     <a href="war/index.html?mode=demo" class="game-link-btn btn-green">デモプレイ（個人）</a>
@@ -175,9 +197,13 @@
                     <button id="war-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
+            
+            <!-- ゲームカード3: みんなでクイズ！ -->
             <div class="game-card">
                 <h2>みんなでクイズ！</h2>
-                <div class="thumbnail-placeholder" style="border-color: #f6ad55; color: #f6ad55;"><span style="font-size: 2em;">Q</span></div>
+                <div class="thumbnail-placeholder" style="border-color: #f6ad55; color: #f6ad55;">
+                    <span style="font-size: 2em;">Q</span>
+                </div>
                 <p>全問正解を目指せ！<br>視聴者の投票で答えを決めるクイズ番組。</p>
                 <div class="mode-buttons">
                     <a href="quiz/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
@@ -186,9 +212,13 @@
                     <button id="quiz-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
+
+            <!-- ゲームカード4: 難読漢字クイズ -->
             <div class="game-card">
                 <h2>難読漢字クイズ</h2>
-                <div class="thumbnail-placeholder" style="border-color: #e53e3e; color: #e53e3e;"><span style="font-size: 2em;">漢</span></div>
+                <div class="thumbnail-placeholder" style="border-color: #e53e3e; color: #e53e3e;">
+                    <span style="font-size: 2em;">漢</span>
+                </div>
                 <p>読めたら天才！？<br>視聴者と一緒に難読漢字に挑戦しよう。</p>
                 <div class="mode-buttons">
                     <a href="kanji/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
@@ -197,9 +227,13 @@
                     <button id="kanji-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
+
+            <!-- ゲームカード5: The Secret Site -->
             <div class="game-card">
                 <h2>The Secret Site</h2>
-                <div class="thumbnail-placeholder" style="border-color: #000; color: #fff; background: #222;"><span style="font-size: 2em; font-family: 'Courier New', monospace;">404</span></div>
+                <div class="thumbnail-placeholder" style="border-color: #000; color: #fff; background: #222;">
+                    <span style="font-size: 2em; font-family: 'Courier New', monospace;">404</span>
+                </div>
                 <p>深夜2時、そのサイトは現れる。<br>都市伝説の謎を解き明かせ。</p>
                 <div class="mode-buttons">
                     <a href="mystery/index.html" class="game-link-btn btn-purple" style="background-color: #6b46c1;">PLAY START</a>
@@ -207,31 +241,42 @@
                     <button id="mystery-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
+            
+            <!-- ゲームカード6: 陣取りゲーム -->
             <div class="game-card">
                 <h2>配信者 VS 視聴者 陣取ゲーム</h2>
-                <div class="thumbnail-placeholder" style="border-color: #4299e1; color: #4299e1;"><span style="font-size: 2em;">🌐</span></div>
+                <div class="thumbnail-placeholder" style="border-color: #4299e1; color: #4299e1;">
+                    <span style="font-size: 2em;">🌐</span>
+                </div>
                 <p>コメントでマスを塗って陣地を広げろ！<br>視聴者参加型のリアルタイム陣取り合戦。</p>
                 <div class="mode-buttons">
-                    <a href="territory/index.html?mode=demo" class="game-link-btn btn-green">デモプレイ（個人）</a>
+                    <a href="territory/index.html?mode=demo" class="game-link-btn btn-green">個人で遊ぶ（デモプレイ）</a>
                     <a href="territory/index.html?mode=stream" class="game-link-btn btn-blue">配信で遊ぶ</a>
                     <button id="territory-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="territory-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
+
+            <!-- Pixel Art ゲーム用 -->
             <div class="game-card">
-                <h2>ピクセル イラストレーター</h2>
-                <div class="thumbnail-placeholder" style="border-color: #ff7675; color: #ff7675;"><span style="font-size: 2em;">🎨</span></div>
+                <h2>ピクセル　イラストレーター</h2>
+                <div class="thumbnail-placeholder" style="border-color: #ff7675; color: #ff7675;">
+                    <span style="font-size: 2em;">🎨</span>
+                </div>
                 <p>みんなで絵を描こう！<br>キャンバスを彩るお絵描きゲーム。</p>
                 <div class="mode-buttons">
                     <a href="pixel/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
-                    <button class="game-link-btn btn-gray" disabled>開発中です</button>
+                    <button class="game-link-btn btn-gray" disabled style="cursor: default; opacity: 0.6;">開発中です</button>
                     <button id="pixel-how-to-play-btn" class="game-link-btn btn-gray">遊び方</button>
                     <button class="game-link-btn btn-pink" onclick="document.getElementById('home-support-modal').style.display = 'flex'">開発者を支援する</button>
                 </div>
             </div>
+
             <div class="game-card">
                 <h2>アハ体験 VSバトル</h2>
-                <div class="thumbnail-placeholder" style="border-color: #a29bfe; color: #a29bfe;"><span style="font-size: 2em;">👀</span></div>
+                <div class="thumbnail-placeholder" style="border-color: #a29bfe; color: #a29bfe;">
+                    <span style="font-size: 2em;">👀</span>
+                </div>
                 <p>徐々に変化する絵を見て、どこが変わったか当てよう！<br>配信者と視聴者の観察力が試される対戦型間違い探し。</p>
                 <div class="mode-buttons">
                     <a href="aha/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
@@ -240,32 +285,61 @@
                     <button id="aha-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
+
+            <!-- ゲームカード7: Coming Soon -->
             <div class="game-card">
                 <h2>Coming Soon</h2>
-                <div class="thumbnail-placeholder" style="border-color: #718096; color: #718096; border-style: dashed;"><span style="font-size: 2em;">?</span></div>
+                <div class="thumbnail-placeholder" style="border-color: #718096; color: #718096; border-style: dashed;">
+                    <span style="font-size: 2em;">?</span>
+                </div>
                 <p>新しいゲームを準備中です。<br>次回アップデートをお楽しみに！</p>
-                <div class="mode-buttons"><button class="game-link-btn btn-gray" disabled>制作中</button></div>
+                <div class="mode-buttons">
+                    <button class="game-link-btn btn-gray" disabled style="cursor: default; opacity: 0.6;">制作中</button>
+                </div>
             </div>
+
             <div class="game-card">
                 <h2>Coming Soon</h2>
-                <div class="thumbnail-placeholder" style="border-color: #718096; color: #718096; border-style: dashed;"><span style="font-size: 2em;">?</span></div>
+                <div class="thumbnail-placeholder" style="border-color: #718096; color: #718096; border-style: dashed;">
+                    <span style="font-size: 2em;">?</span>
+                </div>
                 <p>さらなる新作も計画中...<br>続報をお待ちください。</p>
-                <div class="mode-buttons"><button class="game-link-btn btn-gray" disabled>構想中</button></div>
+                <div class="mode-buttons">
+                    <button class="game-link-btn btn-gray" disabled style="cursor: default; opacity: 0.6;">構想中</button>
+                </div>
             </div>
+
         </div>
         <div id="pagination-controls" class="pagination-container"></div>
     </main>
 
-    <!-- ▼▼▼ 配信設定モーダル (修正済み) ▼▼▼ -->
+    <!-- ▼▼▼ 配信設定モーダル ▼▼▼ -->
     <div id="global-api-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <h2>配信設定（API & Video ID）</h2>
             <div class="warning-box" style="border-color: #ecc94b; background-color: rgba(236, 201, 75, 0.15);">
                 <h3 style="color: #ecc94b;">⚠️ 配信遅延設定について</h3>
-                <p style="font-size: 0.9em;">YouTube Liveの管理画面で<strong>「超低遅延」</strong>に設定することを推奨します。</p>
+                <p style="font-size: 0.9em; font-weight: normal;">
+                    ゲームを快適に遊ぶため、YouTube Liveの管理画面で<br>
+                    <strong>「超低遅延 (Ultra Low Latency)」</strong>に設定することを<br>
+                    <span style="color: #ecc94b; font-weight: bold; text-decoration: underline;">推奨</span>します。<br>
+                    <span style="font-size: 0.8em; color: #a0aec0;">※「通常」や「低遅延」だと、投票が間に合わない可能性があります。</span><br>
+                    <span style="font-size: 0.8em; color: #a0aec0;">※超低遅延にすると配信画面が粗くなるので、気になる方は通常や低遅延にして、投票秒数を長めに設定してください。</span>
+                </p>
             </div>
-            <p class="modal-desc">設定した内容はブラウザに一時保存されます。</p>
-            
+            <div class="warning-box">
+                <h3>⚠️ 配信者の皆様へ</h3>
+                <p>
+                    ここにキーを入力する際はGoogle Cloud Console画面を含め、<br>
+                    <strong>必ず配信画面から隠す（待機画面にする）などして、</strong><br>
+                    <strong>視聴者にキーが見られないようにしてください。</strong>
+                </p>
+            </div>
+            <p class="modal-desc">
+                ここで設定した内容はブラウザに一時保存され、<br>
+                各ゲームの配信モードで自動的に適用されます。<br>
+                <small>※ブラウザを閉じるとリセットされます。</small>
+            </p>
             <div class="input-group">
                 <label>YouTube API Key</label>
                 <input type="password" id="global-api-key" placeholder="APIキーを入力" autocomplete="off">
@@ -273,27 +347,51 @@
             <div class="input-group">
                 <label>Video ID (または配信URL)</label>
                 <input type="text" id="global-video-id" placeholder="例: jNQXAC9IVRw または URL" autocomplete="off">
-                <p style="font-size: 0.8em; color: #a0aec0; margin-top: 5px;">※URLを入力した場合、自動でID部分を抽出します。</p>
+                <p style="font-size: 0.8em; color: #a0aec0; margin-top: 5px;">
+                    ※URLを入力した場合、自動でID部分を抽出します。
+                </p>
             </div>
-
-            <!-- ★Twitch設定エリア -->
-            <div class="input-group" style="margin-top: 20px; border-top: 1px dashed #4a5568; padding-top: 20px;">
-                <h3 style="color: #a970ff;">Twitch 設定</h3>
-                <label>Twitch チャンネルID (ユーザーID)</label>
-                <input type="text" id="global-twitch-id" placeholder="例: shaka" autocomplete="off">
-                <p style="font-size: 0.8em; color: #a0aec0; margin-top: 5px;">※TwitchのURLの末尾です (twitch.tv/<strong>ここ</strong>)</p>
-            </div>
-
             <div style="text-align: left; margin-top: 15px;">
-                <button id="toggle-help-btn" class="btn-gray" style="width: 100%; font-size: 0.9em; padding: 8px;">💡 キーの取得方法を見る</button>
+                <button id="toggle-help-btn" class="btn-gray" style="width: 100%; font-size: 0.9em; padding: 8px;">
+                    💡 キーの取得方法を見る
+                </button>
                 <div id="api-help-content" style="display: none; background: #222; padding: 15px; border-radius: 5px; margin-top: 10px; font-size: 0.85em; color: #ddd; line-height: 1.6;">
-                    <a href="help.html" target="_blank" style="color:#63b3ed; text-decoration: underline;">よくある質問 / ヘルプ</a>
+                    <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #555;">
+                        <strong>📚 詳細な手順（画像付き）はこちら:</strong><br>
+                        <a href="https://note.com/dontokoi_games/n/n6be3795087d4?sub_rt=share_pw" target="_blank" style="color:#63b3ed; text-decoration: underline; display: block; margin-top: 5px;">
+                            【5分で完了】YouTube APIキーの取得手順 (Note)
+                        </a>
+                        <a href="help.html" target="_blank" style="color:#63b3ed; text-decoration: underline; display: block; margin-top: 5px;">
+                            よくある質問 / ヘルプ
+                        </a>
+                    </div>
+                    <strong>🔑 YouTube API Key の取得方法 (簡易版):</strong>
+                    <ol style="padding-left: 20px; margin: 5px 0;">
+                        <li><a href="https://console.cloud.google.com/" target="_blank" style="color:#63b3ed;">Google Cloud Console</a> にアクセス</li>
+                        <li>新しいプロジェクトを作成</li>
+                        <li>「APIとサービス」>「ライブラリ」で「YouTube Data API v3」を有効化</li>
+                        <li>「認証情報」>「認証情報を作成」>「APIキー」を選択</li>
+                    </ol>
+                    <br>
+                    <strong>📺 Video ID の取得方法:</strong>
+                    <ul style="padding-left: 20px; margin: 5px 0;">
+                        <li>配信枠のURLの末尾（v=の後ろ）の文字列です。</li>
+                        <li>例: youtube.com/watch?v=<strong>XXXXXXXXXXX</strong></li>
+                        <li>※上の欄にURLをそのまま貼り付けてもOKです。</li>
+                    </ul>
                 </div>
             </div>
             
+            <!-- ▼ 配信登録エリア（追加） ▼ -->
             <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #4a5568;">
                 <h3 style="font-size: 1.1em; color: #ecc94b; margin-bottom: 10px;">🔴 配信中リストに掲載する</h3>
-                <button id="register-stream-btn" class="btn-orange" style="width: 100%;">📺 この配信をリストに登録！</button>
+                <p style="font-size: 0.85em; color: #a0aec0; margin-bottom: 10px;">
+                    あなたの配信をトップページに掲載して視聴者を集めましょう！<br>
+                    ※「公開」状態のライブ配信のみ登録できます。
+                </p>
+                <button id="register-stream-btn" class="btn-orange" style="width: 100%;">
+                    📺 この配信をリストに登録！
+                </button>
                 <p id="register-status" style="margin-top: 8px; font-size: 0.9em; min-height: 1.2em;"></p>
             </div>
 
@@ -304,68 +402,277 @@
         </div>
     </div>
 
-    <!-- 各種モーダル（省略せずに記述） -->
+    <!-- ▼▼▼ 遊び方モーダル群 ▼▼▼ -->
+    
+    <!-- 野球ゲーム用 -->
     <div id="home-help-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content help-content">
             <h2>ゲームの遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>⚾ ゲームの目的</h3>
+                <p>高校球児として3年間練習に励み、甲子園優勝とプロ入り（ドラフト指名）を目指す育成シミュレーションゲームです。</p>
+                <h3>🎮 基本的な流れ</h3>
+                <ul>
+                    <li><strong>コマンド選択:</strong> 「筋トレ」「練習」などを選び、能力を上げます。</li>
+                    <li><strong>イベント:</strong> 季節ごとのイベントや、ランダムイベントが発生します。</li>
+                    <li><strong>試合:</strong> 自動試合ですが、チャンスの場面では操作が必要になります。</li>
+                </ul>
+                <h3>📡 配信者モードについて</h3>
+                <p>YouTubeのライブチャットと連携し、視聴者のコメント投票で行動を決定できます。</p>
+                <h3>🎵 素材提供・クレジット</h3>
+                <p>本ゲームでは、以下の素晴らしい素材を使用させていただいております。</p>
+                <ul>
+                    <li><strong>BGM:</strong> MusMus<br><a href="https://musmus.main.jp/" target="_blank" style="color:#63b3ed;">https://musmus.main.jp/</a></li>
+                    <li><strong>キャラクター画像:</strong> CHARAT (キャラット)<br><a href="https://charat.me/" target="_blank" style="color:#63b3ed;">https://charat.me/</a></li>
+                </ul>
+            </div>
             <button id="close-home-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
         </div>
     </div>
+
+    <!-- 世論調査ゲーム用 -->
     <div id="war-help-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content help-content">
             <h2>視聴者参加型世論調査の遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>🚩 ゲームの目的</h3>
+                <p>2つの派閥に分かれて日本全国の都道府県を奪い合うゲームです。制限時間内により多くの地域を支配したチームの勝利です。</p>
+                <h3>💬 参加方法</h3>
+                <p>YouTubeライブのコメント欄で<strong>「都道府県名 派閥名」</strong>とコメントすることで、その地域に戦力を送ることができます。</p>
+                <p>例：「東京 A」「大阪 B」など</p>
+                <h3>⚔️ イベント</h3>
+                <p>ゲーム中、ランダムで「確変タイム」や「裏切り」などのイベントが発生し、戦況が大きく変わることがあります。</p>
+            </div>
             <button id="close-war-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
         </div>
     </div>
+
+    <!-- クイズゲーム用 -->
     <div id="quiz-help-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content help-content">
             <h2>クイズの遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>💡 ゲームの目的</h3>
+                <p>4択クイズに連続正解し、設定された目標（10問〜50問）のクリアを目指します。</p>
+                <h3>🎮 配信者モード</h3>
+                <p>YouTubeライブのコメント欄と連携し、視聴者がコメントした番号（「1」「2」など）を集計して、一番多い選択肢を回答とします。</p>
+                <p>※多数決で進むため、一体感が生まれます！</p>
+                <h3>❤️ ライフ制</h3>
+                <p>間違えても大丈夫！設定したライフの回数だけ失敗できます。</p>
+            </div>
             <button id="close-quiz-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
         </div>
     </div>
+
+    <!-- 漢字ゲーム用 -->
     <div id="kanji-help-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content help-content">
             <h2>難読漢字クイズの遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>💡 ゲームの目的</h3>
+                <p>表示される難読漢字の正しい読み方を4択から選びます。</p>
+                <h3>🎮 配信者モード</h3>
+                <p>YouTubeライブのコメント欄と連携し、視聴者の投票で回答を決定します。</p>
+                <h3>📚 レベル分け</h3>
+                <p>初級（日常）から特級（漢検1級レベル）まで、幅広い難易度を用意しています。</p>
+            </div>
             <button id="close-kanji-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
         </div>
     </div>
+
+    <!-- ミステリーゲーム用 -->
     <div id="mystery-help-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content help-content">
             <h2>The Secret Site の遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>🕵️ ゲームの目的</h3>
+                <p>「深夜2時59分にだけ繋がる」と噂される都市伝説のサイトを調査し、隠された謎を解き明かす短編ホラーアドベンチャーです。</p>
+                <h3>🎮 操作方法</h3>
+                <ul>
+                    <li>画面内の怪しい箇所をクリックしたり、キーボードでコマンドを入力して調査を進めます。</li>
+                    <li>ゲーム内の「ブラウザ」を操作して謎を解きます。</li>
+                    <li><strong>検索エンジン（Googleなど）や外部ツールを使って情報を調べることもあります。</strong></li>
+                </ul>
+                <h3>⚠️ ご注意</h3>
+                <p>本作には<strong>ホラー表現、ジャンプスケア（突然の驚かし要素）</strong>が含まれています。</p>
+                <p>心臓の弱い方や、ホラーが苦手な方はご注意ください。</p>
+            </div>
             <button id="close-mystery-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
         </div>
     </div>
+    
+    <!-- 配信者 VS 視聴者 陣取ゲーム ゲーム用 -->
     <div id="territory-help-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content help-content">
-            <h2>陣取ゲーム の遊び方</h2>
+            <h2>配信者 VS 視聴者 陣取ゲーム の遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>🚩 ゲームの目的</h3>
+                <p>最大4人のプレイヤーがリアルタイムでマスを塗り、制限時間内により多くの陣地を獲得したプレイヤーが勝利するバトルロワイヤルゲームです。</p>
+                <h3>💬 参加方法（配信モード）</h3>
+                <p>配信者がゲームを開始した後、コメント欄で<strong>「参加」</strong>と入力することで、先着順でプレイヤーとしてエントリーできます。</p>
+                <h3>🗺️ 陣地の広げ方</h3>
+                <p>塗りたいマスの番号（例: <strong>「123」</strong>）をコメントします。自分の陣地と<strong>隣接しているマス</strong>しか塗ることはできません。</p>
+                <h3>💣 イベントマス</h3>
+                <p>マップ上に出現する<strong>「？」</strong>マスを獲得すると、ボム（周囲を塗る）やクロス（十字に塗る）などの特殊効果がランダムで発動！一気に陣地を広げるチャンスです。</p>
+            </div>
             <button id="close-territory-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
         </div>
     </div>
+
+    <!-- Pixel Art ゲーム用 -->
     <div id="pixel-help-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content help-content">
-            <h2>Pixel Art の遊び方</h2>
+            <h2>Streamer Pixel Art の遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>🎨 ゲームの目的</h3>
+                <p>真っ白なキャンバスにドット絵を描くゲームです。勝敗はありません。素敵な絵を完成させましょう！</p>
+                <h3> solo Solo Play</h3>
+                <ul>
+                    <li><strong>色選択:</strong> 右のパレットをクリックして色を選びます。</li>
+                    <li><strong>描画:</strong> マウスドラッグで自由に塗れます。</li>
+                    <li><strong>キーボード操作:</strong> 矢印キーでカーソル移動、[Z]キーまたは[スペース]キーで塗ることができます。</li>
+                    <li><strong>元に戻す:</strong> [Ctrl]+[Z]キーで直前の操作を取り消せます。</li>
+                </ul>
+                <h3>📡 Stream Mode</h3>
+                <ul>
+                    <li><strong>参加:</strong> コメントで「参加」と入力すると、自動でチームが決まります。</li>
+                    <li><strong>色変更:</strong> 「赤」「青」「黒」など、右のパレットにある色名をコメントすると、自分のペンの色が変わります。</li>
+                    <li><strong>描画:</strong> 塗りたいマスの番号（例: 「100」）をコメントします。自分のチームのキャンバスに色が塗られます。</li>
+                </ul>
+            </div>
             <button id="close-pixel-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
         </div>
     </div>
+
+    <!-- アハ体験バトル用 -->
     <div id="aha-help-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content help-content">
-            <h2>アハ体験バトルの遊び方</h2>
+            <h2>アハ体験 VSバトル の遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>👀 ゲームの目的</h3>
+                <p>徐々に変化していく一枚の絵を見て、どこが変化したかを当てる対戦型の「間違い探し」ゲームです。配信者チームと視聴者チームの合計スコアを競います。</p>
+                
+                <h3>🎮 参加方法</h3>
+                <ul>
+                    <li><strong>配信者:</strong> 画面左側に表示される4つの選択肢の中から、正解だと思うものをクリックして回答します。</li>
+                    <li><strong>視聴者:</strong> 画面右側に表示される選択肢に対応するアルファベット（A, B, C, D）をコメントで投票します。一番票が多かったものが視聴者チームの回答となります。</li>
+                </ul>
+
+                <h3>💡 ゲームの流れ</h3>
+                <p>
+                    まず変化前の「ベース画像」が表示され、数秒間の観察タイムがあります。<br>
+                    その後、画像が変化し、クイズがスタートします。<br>
+                    制限時間内に回答し、正解するとチームにポイントが入ります。これを繰り返し、最終的な合計点で勝敗が決まります。
+                </p>
+            </div>
             <button id="close-aha-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
         </div>
     </div>
+
+    <!-- 支援モーダル (共通) -->
     <div id="home-support-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="text-align: center;">
             <h2>開発者を支援する</h2>
-            <div class="support-links"><a href="https://ko-fi.com/dontokoi_games" target="_blank" class="support-link-btn">Ko-fi で支援</a></div>
+            <p>プレイしていただきありがとうございます！<br>ご支援いただけると今後の開発の励みになります。</p>
+            <div class="support-links">
+                <a href="https://ko-fi.com/dontokoi_games" target="_blank" class="support-link-btn">Ko-fi で支援</a>
+            </div>
             <button id="close-home-support-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
+    <footer class="site-footer">
+        <div class="footer-sns">
+            <!-- X (旧Twitter) -->
+            <a href="https://x.com/minnade_game_" target="_blank" class="sns-icon x-icon" title="公式X (Twitter)">
+                <!-- シンプルなXの文字、またはSVG -->
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+            </a>
+            <!-- Note -->
+            <a href="https://note.com/dontokoi_games/" target="_blank" class="sns-icon note-icon" title="公式Note">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M21 4H3a1 1 0 00-1 1v14a1 1 0 001 1h18a1 1 0 001-1V5a1 1 0 00-1-1zm-1.06 9.21l-3.37 3.37a.75.75 0 01-1.06 0L11.93 13 8.35 16.58a.75.75 0 11-1.06-1.06l4.12-4.12a.75.75 0 011.06 0l3.58 3.58 3.03-3.03a.75.75 0 011.06 1.06z"/>
+                    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-weight="bold" font-family="sans-serif" font-size="14">note</text>
+                </svg>
+            </a>
+        </div>
+        <div class="footer-links">
+            <a href="terms.html">利用規約</a>
+            <a href="privacy.html">プライバシーポリシー</a>
+            <a href="contact.html">お問い合わせ</a>
+        </div>
+        <p>&copy; 2025 Dontokoi Games. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ページネーション機能
+            const itemsPerPage = 9; // 1ページあたりの表示数
+            const gameList = document.getElementById('game-list');
+            const cards = gameList.querySelectorAll('.game-card');
+            const paginationContainer = document.getElementById('pagination-controls');
+            const totalPages = Math.ceil(cards.length / itemsPerPage);
+
+            // ページ数が1以下の場合はページネーションを表示しない
+            if (totalPages <= 1) {
+                paginationContainer.style.display = 'none';
+                return;
+            }
+
+            function showPage(page) {
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+
+                cards.forEach((card, index) => {
+                    if (index >= start && index < end) {
+                        card.style.display = 'flex'; // 表示 (flexレイアウトを維持)
+                    } else {
+                        card.style.display = 'none'; // 非表示
+                    }
+                });
+
+                // ボタンのアクティブ状態更新
+                const buttons = paginationContainer.querySelectorAll('.page-btn');
+                buttons.forEach(btn => {
+                    if (parseInt(btn.dataset.page) === page) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+
+            function createPagination() {
+                paginationContainer.innerHTML = "";
+                for (let i = 1; i <= totalPages; i++) {
+                    const btn = document.createElement('button');
+                    btn.textContent = i;
+                    btn.className = 'page-btn';
+                    btn.dataset.page = i;
+                    btn.addEventListener('click', () => {
+                        showPage(i);
+                        // ページ切り替え時にリストの一番上へスクロール（任意）
+                        // document.getElementById('ranking-section').scrollIntoView({ behavior: 'smooth' });
+                    });
+                    paginationContainer.appendChild(btn);
+                }
+            }
+
+            // 初期化
+            createPagination();
+            showPage(1); // 最初は1ページ目を表示
+        });
+    </script>
+
+    <!-- ▼▼▼ スクリプト ▼▼▼ -->
+    
+    <!-- 1. Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-check-compat.js"></script>
 
+    <!-- 2. メインスクリプト -->
     <script>
         // --- Firebase設定 ---
         const firebaseConfig = {
@@ -377,41 +684,141 @@
             appId: "1:659173248268:web:770956559c38af62b80d29",
             measurementId: "G-LHW83ZHKRC"
         };
+
         firebase.initializeApp(firebaseConfig);
         const appCheck = firebase.appCheck();
-        appCheck.activate('6Ldf8hwsAAAAAK35RN1edQfICYo_rQzxyPTuyVmB', true);
+        appCheck.activate(
+            '6Ldf8hwsAAAAAK35RN1edQfICYo_rQzxyPTuyVmB', // ★ここに「サイトキー」を貼る
+            true
+        );
         const db = firebase.firestore();
 
+        // --- ゲームデータ定義 ---
         const gameData = {
-            "baseball": { title: "高校野球シミュレーション", imgClass: "img", imgPath: "baseball/img/p_normal.webp", color: "#48bb78", buttons: [ { label: "個人で遊ぶ", url: "baseball/index.html?mode=solo", class: "btn-green" }, { label: "配信で遊ぶ", url: "baseball/index.html?mode=streamer", class: "btn-blue" }, { label: "遊び方・機能説明", modalId: "home-help-modal", class: "btn-gray" }, { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" } ] },
-            "war": { title: "視聴者参加型世論調査", imgClass: "img", imgPath: "war/thumbnail.webp", color: "#e53e3e", buttons: [ { label: "デモプレイ", url: "war/index.html?mode=demo", class: "btn-green" }, { label: "配信で遊ぶ", url: "war/index.html?mode=stream", class: "btn-blue" }, { label: "遊び方・機能説明", modalId: "war-help-modal", class: "btn-gray" }, { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" } ] },
-            "quiz": { title: "みんなでクイズ！", imgClass: "icon", imgContent: "Q", color: "#f6ad55", buttons: [ { label: "個人で遊ぶ", url: "quiz/index.html?mode=solo", class: "btn-green" }, { label: "配信で遊ぶ", url: "quiz/index.html?mode=streamer", class: "btn-blue" }, { label: "遊び方・機能説明", modalId: "quiz-help-modal", class: "btn-gray" }, { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" } ] },
-            "kanji": { title: "難読漢字クイズ", imgClass: "icon", imgContent: "漢", color: "#e53e3e", buttons: [ { label: "個人で遊ぶ", url: "kanji/index.html?mode=solo", class: "btn-green" }, { label: "配信で遊ぶ", url: "kanji/index.html?mode=streamer", class: "btn-blue" }, { label: "遊び方・機能説明", modalId: "kanji-help-modal", class: "btn-gray" }, { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" } ] },
-            "mystery": { title: "The Secret Site", imgClass: "icon", imgContent: "404", color: "#000000", buttons: [ { label: "PLAY START", url: "mystery/index.html", class: "btn-purple", style: "background-color: #6b46c1;" }, { label: "遊び方・機能説明", modalId: "mystery-help-modal", class: "btn-gray" }, { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" } ] },
-            "territory": { title: "配信者 VS 視聴者 陣取ゲーム", imgClass: "icon", imgContent: "🌐", color: "#4299e1", buttons: [ { label: "デモプレイ", url: "territory/index.html?mode=demo", class: "btn-green" }, { label: "配信で遊ぶ", url: "territory/index.html?mode=stream", class: "btn-blue" }, { label: "遊び方・機能説明", modalId: "territory-help-modal", class: "btn-gray" }, { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" } ] },
-            "pixel": { title: "ピクセル イラストレーター", imgClass: "icon", imgContent: "🎨", color: "#ff7675", buttons: [ { label: "個人で遊ぶ", url: "pixel/index.html?mode=solo", class: "btn-green" }, { label: "遊び方", modalId: "pixel-help-modal", class: "btn-gray" }, { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" } ] },
-            "aha": { title: "アハ体験 VSバトル", imgClass: "icon", imgContent: "👀", color: "#a29bfe", buttons: [ { label: "個人で遊ぶ", url: "aha/index.html?mode=solo", class: "btn-green" }, { label: "配信で遊ぶ", url: "aha/index.html?mode=streamer", class: "btn-blue" }, { label: "遊び方・機能説明", modalId: "aha-help-modal", class: "btn-gray" }, { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" } ] }
+            "baseball": {
+                title: "高校野球シミュレーション",
+                imgClass: "img", imgPath: "baseball/img/p_normal.webp", color: "#48bb78",
+                buttons: [
+                    { label: "個人で遊ぶ", url: "baseball/index.html?mode=solo", class: "btn-green" },
+                    { label: "配信で遊ぶ", url: "baseball/index.html?mode=streamer", class: "btn-blue" },
+                    { label: "遊び方・機能説明", modalId: "home-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "war": {
+                title: "視聴者参加型世論調査",
+                imgClass: "img", imgPath: "war/thumbnail.webp", color: "#e53e3e",
+                buttons: [
+                    { label: "デモプレイ", url: "war/index.html?mode=demo", class: "btn-green" },
+                    { label: "配信で遊ぶ", url: "war/index.html?mode=stream", class: "btn-blue" },
+                    { label: "遊び方・機能説明", modalId: "war-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "quiz": {
+                title: "みんなでクイズ！",
+                imgClass: "icon", imgContent: "Q", color: "#f6ad55",
+                buttons: [
+                    { label: "個人で遊ぶ", url: "quiz/index.html?mode=solo", class: "btn-green" },
+                    { label: "配信で遊ぶ", url: "quiz/index.html?mode=streamer", class: "btn-blue" },
+                    { label: "遊び方・機能説明", modalId: "quiz-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "kanji": {
+                title: "難読漢字クイズ",
+                imgClass: "icon", imgContent: "漢", color: "#e53e3e",
+                buttons: [
+                    { label: "個人で遊ぶ", url: "kanji/index.html?mode=solo", class: "btn-green" },
+                    { label: "配信で遊ぶ", url: "kanji/index.html?mode=streamer", class: "btn-blue" },
+                    { label: "遊び方・機能説明", modalId: "kanji-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "mystery": {
+                title: "The Secret Site",
+                imgClass: "icon", imgContent: "404", color: "#000000",
+                buttons: [
+                    { label: "PLAY START", url: "mystery/index.html", class: "btn-purple", style: "background-color: #6b46c1;" },
+                    { label: "遊び方・機能説明", modalId: "mystery-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "territory": {
+                title: "配信者 VS 視聴者 陣取ゲーム",
+                imgClass: "icon", imgContent: "🌐", color: "#4299e1",
+                buttons: [
+                    { label: "デモプレイ", url: "territory/index.html?mode=demo", class: "btn-green" },
+                    { label: "配信で遊ぶ", url: "territory/index.html?mode=stream", class: "btn-blue" },
+                    { label: "遊び方・機能説明", modalId: "territory-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "pixel": {
+                title: "ピクセル イラストレーター",
+                imgClass: "icon", imgContent: "🎨", color: "#ff7675",
+                buttons: [
+                    { label: "個人で遊ぶ", url: "pixel/index.html?mode=solo", class: "btn-green" },
+                    { label: "遊び方", modalId: "pixel-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            },
+            "aha": {
+                title: "アハ体験 VSバトル",
+                imgClass: "icon", imgContent: "👀", color: "#a29bfe",
+                buttons: [
+                    { label: "個人で遊ぶ", url: "aha/index.html?mode=solo", class: "btn-green" },
+                    { label: "配信で遊ぶ", url: "aha/index.html?mode=streamer", class: "btn-blue" },
+                    { label: "遊び方・機能説明", modalId: "aha-help-modal", class: "btn-gray" },
+                    { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
+                ]
+            }
         };
 
-        // ランキングロジック
+        // --- スライダー状態管理 ---
         let currentSlide = 0;
         let maxSlides = 0;
-        function getCardsPerSlide() { return window.innerWidth <= 768 ? 1 : 3; }
+        function getCardsPerSlide() {
+            return window.innerWidth <= 768 ? 1 : 3;
+        }
 
+        // --- ランキング切り替え (F5対策済み) ---
         window.switchRanking = function(period, btnElement) {
             document.querySelectorAll('.rank-tab').forEach(btn => btn.classList.remove('active'));
             if(btnElement) btnElement.classList.add('active');
+
+            showMessage('集計中...');
             currentSlide = 0;
             updateSlidePosition();
             const dates = getDates();
 
             if (period === 'total') {
-                db.collection('games').orderBy('count', 'desc').limit(15).get().then(snapshot => {
-                    if (snapshot.empty) return;
+                const cacheKey = 'ranking_data_total';
+                const cacheTimeKey = 'ranking_time_total';
+                const cachedData = localStorage.getItem(cacheKey);
+                const cachedTime = localStorage.getItem(cacheTimeKey);
+                const now = new Date().getTime();
+                const CACHE_DURATION = 60 * 60 * 1000; // 1時間
+
+                if (cachedData && cachedTime && (now - cachedTime < CACHE_DURATION)) {
+                    console.log("Using cached ranking data");
+                    renderHTML(JSON.parse(cachedData));
+                    return;
+                }
+
+                db.collection('games').orderBy('count', 'desc').limit(15).get()
+                .then(snapshot => {
+                    if (snapshot.empty) { showMessage('データがありません'); return; }
                     let dataList = [];
                     snapshot.forEach(doc => dataList.push({ id: doc.id, count: doc.data().count }));
+                    
+                    localStorage.setItem(cacheKey, JSON.stringify(dataList));
+                    localStorage.setItem(cacheTimeKey, now);
+                    
                     renderHTML(dataList);
-                });
+                })
+                .catch(err => showError(err));
+
             } else {
                 let docId = "";
                 if (period === 'daily') docId = `daily_${dates.daily}`;
@@ -419,9 +826,17 @@
                 else if (period === 'monthly') docId = `monthly_${dates.monthly}`;
                 else if (period === 'yearly') docId = `yearly_${dates.yearly}`;
 
-                db.collection('ranking').doc(docId).get().then(doc => {
-                    if (doc.exists) renderRankingFromMap(doc.data());
-                });
+                db.collection('ranking').doc(docId).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        renderRankingFromMap(doc.data());
+                    } else {
+                        showMessage('まだデータがありません。<br>最初に遊んでランキングを作ろう！');
+                        document.getElementById('ranking-track').innerHTML = ""; 
+                        updateArrows(0);
+                    }
+                })
+                .catch(err => showError(err));
             }
         };
 
@@ -433,13 +848,22 @@
 
         function renderHTML(dataList) {
             const track = document.getElementById('ranking-track');
+            const messageArea = document.getElementById('ranking-message-area');
+            messageArea.style.display = 'none';
+
             let html = "";
             let rank = 1;
 
             dataList.forEach(item => {
                 const data = gameData[item.id];
                 if (data) {
-                    let imgHtml = data.imgClass === "img" ? `<img src="${data.imgPath}" class="ranking-img" width="60" height="60">` : `<div class="thumbnail-placeholder" style="border-color: ${data.color}; color: ${data.color};"><span style="font-size: 2em;">${data.imgContent}</span></div>`;
+                    let imgHtml = "";
+                    if (data.imgClass === "img") {
+                        imgHtml = `<img src="${data.imgPath}" alt="${data.title}" class="ranking-img" width="60" height="60">`;
+                    } else {
+                        imgHtml = `<div class="thumbnail-placeholder" style="border-color: ${data.color}; color: ${data.color};"><span style="font-size: 2em;">${data.imgContent}</span></div>`;
+                    }
+
                     let rankClass = "rank-common";
                     let crownText = rank + "th";
                     if(rank === 1) { rankClass = "rank-1 rank-top"; crownText = "👑 1st"; }
@@ -448,24 +872,39 @@
 
                     let buttonsHtml = '<div class="mode-buttons">';
                     data.buttons.forEach(btn => {
-                        if (btn.url) buttonsHtml += `<a href="${btn.url}" class="game-link-btn ${btn.class}" onclick="handleGameClick(event, '${item.id}', '${btn.url}');">${btn.label}</a>`;
-                        else if (btn.modalId) buttonsHtml += `<button class="game-link-btn ${btn.class}" onclick="openModal('${btn.modalId}')">${btn.label}</button>`;
+                        let styleAttr = btn.style ? `style="${btn.style}"` : "";
+                        if (btn.url) {
+                            buttonsHtml += `<a href="${btn.url}" class="game-link-btn ${btn.class}" ${styleAttr} onclick="handleGameClick(event, '${item.id}', '${btn.url}');">${btn.label}</a>`;
+                        } else if (btn.modalId) {
+                            buttonsHtml += `<button class="game-link-btn ${btn.class}" ${styleAttr} onclick="openModal('${btn.modalId}')">${btn.label}</button>`;
+                        }
                     });
                     buttonsHtml += '</div>';
 
-                    html += `<div class="ranking-card ${rankClass}"><div class="crown">${crownText}</div><h3>${data.title}</h3><div class="thumbnail-wrapper">${imgHtml}</div><p style="font-size:0.8em; color:#a0aec0; margin-bottom:5px;">プレイ回数: ${item.count}回</p>${buttonsHtml}</div>`;
+                    html += `
+                        <div class="ranking-card ${rankClass}">
+                            <div class="crown">${crownText}</div>
+                            <h3>${data.title}</h3>
+                            <div class="thumbnail-wrapper">${imgHtml}</div>
+                            <p style="font-size:0.8em; color:#a0aec0; margin-bottom:5px;">プレイ回数: ${item.count}回</p>
+                            ${buttonsHtml}
+                        </div>
+                    `;
                     rank++;
                 }
             });
 
             track.innerHTML = html;
             document.getElementById('ranking-section').style.display = "block";
+            
             const cardsPerPage = getCardsPerSlide();
             maxSlides = Math.ceil(dataList.length / cardsPerPage) - 1;
             if (maxSlides < 0) maxSlides = 0;
-            updateArrows();
+            
+            updateArrows(dataList.length);
         }
 
+        // --- スライド制御 ---
         window.moveSlide = function(direction) {
             currentSlide += direction;
             if (currentSlide < 0) currentSlide = 0;
@@ -476,19 +915,44 @@
 
         function updateSlidePosition() {
             const track = document.getElementById('ranking-track');
-            const cardWidth = 220; const gap = 15; const cardsPerPage = getCardsPerSlide();
+            const cardWidth = 220; 
+            const gap = 15;        
+            const cardsPerPage = getCardsPerSlide();
             const moveAmount = (cardWidth + gap) * cardsPerPage * currentSlide;
             track.style.transform = `translateX(-${moveAmount}px)`;
         }
 
-        function updateArrows() {
-            document.getElementById('slider-prev').disabled = (currentSlide === 0);
-            document.getElementById('slider-next').disabled = (currentSlide === maxSlides);
+        function updateArrows(itemCount) {
+            const prevBtn = document.getElementById('slider-prev');
+            const nextBtn = document.getElementById('slider-next');
+            if (maxSlides === 0) {
+                prevBtn.disabled = true; nextBtn.disabled = true; return;
+            }
+            prevBtn.disabled = (currentSlide === 0);
+            nextBtn.disabled = (currentSlide === maxSlides);
         }
 
+        function showMessage(msg) {
+            const area = document.getElementById('ranking-message-area');
+            const track = document.getElementById('ranking-track');
+            area.innerHTML = `<p class="ranking-message">${msg}</p>`;
+            area.style.display = 'block';
+            track.innerHTML = ""; 
+            document.getElementById('ranking-section').style.display = "block";
+            updateArrows(0);
+        }
+
+        function showError(err) {
+            console.error(err);
+            showMessage('データの読み込みに失敗しました');
+        }
+
+        // --- ユーティリティ ---
         function getDates() {
             const now = new Date();
-            const y = now.getFullYear(); const m = String(now.getMonth() + 1).padStart(2, '0'); const d = String(now.getDate()).padStart(2, '0');
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
             const date = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
             date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay()||7));
             const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
@@ -496,12 +960,38 @@
             return { daily: `${y}-${m}-${d}`, weekly: `${y}-W${weekNo}`, monthly: `${y}-${m}`, yearly: `${y}` };
         }
 
+        // --- 遷移制御 ---
         window.handleGameClick = function(event, gameId, url) {
-            event.preventDefault();
+            event.preventDefault(); 
+            incrementCount(gameId).finally(() => { window.location.href = url; });
+        };
+
+        // --- カウントアップ関数 ---
+        window.incrementCount = function(gameId) {
+            const sessionKey = `counted_${gameId}`;
+            if (sessionStorage.getItem(sessionKey)) {
+                return Promise.resolve(); 
+            }
+
+            const dates = getDates();
             const batch = db.batch();
             const totalRef = db.collection('games').doc(gameId);
             batch.set(totalRef, { count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
-            batch.commit().then(() => { window.location.href = url; });
+            const periods = [
+                { id: `daily_${dates.daily}` },
+                { id: `weekly_${dates.weekly}` },
+                { id: `monthly_${dates.monthly}` },
+                { id: `yearly_${dates.yearly}` }
+            ];
+            periods.forEach(p => {
+                const docRef = db.collection('ranking').doc(p.id);
+                let updateData = {};
+                updateData[gameId] = firebase.firestore.FieldValue.increment(1);
+                batch.set(docRef, updateData, { merge: true });
+            });
+            
+            sessionStorage.setItem(sessionKey, "true");
+            return batch.commit().catch(err => console.error("Count Error:", err));
         };
 
         window.openModal = function(modalId) {
@@ -509,8 +999,26 @@
             if (modal) modal.style.display = 'flex';
         };
 
+        // --- 初期化 ---
         document.addEventListener('DOMContentLoaded', () => {
             switchRanking('total');
+            
+            window.addEventListener('resize', () => {
+                currentSlide = 0; 
+                const cards = document.querySelectorAll('.ranking-card').length;
+                if(cards > 0) {
+                     const cardsPerPage = getCardsPerSlide();
+                     maxSlides = Math.ceil(cards / cardsPerPage) - 1;
+                     if(maxSlides < 0) maxSlides = 0;
+                }
+                updateSlidePosition();
+                updateArrows();
+            });
+
+            // 既存イベントリスナーなど
+            const mobileWarning = document.getElementById('mobile-warning-overlay');
+            const closeBtn = document.getElementById('mobile-warning-close-btn');
+            if (mobileWarning && closeBtn) { closeBtn.addEventListener('click', () => { mobileWarning.style.display = 'none'; }); }
 
             const apiModal = document.getElementById('global-api-modal');
             const apiOpenBtn = document.getElementById('api-settings-btn');
@@ -518,50 +1026,52 @@
             const apiCloseBtn = document.getElementById('close-api-btn');
             const apiInput = document.getElementById('global-api-key');
             const videoInput = document.getElementById('global-video-id');
+            apiOpenBtn.addEventListener('click', (e) => { e.preventDefault(); const k = sessionStorage.getItem('youtube_api_key'); const v = sessionStorage.getItem('youtube_target_video_id'); if (k) apiInput.value = k; if (v) videoInput.value = v; apiModal.style.display = 'flex'; });
+// 変更後のコード（コピペ用）
+apiSaveBtn.addEventListener('click', () => { 
+    const k = apiInput.value.trim(); 
+    let v = videoInput.value.trim();
 
-            apiOpenBtn.addEventListener('click', () => { 
-                const k = sessionStorage.getItem('youtube_api_key'); 
-                const v = sessionStorage.getItem('youtube_target_video_id'); 
-                const t = sessionStorage.getItem('twitch_channel_id');
-                if (k) apiInput.value = k; 
-                if (v) videoInput.value = v; 
-                if (t) document.getElementById('global-twitch-id').value = t;
-                apiModal.style.display = 'flex'; 
-            });
+    // ▼▼▼ URL自動変換ロジック（強化版） ▼▼▼
+    try {
+        // URL形式なら自動解析
+        if (v.startsWith('http')) {
+            const url = new URL(v);
+            if (url.searchParams.has('v')) {
+                // youtube.com/watch?v=XXX のパターン
+                v = url.searchParams.get('v');
+            } else if (url.pathname.includes('/live/')) {
+                // youtube.com/live/XXX のパターン（← これが今回の原因）
+                v = url.pathname.split('/live/')[1];
+            } else if (url.hostname === 'youtu.be') {
+                // youtu.be/XXX のパターン
+                v = url.pathname.slice(1);
+            }
+        }
+        // URLパラメータ(?si=...)などが残っていたら削除
+        v = v.split('?')[0];
+    } catch (e) {
+        console.log("URL解析エラー: そのままIDとして扱います");
+    }
+    // ▲▲▲▲▲▲
 
-            apiSaveBtn.addEventListener('click', () => { 
-                const k = apiInput.value.trim(); 
-                let v = videoInput.value.trim();
-                
-                const twitchInput = document.getElementById('global-twitch-id');
-                const t = twitchInput ? twitchInput.value.trim() : "";
-
-                // YouTube URL解析
-                try {
-                    if (v.startsWith('http')) {
-                        const url = new URL(v);
-                        if (url.searchParams.has('v')) v = url.searchParams.get('v');
-                        else if (url.pathname.includes('/live/')) v = url.pathname.split('/live/')[1];
-                        else if (url.hostname === 'youtu.be') v = url.pathname.slice(1);
-                    }
-                    v = v.split('?')[0];
-                } catch (e) {}
-
-                if ((k && v) || t) { 
-                    sessionStorage.setItem('youtube_api_key', k); 
-                    sessionStorage.setItem('youtube_target_video_id', v); 
-                    if (t) sessionStorage.setItem('twitch_channel_id', t);
-
-                    alert('設定を保存しました。'); 
-                    apiModal.style.display = 'none'; 
-                } else { 
-                    alert('YouTube設定 または Twitch IDを入力してください。'); 
-                }
-            });
-            
+    if (k && v) { 
+        sessionStorage.setItem('youtube_api_key', k); 
+        sessionStorage.setItem('youtube_target_video_id', v); 
+        alert('設定を保存しました。\nID: ' + v); // IDを確認できるように表示
+        apiModal.style.display = 'none'; 
+    } else { 
+        alert('APIキーとVideo IDを入力してください。'); 
+    }
+});
             apiCloseBtn.addEventListener('click', () => { apiModal.style.display = 'none'; });
-            
-            // モーダルの設定
+            apiModal.addEventListener('click', (e) => { if (e.target === apiModal) apiModal.style.display = 'none'; });
+
+            const helpToggleBtn = document.getElementById('toggle-help-btn');
+            const helpContent = document.getElementById('api-help-content');
+            if (helpToggleBtn) { helpToggleBtn.addEventListener('click', () => { if (helpContent.style.display === 'none') { helpContent.style.display = 'block'; helpToggleBtn.textContent = '🔽 閉じる'; } else { helpContent.style.display = 'none'; helpToggleBtn.textContent = '💡 キーの取得方法を見る'; } }); }
+
+            // 各ゲームモーダル設定
             const modalIds = [
                 { btn: 'home-how-to-play-btn', modal: 'home-help-modal', close: 'close-home-help-btn' },
                 { btn: 'war-how-to-play-btn', modal: 'war-help-modal', close: 'close-war-help-btn' },
@@ -570,8 +1080,8 @@
                 { btn: 'mystery-how-to-play-btn', modal: 'mystery-help-modal', close: 'close-mystery-help-btn' },
                 { btn: 'territory-how-to-play-btn', modal: 'territory-help-modal', close: 'close-territory-help-btn' },
                 { btn: 'pixel-how-to-play-btn', modal: 'pixel-help-modal', close: 'close-pixel-help-btn' },
-                { btn: 'aha-how-to-play-btn', modal: 'aha-help-modal', close: 'close-aha-help-btn' }
-            ];
+            { btn: 'aha-how-to-play-btn', modal: 'aha-help-modal', close: 'close-aha-help-btn' }
+        ];
             modalIds.forEach(item => {
                 const btn = document.getElementById(item.btn);
                 const modal = document.getElementById(item.modal);
@@ -582,60 +1092,207 @@
                     modal.addEventListener('click', (e) => { if(e.target === modal) modal.style.display = 'none'; });
                 }
             });
-            
-            // 支援モーダル
-            const supportBtns = document.querySelectorAll('#home-support-btn, #war-support-btn, #quiz-support-btn, #kanji-support-btn, #mystery-support-btn, #territory-support-btn, #aha-support-btn');
-            const supportModal = document.getElementById('home-support-modal');
-            supportBtns.forEach(btn => { btn.addEventListener('click', () => { supportModal.style.display = 'flex'; }); });
-            document.getElementById('close-home-support-btn').addEventListener('click', () => supportModal.style.display = 'none');
 
-            // リンクボタンのカウント処理
-            document.querySelectorAll('.game-link-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const href = btn.getAttribute('href');
-                    if (href && !href.startsWith('javascript')) {
-                        e.preventDefault();
-                        // URLからゲームIDを推測
-                        let gameId = href.split('/')[0]; 
-                        handleGameClick(e, gameId, href);
+            const supportModal = document.getElementById('home-support-modal');
+        const supportBtns = document.querySelectorAll('#home-support-btn, #war-support-btn, #quiz-support-btn, #kanji-support-btn, #mystery-support-btn, #territory-support-btn, #aha-support-btn');
+            supportBtns.forEach(btn => { btn.addEventListener('click', () => { supportModal.style.display = 'flex'; }); });
+            const closeSupportBtn = document.getElementById('close-home-support-btn');
+            if (closeSupportBtn) { closeSupportBtn.addEventListener('click', () => { supportModal.style.display = 'none'; }); supportModal.addEventListener('click', (e) => { if (e.target === supportModal) supportModal.style.display = 'none'; }); }
+
+            // 下部ゲーム一覧への集計機能付与
+            const linkMap = {
+                'territory': 'territory/index.html',
+                'baseball': 'baseball/index.html',
+                'quiz': 'quiz/index.html',
+                'war': 'war/index.html',
+                'kanji': 'kanji/index.html',
+                'mystery': 'mystery/index.html',
+                'pixel': 'pixel/index.html',
+                'aha': 'aha/index.html'
+            };
+            document.querySelectorAll('.game-selection .game-link-btn').forEach(btn => {
+                const href = btn.getAttribute('href');
+                if(!href || href === "#" || href.startsWith("javascript")) return;
+                
+                for (const [key, path] of Object.entries(linkMap)) {
+                    if (href.includes(path)) {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault(); 
+                            incrementCount(key).finally(() => { window.location.href = href; });
+                        });
+                        break;
                     }
-                });
+                }
             });
 
-            // XSS対策
+            // ▼▼▼ 配信リスト機能 ▼▼▼
+
+            // 1. バナーとモーダルの開閉
+            const liveModal = document.getElementById('live-list-modal');
+            const openLiveBtn = document.getElementById('open-live-list-btn');
+            const closeLiveBtn = document.getElementById('close-live-list-btn');
+            
+            if(openLiveBtn) {
+                openLiveBtn.addEventListener('click', () => {
+                    loadStreams(); // 開くたびに最新取得
+                    liveModal.style.display = 'flex';
+                });
+            }
+            if(closeLiveBtn) {
+                closeLiveBtn.addEventListener('click', () => { liveModal.style.display = 'none'; });
+            }
+
+            // 2. 配信データの読み込み & バナーの人数更新
+// ▼▼▼ 2. 配信データの読み込み & バナーの人数更新 (修正版) ▼▼▼
+            function loadStreams() {
+                const listContainer = document.getElementById('live-list-container');
+                const countSpan = document.getElementById('live-count');
+                const now = new Date().getTime();
+                const EXPIRE_MS = 2 * 60 * 60 * 1000; // 2時間
+
+                db.collection('streams').orderBy('createdAt', 'desc').limit(20).get()
+                .then(snapshot => {
+                    let html = "";
+                    let validCount = 0;
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (now - data.createdAt.toMillis() < EXPIRE_MS) {
+                            validCount++;
+                            
+                            // 登録者数の整形 (例: 12345 -> 1.2万人)
+                            let subText = "";
+                            if (data.subscriberCount) {
+                                const count = Number(data.subscriberCount);
+                                if (count >= 100000000) subText = (count / 100000000).toFixed(1) + "億人";
+                                else if (count >= 10000) subText = (count / 10000).toFixed(1) + "万人";
+                                else subText = count + "人";
+                                subText = `<span style="font-size:0.8em; color:#718096; margin-left:8px;">(登録者: ${subText})</span>`;
+                            }
+
+                            html += `
+                                <div class="stream-card">
+                                    <a href="https://www.youtube.com/watch?v=${data.videoId}" target="_blank" class="stream-thumb-link">
+                                        <img src="${data.thumbnail}" class="stream-thumb" alt="サムネイル">
+                                    </a>
+                                    <div class="stream-info">
+                                        <div class="stream-title">${escapeHtml(data.title)}</div>
+                                        <div class="stream-channel">
+                                            <span>📺</span> ${escapeHtml(data.channelTitle)}
+                                            ${subText} <!-- ここに追加 -->
+                                        </div>
+                                        <a href="https://www.youtube.com/watch?v=${data.videoId}" target="_blank" class="watch-btn">視聴する</a>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+
+                    if(countSpan) countSpan.textContent = validCount;
+                    if(listContainer && liveModal.style.display !== 'none') {
+                        listContainer.innerHTML = html || '<p style="text-align:center; color:#a0aec0; grid-column:1/-1;">現在配信中のチャンネルはありません。</p>';
+                    }
+                })
+                .catch(err => console.error("Load streams error:", err));
+            }
+
+            // 初回読み込み
+            loadStreams();
+
+            // ▼▼▼ 3. 配信登録処理 (修正版：登録者数も取得) ▼▼▼
+            const registerBtn = document.getElementById('register-stream-btn');
+            const registerStatus = document.getElementById('register-status');
+
+            if(registerBtn) {
+                registerBtn.addEventListener('click', async () => {
+                    const apiKey = document.getElementById('global-api-key').value.trim();
+                    let videoId = document.getElementById('global-video-id').value.trim();
+
+    try {
+        if (videoId.startsWith('http')) {
+            const url = new URL(videoId);
+            if (url.searchParams.has('v')) {
+                videoId = url.searchParams.get('v');
+            } else if (url.pathname.includes('/live/')) {
+                // youtube.com/live/XXX 対応
+                videoId = url.pathname.split('/live/')[1];
+            } else if (url.hostname === 'youtu.be') {
+                videoId = url.pathname.slice(1);
+            }
+        }
+        videoId = videoId.split('?')[0]; // ?si=xxxxx などを削除
+    } catch (e) {
+        console.log("ID解析エラー: そのまま使用します");
+    }
+
+                    if (!apiKey || !videoId) {
+                        registerStatus.textContent = "⚠️ APIキーとVideo IDを入力してください";
+                        registerStatus.style.color = "#fc8181";
+                        return;
+                    }
+
+                    registerStatus.textContent = "🔄 YouTubeに確認中...";
+                    registerStatus.style.color = "#ecc94b";
+                    registerBtn.disabled = true;
+
+                    try {
+                        // 1. 動画情報を取得
+                        const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,liveStreamingDetails&id=${videoId}&key=${apiKey}`);
+                        const vData = await vRes.json();
+
+                        if (!vData.items || vData.items.length === 0) {
+                            throw new Error("動画が見つかりません。IDを確認してください。");
+                        }
+
+                        const video = vData.items[0];
+                        const snippet = video.snippet;
+                        const channelId = snippet.channelId;
+
+                        // 生放送チェック (テスト時はコメントアウトで緩和してもOK)
+                        if (snippet.liveBroadcastContent === 'none') {
+                            throw new Error("ライブ配信中の動画ではありません。");
+                        }
+
+                        // 2. チャンネル情報を取得 (登録者数用)
+                        const cRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`);
+                        const cData = await cRes.json();
+                        let subscriberCount = 0;
+                        if (cData.items && cData.items.length > 0) {
+                            subscriberCount = cData.items[0].statistics.subscriberCount;
+                        }
+
+                        // Firebaseに保存
+                        await db.collection('streams').doc(videoId).set({
+                            videoId: videoId,
+                            title: snippet.title,
+                            channelTitle: snippet.channelTitle,
+                            thumbnail: snippet.thumbnails.medium.url,
+                            subscriberCount: subscriberCount, // 追加
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+
+                        registerStatus.textContent = "✅ リストに登録しました！";
+                        registerStatus.style.color = "#48bb78";
+                        
+                        loadStreams(); // リスト更新
+
+                    } catch (err) {
+                        console.error(err);
+                        registerStatus.textContent = "❌ エラー: " + (err.message || "登録に失敗しました");
+                        registerStatus.style.color = "#fc8181";
+                    } finally {
+                        registerBtn.disabled = false;
+                    }
+                });
+            }
+
+            // XSS対策用
             function escapeHtml(str) {
                 if(!str) return "";
                 return str.replace(/[&<>"']/g, function(m) {
                     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
                 });
             }
-            
-            // ライブリスト取得
-            function loadStreams() {
-                const listContainer = document.getElementById('live-list-container');
-                const countSpan = document.getElementById('live-count');
-                const now = new Date().getTime();
-                const EXPIRE_MS = 2 * 60 * 60 * 1000;
-
-                db.collection('streams').orderBy('createdAt', 'desc').limit(20).get().then(snapshot => {
-                    let html = "";
-                    let validCount = 0;
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        if (now - data.createdAt.toMillis() < EXPIRE_MS) {
-                            validCount++;
-                            html += `<div class="stream-card"><a href="https://www.youtube.com/watch?v=${data.videoId}" target="_blank" class="stream-thumb-link"><img src="${data.thumbnail}" class="stream-thumb"></a><div class="stream-info"><div class="stream-title">${escapeHtml(data.title)}</div><div class="stream-channel">📺 ${escapeHtml(data.channelTitle)}</div><a href="https://www.youtube.com/watch?v=${data.videoId}" target="_blank" class="watch-btn">視聴する</a></div></div>`;
-                        }
-                    });
-                    if(countSpan) countSpan.textContent = validCount;
-                    if(listContainer) listContainer.innerHTML = html || '<p>現在配信中のチャンネルはありません。</p>';
-                });
-            }
-            
-            document.getElementById('open-live-list-btn')?.addEventListener('click', () => { loadStreams(); document.getElementById('live-list-modal').style.display = 'flex'; });
-            document.getElementById('close-live-list-btn')?.addEventListener('click', () => { document.getElementById('live-list-modal').style.display = 'none'; });
-
-            loadStreams();
         });
     </script>
 
