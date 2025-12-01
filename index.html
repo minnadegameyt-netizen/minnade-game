@@ -1178,8 +1178,14 @@
                     const apiKey = document.getElementById('global-api-key').value.trim();
                     let videoId = document.getElementById('global-video-id').value.trim();
 
-                    if (videoId.includes('v=')) videoId = videoId.split('v=')[1].split('&')[0];
-                    else if (videoId.includes('youtu.be/')) videoId = videoId.split('youtu.be/')[1].split('?')[0];
+                    if (videoId.includes('v=')) {
+                        videoId = videoId.split('v=')[1].split('&')[0];
+                    } else if (videoId.includes('youtu.be/')) {
+                        videoId = videoId.split('youtu.be/')[1].split('?')[0];
+                    } else if (videoId.includes('/live/')) {
+                        // ▼▼▼ ここを追加: /live/ 形式に対応 ▼▼▼
+                        videoId = videoId.split('/live/')[1].split('?')[0];
+                    }
 
                     if (!apiKey || !videoId) {
                         registerStatus.textContent = "⚠️ APIキーとVideo IDを入力してください";
