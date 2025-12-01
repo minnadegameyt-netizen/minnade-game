@@ -1,9 +1,11 @@
 import { stages } from './stages.js';
+import * as twitch from '../twitch.js'; // ★Twitch用ライブラリをインポート
 
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 設定変数 ---
     let gameMode = 'solo'; // 'solo' or 'streamer'
+    let platform = 'youtube'; // ★追加: 'youtube' or 'twitch'
     let audioEnabled = true;
     let questionsToPlay = 5;
     let voteTimeLimit = 20;
@@ -24,9 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
         currentChange: null
     };
 
-    // --- YouTube API用変数 ---
+    // --- 配信API用変数 ---
     let YOUTUBE_API_KEY = "";
     let TARGET_VIDEO_ID = "";
+    let TWITCH_CHANNEL_ID = ""; // ★追加
     let liveChatId = null;
     let nextPageToken = null;
     let youtubeInterval = null;
@@ -96,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('back-to-setup-btn').addEventListener('click', () => {
             readyScreen.classList.add('hidden');
             setupModal.classList.remove('hidden');
+            if (platform === 'twitch') twitch.disconnectTwitch(); // 設定に戻る時は切断
         });
     }
 
@@ -116,16 +120,41 @@ document.addEventListener('DOMContentLoaded', () => {
         setupButtonGroup('questions-select', (val) => questionsToPlay = parseInt(val));
         setupButtonGroup('time-select', (val) => voteTimeLimit = parseInt(val));
         setupButtonGroup('sound-select', (val) => audioEnabled = (val === 'on'));
+        
+        // ★追加: プラットフォーム選択
+        setupButtonGroup('platform-select', (val) => {
+            platform = val;
+            // 画面上の表示切り替え（もしHTML側に対応するIDがあれば）
+            /*
+            const ytSettings = document.getElementById('youtube-settings');
+            const twSettings = document.getElementById('twitch-settings');
+            if(val === 'twitch') {
+                if(ytSettings) ytSettings.classList.add('hidden');
+                if(twSettings) twSettings.classList.remove('hidden');
+            } else {
+                if(ytSettings) ytSettings.classList.remove('hidden');
+                if(twSettings) twSettings.classList.add('hidden');
+            }
+            */
+        });
     }
 
     // --- 設定完了 → 画像ロード → 待機画面 ---
     async function onSetupDone() {
         if (gameMode === 'streamer') {
-            YOUTUBE_API_KEY = sessionStorage.getItem('youtube_api_key');
-            TARGET_VIDEO_ID = sessionStorage.getItem('youtube_target_video_id');
-            if (!YOUTUBE_API_KEY || !TARGET_VIDEO_ID) {
-                alert("配信設定が見つかりません。トップページから設定してください。");
-                return;
+            if (platform === 'youtube') {
+                YOUTUBE_API_KEY = sessionStorage.getItem('youtube_api_key');
+                TARGET_VIDEO_ID = sessionStorage.getItem('youtube_target_video_id');
+                if (!YOUTUBE_API_KEY || !TARGET_VIDEO_ID) {
+                    alert("YouTube配信設定が見つかりません。トップページから設定してください。");
+                    return;
+                }
+            } else if (platform === 'twitch') {
+                TWITCH_CHANNEL_ID = sessionStorage.getItem('twitch_channel_id');
+                if (!TWITCH_CHANNEL_ID) {
+                    alert("Twitch IDが設定されていません。トップページから設定してください。");
+                    return;
+                }
             }
         }
 
@@ -142,11 +171,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 配信接続テスト
             if (gameMode === 'streamer') {
-                const connected = await fetchLiveChatId();
-                if (!connected) {
-                    loadingOverlay.classList.add('hidden');
-                    document.getElementById('setup-done-btn').disabled = false;
-                    return;
+                if (platform === 'youtube') {
+                    const connected = await fetchLiveChatId();
+                    if (!connected) {
+                        throw new Error("YouTube接続エラー");
+                    }
+                } else if (platform === 'twitch') {
+                    // Twitch接続開始（共通のコメント処理関数を渡す）
+                    twitch.connectTwitch(TWITCH_CHANNEL_ID, handleCommentFromStream);
                 }
             }
 
@@ -155,7 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
             readyScreen.classList.remove('hidden');
         } catch (e) {
             console.error(e);
-            alert("ロードエラーが発生しました");
+            loadingOverlay.classList.add('hidden');
+            document.getElementById('setup-done-btn').disabled = false;
+            // alert表示はfetchLiveChatId内などで出しているのでここでは省略可
         } finally {
             loadingOverlay.classList.add('hidden');
             document.getElementById('setup-done-btn').disabled = false;
@@ -370,7 +404,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (gameMode === 'streamer') {
             nextPageToken = null;
-            startYouTubePolling();
+            if (platform === 'youtube') {
+                startYouTubePolling();
+            }
+            // Twitchは常時接続なのでポーリング開始処理は不要
         }
         
         gameState.timerInterval = setInterval(() => {
@@ -395,8 +432,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function finishVoting() {
         gameState.isVoting = false;
-        if (gameMode === 'streamer') stopYouTubePolling();
+        if (gameMode === 'streamer' && platform === 'youtube') {
+            stopYouTubePolling();
+        }
         handleResult();
+    }
+
+    // --- ★共通: ストリームからのコメント処理 ---
+    function handleCommentFromStream(message, authorName) {
+        // 投票期間中でなければ無視
+        if (!gameState.isVoting) return;
+
+        // コメント内容で投票判定
+        if (message.match(/^[aAａＡ]/)) vote(0);
+        else if (message.match(/^[bBｂＢ]/)) vote(1);
+        else if (message.match(/^[cCｃＣ]/)) vote(2);
+        else if (message.match(/^[dDｄＤ]/)) vote(3);
+
+        updateVoteBars();
+    }
+
+    function vote(index) {
+        voteCounts[index]++;
+    }
+
+    function updateVoteBars() {
+        const total = voteCounts.reduce((a, b) => a + b, 0);
+        if (voteTotalDisplay) voteTotalDisplay.textContent = total;
+        
+        const viewerBtns = viewerOptionsContainer.querySelectorAll('button');
+        viewerBtns.forEach((btn, i) => {
+            const count = voteCounts[i];
+            let percentage = 0;
+            if (total > 0) percentage = (count / total) * 100;
+            const bar = btn.querySelector('.vote-bar');
+            if(bar) bar.style.width = `${percentage}%`;
+        });
     }
 
     // --- 結果判定 ---
@@ -437,25 +508,22 @@ document.addEventListener('DOMContentLoaded', () => {
         updateScores();
         revealAnswers(correctChoiceLabel, viewerChoice);
         
-        // ★修正: 自動遷移をやめて、手動ナビゲーションボタンを表示
+        // 手動ナビゲーションボタンを表示
         setTimeout(() => {
             showNavigationButtons();
-        }, 1000); // 1秒だけ余韻を持たせてボタン表示
+        }, 1000);
     }
 
-    // --- ★追加: 結果確認後の手動ナビゲーション表示 ---
+    // --- 結果確認後の手動ナビゲーション表示 ---
     function showNavigationButtons() {
-        // 配信者エリアのボタンをクリアして、ナビゲーションボタンに置き換える
         hostOptionsContainer.innerHTML = '';
         
-        // 1. 比較ボタン（押している間だけ変化前を表示）
         const compareBtn = document.createElement('button');
-        compareBtn.textContent = '👀 変化前を見る (長押しで逆再生)';
+        compareBtn.textContent = '👀 変化前を見る (長押し)';
         compareBtn.style.background = 'linear-gradient(145deg, #718096, #4a5568)';
         compareBtn.style.borderColor = '#a0aec0';
-        compareBtn.style.gridColumn = "1 / -1"; // 横幅いっぱいに
+        compareBtn.style.gridColumn = "1 / -1"; 
         
-        // イベント: マウスダウン/タッチ開始で変化後の画像を消す
         const showBase = () => { changedImage.style.opacity = '0'; };
         const showChanged = () => { changedImage.style.opacity = '1'; };
         
@@ -465,17 +533,15 @@ document.addEventListener('DOMContentLoaded', () => {
         compareBtn.addEventListener('touchstart', (e) => { e.preventDefault(); showBase(); });
         compareBtn.addEventListener('touchend', (e) => { e.preventDefault(); showChanged(); });
         
-        // 2. 次へボタン
         const nextBtn = document.createElement('button');
         const isLastQuestion = gameState.currentQuestionIndex >= gameState.questions.length - 1;
         nextBtn.textContent = isLastQuestion ? '🏆 結果発表へ' : '➡ 次の問題へ';
         nextBtn.style.background = 'linear-gradient(145deg, #48bb78, #38a169)';
         nextBtn.style.borderColor = '#68d391';
         nextBtn.style.marginTop = '10px';
-        nextBtn.style.gridColumn = "1 / -1"; // 横幅いっぱいに
+        nextBtn.style.gridColumn = "1 / -1"; 
         
         nextBtn.onclick = () => {
-            // 画像状態を戻しておく
             changedImage.style.opacity = '1';
             nextQuestion();
         };
@@ -486,13 +552,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getCorrectChoiceLabel() {
         const buttons = hostOptionsContainer.querySelectorAll('button');
-        // 結果表示前に呼び出すので、既存のボタンから探す必要があるが、
-        // handleResult内でhostOptionsContainerをクリアする前に呼んでいるのでOK
-        // もしクリア後ならgameStateから再計算が必要
-        if (buttons.length === 0) {
-            // ボタンが無い場合の予備ロジック（通常ここには来ない）
-            return null;
-        }
+        // ボタンが無い場合の予備ロジック
+        if (buttons.length === 0) return null;
+        
         for (const btn of buttons) {
             if (btn.textContent.includes(gameState.currentChange.correct_answer)) {
                 return btn.dataset.choice;
@@ -543,7 +605,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btn.dataset.choice === viewerChoice) btn.classList.add('selected');
         });
 
-        // 少し遅れて正解を表示
         setTimeout(() => {
             viewerBtns.forEach(btn => {
                 if (btn.dataset.choice === correctLabel) btn.classList.add('correct');
@@ -563,8 +624,6 @@ document.addEventListener('DOMContentLoaded', () => {
         finalHost.textContent = gameState.hostScore;
         finalViewer.textContent = gameState.viewerScore;
 
-        // ★修正: 最後の問題のインデックスを安全に取得
-        // gameState.currentQuestionIndex は nextQuestion() で加算されて length と等しくなっているため -1 する
         let lastIndex = gameState.currentQuestionIndex;
         if (lastIndex >= gameState.questions.length) {
             lastIndex = gameState.questions.length - 1;
@@ -588,6 +647,9 @@ document.addEventListener('DOMContentLoaded', () => {
         resultTitle.textContent = title;
         resultMessage.textContent = message;
         resultModal.classList.remove('hidden');
+        
+        // 終了時にTwitch切断
+        if (platform === 'twitch') twitch.disconnectTwitch();
     }
 
     // --- YouTube連携機能 ---
@@ -620,7 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function pollChat() {
         if (!liveChatId) return;
-        let url = `https://www.googleapis.com/youtube/v3/liveChat/messages?liveChatId=${liveChatId}&part=snippet&key=${YOUTUBE_API_KEY}`;
+        let url = `https://www.googleapis.com/youtube/v3/liveChat/messages?liveChatId=${liveChatId}&part=snippet,authorDetails&key=${YOUTUBE_API_KEY}`;
         if (nextPageToken) url += `&pageToken=${nextPageToken}`;
 
         try {
@@ -632,33 +694,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     const messageTimestamp = new Date(item.snippet.publishedAt);
                     if (votingStartTime && messageTimestamp >= votingStartTime) {
                         const msg = item.snippet.displayMessage;
-                        if (msg.match(/^[aAａＡ]/)) vote(0);
-                        else if (msg.match(/^[bBｂＢ]/)) vote(1);
-                        else if (msg.match(/^[cCｃＣ]/)) vote(2);
-                        else if (msg.match(/^[dDｄＤ]/)) vote(3);
+                        const author = item.authorDetails.displayName;
+                        // ★共通関数を呼び出す
+                        handleCommentFromStream(msg, author);
                     }
                 });
-                updateVoteBars();
             }
         } catch (e) { console.error(e); }
-    }
-
-    function vote(index) {
-        voteCounts[index]++;
-    }
-
-    function updateVoteBars() {
-        const total = voteCounts.reduce((a, b) => a + b, 0);
-        if (voteTotalDisplay) voteTotalDisplay.textContent = total;
-        
-        const viewerBtns = viewerOptionsContainer.querySelectorAll('button');
-        viewerBtns.forEach((btn, i) => {
-            const count = voteCounts[i];
-            let percentage = 0;
-            if (total > 0) percentage = (count / total) * 100;
-            const bar = btn.querySelector('.vote-bar');
-            if(bar) bar.style.width = `${percentage}%`;
-        });
     }
 
     // 初期化実行

@@ -23,6 +23,10 @@
         }
       })();
     </script>
+    
+    <!-- ★Twitch用ライブラリ (tmi.js) の読み込み -->
+    <script src="https://cdn.jsdelivr.net/npm/tmi.js@1.8.5/dist/tmi.min.js"></script>
+
     <title>アハ体験バトル</title>
     <link rel="icon" href="../favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
@@ -45,6 +49,15 @@
             <p style="font-size: 0.85em; color: #a0aec0; margin-bottom: 20px;">
                 ※本ゲームの画像は <strong>nano banana</strong> で作成したAI画像を使用しています。
             </p>
+
+            <!-- 配信プラットフォーム選択 -->
+            <div class="setup-group">
+                <label>配信プラットフォーム</label>
+                <div class="btn-group" id="platform-select">
+                    <button class="setup-btn selected" data-val="youtube">YouTube</button>
+                    <button class="setup-btn" data-val="twitch" style="color:#a970ff; border-color:#a970ff;">Twitch</button>
+                </div>
+            </div>
             
             <!-- 効果音設定 -->
             <div class="setup-group">
