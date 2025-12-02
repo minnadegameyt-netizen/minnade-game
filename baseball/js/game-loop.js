@@ -1,5 +1,3 @@
-// --- START OF FILE game-loop.js ---
-
 import * as state from './state.js';
 import { ui, abilityDescriptions } from './ui.js';
 import { checkEvent, runEvent, allEvents } from './events/events.js'; 
@@ -124,11 +122,11 @@ export async function initializeGame(mode, playerName, saveData = null) {
         document.querySelector('.vote-status').classList.add('hidden');
         document.querySelector('.community-panel').classList.add('hidden');
     } else if (mode === 'streamer') {
-        youtube.startYouTubeFetching(state.youtubeSettings.apiKey, state.youtubeSettings.liveChatId);
+        if (state.streamSettings.platform === 'youtube') {
+            youtube.startYouTubeFetching(state.streamSettings.apiKey, state.streamSettings.liveChatId);
+        }
     }
     
-    // ... (中略) ...
-
     const missionDefinitions = [ 
         { command: "筋トレ", text: "パワーをつけろ！", reward: { type: "health", value: 5 }, rewardText: "体力+5" }, 
         { command: "気分転換", text: "リフレッシュしろ！", reward: { type: "health", value: 10 }, rewardText: "体力+10" },

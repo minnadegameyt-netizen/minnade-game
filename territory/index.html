@@ -74,7 +74,8 @@
             <h2 class="result-title">GAME SET!</h2>
             <div class="winner-announce">WINNER: <span id="winner-name">Player 1</span></div>
             <div class="ranking-list" id="ranking-list"></div>
-            <button onclick="location.reload()" class="action-btn">タイトルに戻る</button>
+            <!-- ID追加: reload-btn -->
+            <button id="reload-btn" class="action-btn">タイトルに戻る</button>
         </div>
     </div>
 
@@ -92,7 +93,15 @@
                 <p class="setting-desc" id="mode-desc">AI同士が戦う様子を観戦します。</p>
             </div>
 
-            <!-- ★変更点: 配信者ID入力欄を追加 -->
+            <!-- ▼▼▼ 追加: プラットフォーム選択 ▼▼▼ -->
+            <div class="setting-row" id="platform-setting" style="display: none;">
+                <label>配信プラットフォーム</label>
+                <div class="btn-group" id="platform-group">
+                    <button class="setup-btn selected" data-val="youtube">YouTube</button>
+                    <button class="setup-btn" data-val="twitch" style="color:#a970ff;">Twitch</button>
+                </div>
+            </div>
+
             <div class="setting-row" id="streamer-id-setting" style="display: none;">
                 <label>配信者のチャンネルID / ハンドル名</label>
                 <input type="text" id="streamer-id-input" placeholder="チャンネルID (UC...) またはハンドル名 (@...)" class="text-input">
@@ -163,6 +172,7 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- ▼▼▼ 修正点: moduleとして読み込む ▼▼▼ -->
+    <script type="module" src="script.js"></script>
 </body>
 </html>

@@ -115,7 +115,6 @@ function addMatchLog(text) {
 
 let hideCharacterTimeout = null; 
 
-// ★★★ 修正した画像表示関数（メモリ対策版） ★★★
 function showCharacter(imagePath) {
     if (imagePath) {
         if (hideCharacterTimeout) {
@@ -485,59 +484,10 @@ function setupEventListeners(){
     uiElements.startStreamerBtn.addEventListener('click', async () => {
         state.gameState.gameMode = 'streamer';
         
-        const apiKey = sessionStorage.getItem('youtube_api_key');
-        const videoId = sessionStorage.getItem('youtube_target_video_id');
-
-        if (!apiKey || !videoId) {
-            if (confirm("配信設定が見つかりません。\nトップページの「配信者用設定」に戻って設定しますか？")) {
-                window.location.href = "../index.html";
-            }
-            return;
-        }
-
-        try {
-            const originalText = uiElements.startStreamerBtn.textContent;
-            uiElements.startStreamerBtn.textContent = "接続中...";
-            uiElements.startStreamerBtn.disabled = true;
-
-            const chatUrl = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${apiKey}`;
-            const res = await fetch(chatUrl);
-            const data = await res.json();
-
-            uiElements.startStreamerBtn.textContent = originalText;
-            uiElements.startStreamerBtn.disabled = false;
-
-            if (data.error) {
-                console.error(data.error);
-                alert(`YouTube APIエラー: ${data.error.message}`);
-                return;
-            }
-
-            if (data.items && data.items.length > 0 && data.items[0].liveStreamingDetails && data.items[0].liveStreamingDetails.activeLiveChatId) {
-                state.youtubeSettings.apiKey = apiKey;
-                state.youtubeSettings.liveChatId = data.items[0].liveStreamingDetails.activeLiveChatId;
-                
-                uiElements.homePage.classList.add('hidden');
-                uiElements.gameWrapper.classList.remove('hidden');
-                uiElements.startModal.classList.remove('hidden'); 
-                uiElements.setupModal.classList.add('hidden');
-
-            } else {
-                alert("ライブチャットが見つかりませんでした。\n・Video IDが正しいか\n・配信が開始されているか\nを確認してください。");
-                window.location.href = "../index.html"; 
-            }
-        } catch (e) {
-            console.error(e);
-            uiElements.startStreamerBtn.textContent = "配信で遊ぶ";
-            uiElements.startStreamerBtn.disabled = false;
-            
-            alert("通信エラーが発生しました。");
-            window.location.href = "../index.html";
-        }
-    });
-
-    uiElements.toggleApiDetailsBtn?.addEventListener('click', () => {
-        uiElements.apiDetails?.classList.toggle('visible');
+        // いきなり接続せず、設定画面へ飛ばす
+        uiElements.homePage.classList.add('hidden');
+        uiElements.gameWrapper.classList.remove('hidden');
+        uiElements.startModal.classList.remove('hidden');
     });
 
     uiElements.newGameBtn.addEventListener('click',()=> {
@@ -545,12 +495,16 @@ function setupEventListeners(){
         uiElements.setupModal.classList.remove('hidden');
         
         const voteDurationSetup = document.getElementById('vote-duration-setup');
+        const platformSetup = document.getElementById('platform-setup');
+
         if (state.gameState.gameMode === 'streamer') {
             uiElements.toggleAudienceModeBtn.classList.remove('hidden');
             if(voteDurationSetup) voteDurationSetup.style.display = 'block';
+            if(platformSetup) platformSetup.style.display = 'block';
         } else {
             uiElements.toggleAudienceModeBtn.classList.add('hidden');
             if(voteDurationSetup) voteDurationSetup.style.display = 'none';
+            if(platformSetup) platformSetup.style.display = 'none';
         }
     });
 
@@ -583,7 +537,24 @@ function setupEventListeners(){
         uiElements.bgmOnBtn.classList.remove('selected');
     });
 
-    uiElements.confirmSetupBtn.addEventListener('click', () => {
+    // ★プラットフォームボタンの制御
+    document.querySelectorAll('.platform-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            state.streamSettings.platform = btn.dataset.platform; // stateに保存
+        });
+    });
+
+    // ★投票時間ボタンの制御
+    document.querySelectorAll('.duration-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        });
+    });
+
+    uiElements.confirmSetupBtn.addEventListener('click', async () => {
         const playerName = uiElements.playerNameInput.value.trim();
         const forbiddenNames = ["田中", "鈴木", "桜井", "風見", "星川", "監督"];
 
@@ -606,7 +577,34 @@ function setupEventListeners(){
         if (state.gameState.gameMode === 'streamer') {
             const selectedDurationBtn = document.querySelector('.duration-btn.selected');
             if(selectedDurationBtn) {
-                state.youtubeSettings.voteDuration = parseInt(selectedDurationBtn.dataset.duration, 10);
+                state.streamSettings.voteDuration = parseInt(selectedDurationBtn.dataset.duration, 10);
+            }
+
+            // ★配信接続チェック
+            if (state.streamSettings.platform === 'youtube') {
+                const apiKey = sessionStorage.getItem('youtube_api_key');
+                const videoId = sessionStorage.getItem('youtube_target_video_id');
+                if (!apiKey || !videoId) {
+                    alert("配信設定が見つかりません。"); return;
+                }
+                // 接続テスト
+                uiElements.confirmSetupBtn.textContent = "接続中...";
+                uiElements.confirmSetupBtn.disabled = true;
+                const connected = await youtube.testYouTubeConnection(apiKey, videoId);
+                uiElements.confirmSetupBtn.textContent = "ゲーム開始";
+                uiElements.confirmSetupBtn.disabled = false;
+                if (!connected) return;
+
+            } else if (state.streamSettings.platform === 'twitch') {
+                const channelId = sessionStorage.getItem('twitch_channel_id');
+                if (!channelId) {
+                    alert('Twitchチャンネル名が設定されていません。'); return;
+                }
+                try {
+                    await youtube.connectTwitch(channelId); 
+                } catch(e) {
+                    alert('Twitchへの接続に失敗しました: ' + e); return;
+                }
             }
         }
 
@@ -614,17 +612,11 @@ function setupEventListeners(){
         initializeGame(state.gameState.gameMode, playerName);
     });
 
-    document.querySelectorAll('.duration-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-        });
-    });
-
     const backHomeBtn = document.getElementById('back-to-home-from-start-btn');
-
     if (backHomeBtn) {
         backHomeBtn.addEventListener('click', () => {
+            // ★戻る時にTwitch切断
+            youtube.disconnectTwitch();
             window.location.href = "../index.html"; 
         });
     }

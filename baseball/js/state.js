@@ -12,10 +12,11 @@ export let matchState = {};
 export let voteCounts = {};
 export let hypeLevel = 0;
 
-export let youtubeSettings = {
+export let streamSettings = {
+    platform: 'youtube', // 'youtube' or 'twitch'
     apiKey: '',
     liveChatId: '',
-    voteDuration: 15 // デフォルト値を設定 (例: 15秒)
+    voteDuration: 20 // デフォルト20秒
 };
 
 export let randomEventHistory = [];

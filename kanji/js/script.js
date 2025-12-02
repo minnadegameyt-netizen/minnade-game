@@ -1,6 +1,11 @@
+// ★Twitchモジュールをインポート
+import * as twitch from '../../twitch.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- 設定変数 ---
     let gameMode = 'solo';
+    let platform = 'youtube'; // ★追加
+    let TWITCH_CHANNEL_ID = ""; // ★追加
     let questionCountGoal = 10;
     let voteTimeLimit = 30;
     let difficulty = 2; // 1:初級 ~ 4:特級
@@ -14,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let voteCounts = [0, 0, 0, 0];
     let timerInterval = null;
     let youtubeInterval = null;
-    let questionStartTime = null; // ★変更点: 投票受付開始時刻を記録する変数を追加
+    let questionStartTime = null;
 
     // --- YouTube API用 ---
     let YOUTUBE_API_KEY = "";
@@ -43,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const lifeDisplay = document.getElementById('life-display');
 
     // --- SE読み込み ---
-    // ※ bgmフォルダが kanji/bgm/ にある想定
     const sfx = {
         correct: new Audio('bgm/quiz_correct.mp3'),
         wrong: new Audio('bgm/quiz_incorrect.mp3'),
@@ -74,13 +78,34 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // ★プラットフォーム選択
+        const platformSelect = document.getElementById('platform-select');
+        if (platformSelect) {
+            platformSelect.addEventListener('click', e => {
+                if (e.target.tagName === 'BUTTON') platform = e.target.dataset.val;
+            });
+        }
+
         document.getElementById('setup-done-btn').addEventListener('click', onSetupDone);
         document.getElementById('game-start-btn').addEventListener('click', startCountDown);
         document.getElementById('back-btn').addEventListener('click', () => window.location.href = "../index.html");
+        
         document.getElementById('back-to-setup-btn').addEventListener('click', () => {
             readyScreen.classList.add('hidden');
             setupModal.classList.remove('hidden');
+            // ★戻る時にTwitch切断
+            if (platform === 'twitch') twitch.disconnectTwitch();
         });
+
+        // リロードボタン（結果画面）
+        const reloadBtn = document.getElementById('reload-btn');
+        if(reloadBtn) {
+            reloadBtn.addEventListener('click', () => {
+                // ★リロード時にTwitch切断
+                if (platform === 'twitch') twitch.disconnectTwitch();
+                location.reload();
+            });
+        }
 
         optionBtns.forEach((btn, index) => {
             btn.addEventListener('click', () => {
@@ -99,17 +124,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 配信設定チェック
         if (gameMode === 'streamer') {
-            YOUTUBE_API_KEY = sessionStorage.getItem('youtube_api_key');
-            TARGET_VIDEO_ID = sessionStorage.getItem('youtube_target_video_id');
-            if (!YOUTUBE_API_KEY || !TARGET_VIDEO_ID) {
-                alert("配信設定がありません。トップページから設定してください。");
-                return;
+            if (platform === 'youtube') {
+                YOUTUBE_API_KEY = sessionStorage.getItem('youtube_api_key');
+                TARGET_VIDEO_ID = sessionStorage.getItem('youtube_target_video_id');
+                if (!YOUTUBE_API_KEY || !TARGET_VIDEO_ID) {
+                    alert("配信設定がありません。トップページから設定してください。");
+                    return;
+                }
+                const connected = await fetchLiveChatId();
+                if (!connected) return;
+
+            } else if (platform === 'twitch') {
+                // ★Twitch接続処理
+                TWITCH_CHANNEL_ID = sessionStorage.getItem('twitch_channel_id');
+                if (!TWITCH_CHANNEL_ID) {
+                    alert("Twitch IDが設定されていません。"); return;
+                }
+                try {
+                    await twitch.connectTwitch(TWITCH_CHANNEL_ID, handleCommentFromStream);
+                } catch(e) {
+                    alert('Twitchへの接続に失敗しました: ' + e); return;
+                }
             }
-            const connected = await fetchLiveChatId();
-            if (!connected) return;
         }
 
-        // 問題データ準備 (kanji-data.js の QUIZ_DATA を使用)
+        // 問題データ準備
         prepareQuestions();
 
         setupModal.classList.add('hidden');
@@ -118,17 +157,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 問題データの準備 ---
     function prepareQuestions() {
+        // @ts-ignore (kanji-data.jsが読み込まれている前提)
         let filtered = QUIZ_DATA.filter(q => q.diff === difficulty);
         
-        // データ不足時は全データから補充（あまりないはずだが念のため）
         if (filtered.length < questionCountGoal) {
+            // @ts-ignore
             filtered = [...QUIZ_DATA]; 
         }
         
         shuffleArray(filtered);
         currentQuestions = [];
         
-        // 目標数までループして埋める
         while (currentQuestions.length < questionCountGoal) {
             currentQuestions = currentQuestions.concat(filtered);
         }
@@ -143,22 +182,20 @@ document.addEventListener('DOMContentLoaded', () => {
         let count = 3;
         const textEl = document.getElementById('countdown-text');
         
-        textEl.textContent = count;
-        playSe('count');
-        
-        textEl.classList.remove('anim');
-        void textEl.offsetWidth; 
-        textEl.classList.add('anim');
+        const showCount = () => {
+            textEl.textContent = count;
+            playSe('count');
+            textEl.classList.remove('anim');
+            void textEl.offsetWidth; 
+            textEl.classList.add('anim');
+        };
+
+        showCount();
 
         const countInterval = setInterval(() => {
             count--;
             if (count > 0) {
-                textEl.textContent = count;
-                playSe('count');
-                
-                textEl.classList.remove('anim');
-                void textEl.offsetWidth;
-                textEl.classList.add('anim');
+                showCount();
             } else {
                 clearInterval(countInterval);
                 textEl.textContent = "START!";
@@ -223,12 +260,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function startVotingPhase() {
         isVoting = true;
         let timeLeft = voteTimeLimit;
-        questionStartTime = new Date(); // ★変更点: 投票受付開始時刻を記録
+        questionStartTime = new Date(); 
         
         if (gameMode === 'streamer') {
             votingStatus.classList.remove('hidden');
-            nextPageToken = null; // ポーリング履歴をリセット
-            startYouTubePolling();
+            
+            if (platform === 'youtube') {
+                nextPageToken = null; 
+                startYouTubePolling();
+            }
+            // Twitchは常時接続なのでポーリング開始は不要
         } else {
             votingStatus.classList.add('hidden');
         }
@@ -240,10 +281,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 if (gameMode === 'streamer') {
-                    stopYouTubePolling();
+                    if (platform === 'youtube') stopYouTubePolling();
                     decideStreamerAnswer();
                 } else {
-                    // ソロの場合、時間切れはミス扱い
                     handleIncorrect();
                 }
             }
@@ -254,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isVoting) return;
         isVoting = false;
         clearInterval(timerInterval);
-        if (gameMode === 'streamer') stopYouTubePolling();
+        if (gameMode === 'streamer' && platform === 'youtube') stopYouTubePolling();
 
         const qData = currentQuestions[currentQIndex];
         const correctIndex = qData.correct;
@@ -317,6 +357,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('result-title').textContent = "GAME OVER";
         document.getElementById('result-title').style.color = "#e74c3c";
         document.getElementById('result-msg').textContent = `${currentQIndex + 1}問目で脱落...\n正解数: ${currentQIndex}`;
+        
+        // ★Twitch切断
+        if (platform === 'twitch') twitch.disconnectTwitch();
     }
 
     function gameClear() {
@@ -325,6 +368,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('result-title').textContent = "達人！";
         document.getElementById('result-title').style.color = "#f1c40f";
         document.getElementById('result-msg').textContent = `見事、全${questionCountGoal}問正解しました！`;
+        
+        // ★Twitch切断
+        if (platform === 'twitch') twitch.disconnectTwitch();
     }
 
     // --- YouTube連携 ---
@@ -363,19 +409,25 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.nextPageToken) nextPageToken = data.nextPageToken;
             if (data.items) {
                 data.items.forEach(item => {
-                    // ★変更点: この問題の投票受付開始時刻より後のコメントのみを対象とする
                     const messageTimestamp = new Date(item.snippet.publishedAt);
                     if (questionStartTime && messageTimestamp >= questionStartTime) {
-                        const msg = item.snippet.displayMessage;
-                        if (msg.match(/[1１]/)) vote(0);
-                        else if (msg.match(/[2２]/)) vote(1);
-                        else if (msg.match(/[3３]/)) vote(2);
-                        else if (msg.match(/[4４]/)) vote(3);
+                        handleCommentFromStream(item.snippet.displayMessage);
                     }
                 });
-                updateVoteBars();
             }
         } catch (e) {}
+    }
+
+    // --- 共通のコメント処理関数 (投票ロジック) ---
+    function handleCommentFromStream(msg) {
+        if (!isVoting) return;
+
+        if (msg.match(/[1１]/)) vote(0);
+        else if (msg.match(/[2２]/)) vote(1);
+        else if (msg.match(/[3３]/)) vote(2);
+        else if (msg.match(/[4４]/)) vote(3);
+        
+        updateVoteBars();
     }
 
     function vote(index) { voteCounts[index]++; }

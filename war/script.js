@@ -1,3 +1,6 @@
+// ★Twitchモジュールをインポート
+import * as twitch from '../twitch.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     // --- 1. グローバル変数・定数定義 ---
     const factions = {
@@ -5,16 +8,17 @@ document.addEventListener('DOMContentLoaded', function() {
         ai: { id: 'faction2', name: 'たけのこ', armyName: 'B軍', color: '#2f81f7' }
     };
     
-    // 制圧（拡散開始）に必要な最低戦力
     const CAPTURE_THRESHOLD = 500;
 
-    // YouTube API用変数
+    // 配信設定用変数
+    let platform = 'youtube'; // ★追加
+    let TWITCH_CHANNEL_ID = ""; // ★追加
     let YOUTUBE_API_KEY = "";
     let TARGET_VIDEO_ID = "";
     let liveChatId = null;
     let nextPageToken = null;
     let youtubeIntervalId = null;
-    let gameStartTime = null; // ★変更点: ゲーム開始時刻を記録する変数を追加
+    let gameStartTime = null;
 
     // 都道府県データ
     const prefData = {
@@ -273,18 +277,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     group.querySelectorAll('.setup-btn').forEach(btn => btn.classList.remove('selected'));
                     e.target.classList.add('selected');
                     
+                    // モード説明
                     const desc = document.getElementById('mode-description');
+                    const platformSection = document.getElementById('platform-section');
                     
-                    // ▼▼▼ 追加: YouTube設定欄の表示切り替え ▼▼▼
-                    const youtubeSettings = document.getElementById('youtube-settings');
-                    
+                    if (group.id === 'platform-group') {
+                        platform = e.target.dataset.val;
+                    }
+
                     if (desc) {
                         if (e.target.id === 'stream-mode-btn') {
                             desc.textContent = "視聴者のコメントで勢力が拡大する配信向けモードです。";
-                            if(youtubeSettings) youtubeSettings.style.display = 'block'; // 表示
+                            if(platformSection) platformSection.style.display = 'block'; 
                         } else if (e.target.id === 'demo-mode-btn') {
                             desc.textContent = "配信での動作イメージを確認するためのAIによる自動シミュレーションです。";
-                            if(youtubeSettings) youtubeSettings.style.display = 'none'; // 非表示
+                            if(platformSection) platformSection.style.display = 'none';
                         }
                     }
                 }
@@ -293,48 +300,52 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 初期状態の設定
         if(document.getElementById('stream-mode-btn').classList.contains('selected')) {
-             const ys = document.getElementById('youtube-settings');
-             if(ys) ys.style.display = 'block';
+             const ps = document.getElementById('platform-section');
+             if(ps) ps.style.display = 'block';
         }
     }
 
     const backToSetupBtn = document.getElementById('back-to-setup-btn');
     if (backToSetupBtn) {
         backToSetupBtn.addEventListener('click', () => {
-            // 待機画面を隠す
             document.getElementById('ready-screen').style.display = 'none';
-            // 設定画面を表示する
             document.getElementById('start-screen').style.display = 'flex';
+            if (platform === 'twitch') twitch.disconnectTwitch();
         });
     }
 
     const startButton = document.getElementById('start-button');
     const realStartBtn = document.getElementById('real-start-btn');
     
-    startButton.addEventListener('click', () => {
+    startButton.addEventListener('click', async () => {
         const streamBtn = document.getElementById('stream-mode-btn');
         gameMode = streamBtn.classList.contains('selected') ? 'stream' : 'demo';
         
-        // ▼▼▼ 追加: YouTube設定の取得とチェック ▼▼▼
+        // 配信設定チェック
         if (gameMode === 'stream') {
-            // ▼▼▼ ここが修正ポイント ▼▼▼
-            
-            // 【誤】以前のコード（これだとエラーになる）
-            // YOUTUBE_API_KEY = document.getElementById('api-key-input').value.trim();
-            // TARGET_VIDEO_ID = document.getElementById('video-id-input').value.trim();
-
-            // 【正】修正後のコード（sessionStorageから取る）
-            YOUTUBE_API_KEY = sessionStorage.getItem('youtube_api_key');
-            TARGET_VIDEO_ID = sessionStorage.getItem('youtube_target_video_id');
-            
-            if (!YOUTUBE_API_KEY || !TARGET_VIDEO_ID) {
-                // アラートを出して終了（トップページへの誘導）
-                if (confirm('配信設定が見つかりません。\nトップページの「配信者用設定」から設定してください。\nトップページに戻りますか？')) {
-                    window.location.href = "../index.html";
+            if (platform === 'youtube') {
+                YOUTUBE_API_KEY = sessionStorage.getItem('youtube_api_key');
+                TARGET_VIDEO_ID = sessionStorage.getItem('youtube_target_video_id');
+                if (!YOUTUBE_API_KEY || !TARGET_VIDEO_ID) {
+                    if (confirm('配信設定が見つかりません。\nトップページの「配信者用設定」から設定してください。\nトップページに戻りますか？')) {
+                        window.location.href = "../index.html";
+                    }
+                    return;
                 }
-                return;
+            } else if (platform === 'twitch') {
+                TWITCH_CHANNEL_ID = sessionStorage.getItem('twitch_channel_id');
+                if (!TWITCH_CHANNEL_ID) {
+                    alert('Twitchチャンネル名が設定されていません。');
+                    return;
+                }
+                try {
+                    // ★Twitch接続 (コールバックを渡す)
+                    await twitch.connectTwitch(TWITCH_CHANNEL_ID, handleTwitchMessage);
+                } catch(e) {
+                    alert('Twitchへの接続に失敗しました: ' + e);
+                    return;
+                }
             }
-            // ▲▲▲ 修正ここまで ▲▲▲
         }
         
         isSeOn = document.getElementById('se-on-btn').classList.contains('selected');
@@ -380,6 +391,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // リロードボタン（結果画面）
+    const reloadBtn = document.getElementById('reload-btn');
+    if(reloadBtn) {
+        reloadBtn.addEventListener('click', () => {
+            if (platform === 'twitch') twitch.disconnectTwitch();
+            location.reload();
+        });
+    }
+
     function playStartAnimation(callback) {
         const overlay = document.getElementById('countdown-overlay');
         const text = document.getElementById('countdown-text');
@@ -414,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function startMainGameLoop() {
-        gameStartTime = new Date(); // ★変更点: ゲーム開始時刻を記録
+        gameStartTime = new Date(); 
         addLog("【開始】投票の受付を開始しました！");
         
         setText('timer-label', '残り時間');
@@ -451,10 +471,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (gameMode === 'demo') {
             setupAiSimulation();
-        } else {
-            // ▼▼▼ 修正: YouTube接続開始 ▼▼▼
+        } else if (gameMode === 'stream' && platform === 'youtube') {
             startYouTubeConnection(); 
         }
+        // Twitchは startButton で接続済みなのでここでは何もしない（メッセージ待機状態）
     }
 
     function executeBattle() {
@@ -485,8 +505,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function addSupport(parseResult, basePower, userName) {
         const { pref, factionId } = parseResult;
-        // コメントの影響力を currentCommentPower でスケーリング
-        const powerToAdd = (basePower * currentCommentPower) / 10; // 基準を10とするなら割る、あるいはbasePowerをそのまま使う調整
+        const powerToAdd = (basePower * currentCommentPower) / 10; 
 
         if (factionId === factions.player.id) {
             pref.faction1Power += powerToAdd;
@@ -498,12 +517,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const factionColor = factionId === factions.player.id ? factions.player.color : factions.ai.color;
         
-        // チャット欄にはYouTubeポーリング側で追加するので、ここはログとエフェクトのみ
-        // ただし、デモモードの場合はここでログに追加する必要がある
-        if (gameMode === 'demo') {
-             addLog(`<span style="color:${factionColor}">${userName}</span> が ${pref.name} に投票 (+${powerToAdd})`);
-        }
-        
+        // デモモード以外ではチャット欄追加はPolling側（またはTwitchコールバック）で行う
+        // showMapEffectのみ実行
         showMapEffect(pref.id, `+${powerToAdd}`, factionColor);
     }
 
@@ -524,9 +539,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (newOwner !== currentOwner && newOwner !== null) {
             pref.owner = newOwner;
-            
             playSe('se-conquer');
-
             const winner = (newOwner === factions.player.id) ? factions.player : factions.ai;
             if (currentOwner === null) {
                 addLog(`【制圧】${pref.name} を <span style="color:${winner.color}">${winner.name}</span> が制圧しました！`);
@@ -676,6 +689,34 @@ document.addEventListener('DOMContentLoaded', function() {
         return { pref: targetPref, factionId: targetFactionId };
     }
 
+    // ★Twitchからのメッセージハンドラ
+    function handleTwitchMessage(message, authorName) {
+        if (isGameEnded) return;
+
+        // 1. チャット欄に表示
+        const chatList = document.getElementById('live-chat-list');
+        if (chatList) {
+            const li = document.createElement('li');
+            const analysis = parseComment(message);
+            let colorStyle = "";
+            if (analysis) {
+                colorStyle = (analysis.factionId === factions.player.id) 
+                    ? `color:${factions.player.color}` 
+                    : `color:${factions.ai.color}`;
+            }
+            li.innerHTML = `<span class="chat-author" style="${colorStyle}">${authorName}</span>: ${message}`;
+            chatList.prepend(li);
+            if (chatList.children.length > 20) chatList.removeChild(chatList.lastChild);
+        }
+
+        // 2. ゲームへの反映
+        const result = parseComment(message);
+        if (result) {
+            const power = 50; // YouTubeと同じ影響力
+            addSupport(result, power, authorName);
+        }
+    }
+
     function setupAiSimulation() {
         setInterval(() => {
             if (isGameEnded) return;
@@ -703,6 +744,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const result = parseComment(commentText);
             if (result) {
+                // デモはチャットログ表示ありで渡すため userName も渡すが、addSupport内の処理は共通
+                // ただし、YouTube/Twitchの場合はPolling側でログ追加するので、addSupport内のログ追加はデモのみにする必要がある
+                // -> addSupport関数側で gameMode チェックを入れているのでOK
                 addSupport(result, 10, userName); 
             }
 
@@ -726,8 +770,8 @@ document.addEventListener('DOMContentLoaded', function() {
         setHTML('faction-2-title', `${factions.ai.armyName} <span>(0%)</span>`);
         setText('faction-1-rate-label', factions.player.name);
         setText('faction-2-rate-label', factions.ai.name);
-        setText('kanto-faction-1-rate-label', factions.player.name);
-        setText('kanto-faction-2-rate-label', factions.ai.name);
+        // setText('kanto-faction-1-rate-label', factions.player.name); // ※HTML側に存在しないIDの可能性があるためコメントアウト推奨
+        // setText('kanto-faction-2-rate-label', factions.ai.name);
         document.documentElement.style.setProperty('--faction-1-color', factions.player.color);
         document.documentElement.style.setProperty('--faction-2-color', factions.ai.color);
     }
@@ -860,8 +904,8 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(gameIntervalId); clearInterval(renderIntervalId); clearInterval(timerIntervalId); 
         eventIntervalIds.forEach(id => clearInterval(id));
         
-        // YouTubeポーリング停止
         if (youtubeIntervalId) clearTimeout(youtubeIntervalId);
+        if (platform === 'twitch') twitch.disconnectTwitch();
         
         setText('countdown-timer', "00:00");
         
@@ -945,8 +989,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (liveChatId) {
             addLog("【システム】接続成功！コメント取得を開始します。");
-            nextPageToken = null; // ポーリング履歴をリセット
-            // 初回実行
+            nextPageToken = null; 
             pollYouTubeChat();
         } else {
             addLog("【エラー】チャットIDの取得に失敗しました。設定を確認してください。");
@@ -990,14 +1033,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (data.error) {
                 console.error("Polling Error:", data.error);
-                // エラー時は少し待って再試行
                 youtubeIntervalId = setTimeout(pollYouTubeChat, 10000);
                 return;
             }
 
             if (data.items) {
                 data.items.forEach(item => {
-                    // ★変更点: ゲーム開始時刻より前のコメントは無視する
                     const messageTimestamp = new Date(item.snippet.publishedAt);
                     if (!gameStartTime || messageTimestamp < gameStartTime) {
                         return;
@@ -1010,7 +1051,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     const chatList = document.getElementById('live-chat-list');
                     if (chatList) {
                         const li = document.createElement('li');
-                        // どちらの派閥のコメントか解析して色を付ける
                         const analysis = parseComment(comment);
                         let colorStyle = "";
                         if (analysis) {
@@ -1018,7 +1058,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 ? `color:${factions.player.color}` 
                                 : `color:${factions.ai.color}`;
                         }
-                        
                         li.innerHTML = `<span class="chat-author" style="${colorStyle}">${author}</span>: ${comment}`;
                         chatList.prepend(li);
                         if (chatList.children.length > 20) chatList.removeChild(chatList.lastChild);
@@ -1027,17 +1066,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 2. ゲームへの反映
                     const result = parseComment(comment);
                     if (result) {
-                        // YouTubeコメントは影響力を強めに設定 (例: 50)
                         const power = 50; 
                         addSupport(result, power, author);
                     }
                 });
             }
 
-            // 次のページトークンを保存
             nextPageToken = data.nextPageToken;
-            
-            // APIが指定する待機時間を守る (なければ5秒)
             const interval = Math.max(data.pollingIntervalMillis || 5000, 3000);
             youtubeIntervalId = setTimeout(pollYouTubeChat, interval);
 
@@ -1076,8 +1111,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const backToHomeBtn = document.getElementById('back-to-home-btn');
     if (backToHomeBtn) {
         backToHomeBtn.addEventListener('click', () => {
-            // トップページ（../index.html）へ戻る
-            // ※ファイルの配置構成に合わせてパスは調整してください
             window.location.href = "../index.html";
         });
     }
@@ -1086,11 +1119,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const mode = urlParams.get('mode');
 
     if (mode === 'stream') {
-        // 配信モードボタンを自動クリック
         const btn = document.getElementById('stream-mode-btn');
         if (btn) btn.click();
     } else if (mode === 'demo') {
-        // デモモードボタンを自動クリック
         const btn = document.getElementById('demo-mode-btn');
         if (btn) btn.click();
     }

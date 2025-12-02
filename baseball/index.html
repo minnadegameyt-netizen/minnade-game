@@ -6,22 +6,16 @@
 <script>
   (function() {
     var GA_ID = 'G-TS77Z86Q2V';
-
-    // 1. ローカル環境かどうか判定
     var isLocal = window.location.hostname === 'localhost' || 
                   window.location.hostname === '127.0.0.1' || 
                   window.location.hostname.startsWith('192.168.') ||
                   window.location.protocol === 'file:';
-
     var isAdmin = localStorage.getItem('analytics_ignore') === 'true';
-
-    // ローカルでも管理者でもない場合のみGAを読み込む
     if (!isLocal && !isAdmin) {
       var script = document.createElement('script');
       script.async = true;
       script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
       document.head.appendChild(script);
-
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
@@ -38,18 +32,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- ▼▼▼ ロード画面を追加 ▼▼▼ -->
     <div id="loading-screen">
         <div class="loading-content">
             <div class="loading-text">Now Loading...</div>
-            
-            <!-- プログレスバー -->
             <progress id="loading-progress" value="0" max="100"></progress>
-            
-            <!-- ★追加: パーセント表示 -->
             <div id="loading-percent">0%</div>
-
-            <!-- ★追加: 注意書き -->
             <p class="loading-warning">
                 ※画像・動画データを読み込んでいるため、<br>
                 回線環境によっては時間がかかる場合があります。
@@ -57,99 +44,96 @@
         </div>
     </div>
 
-    <!-- ホームページ (最初は非表示) -->
+    <!-- ホームページ -->
     <div id="home-page" class="hidden">
         <h1>視聴者参加型育成ゲーム</h1>
         <div class="game-selection">
             <div class="game-card">
                 <h2>高校野球シミュレーション</h2>
                 <picture>
-    <source srcset="img/p_normal.webp" type="image/webp">
-    <!-- ↓ このimgタグに width と height を追加 -->
-    <img src="img/p_normal.png" alt="高校野球シミュレーション サムネイル" width="220" height="220">
-</picture>
+                    <source srcset="img/p_normal.webp" type="image/webp">
+                    <img src="img/p_normal.png" alt="高校野球シミュレーション サムネイル" width="220" height="220">
+                </picture>
                 <p>高校球児として3年間を過ごし、甲子園を目指そう！</p>
                 <div class="mode-buttons">
                     <button id="start-solo-btn">個人で遊ぶ</button>
                     <button id="start-streamer-btn">配信で遊ぶ</button>
-                <button id="how-to-play-btn">遊び方・機能説明</button>
-    <button id="support-btn">開発者を支援する</button>
+                    <button id="how-to-play-btn">遊び方・機能説明</button>
+                    <button id="support-btn">開発者を支援する</button>
                 </div>
             </div>
-            <!-- 今後ゲームが増えたらここに .game-card を追加 -->
         </div>
     </div>
 
-<div id="help-modal" class="modal-overlay hidden">
-    <div class="modal-content help-content">
-        <h2>ゲームの遊び方</h2>
-        <div class="help-scroll-area">
-            <h3>⚾ ゲームの目的</h3>
-            <p>高校球児として3年間練習に励み、甲子園優勝とプロ入り（ドラフト指名）を目指す育成シミュレーションゲームです。</p>
-            
-            <h3>🎮 基本的な流れ</h3>
-            <ul>
-                <li><strong>コマンド選択:</strong> 「筋トレ」「練習」「デート」などを選び、能力を上げたり体力を管理します。</li>
-                <li><strong>イベント:</strong> 季節ごとのイベントや、ランダムイベントが発生します。選択肢によって結果が変わります。</li>
-                <li><strong>試合:</strong> 夏と春の大会は自動試合ですが、チャンスの場面ではあなたの操作（タイミング押し・ルーレット）が必要になります。</li>
-            </ul>
-
-            <h3>📡 配信者モードについて</h3>
-            <p>YouTubeのライブチャットと連携し、視聴者のコメント投票（「1」「2」などの数字）で主人公の行動を決定できます。リスナーと一緒に最強選手を育てましょう。</p>
-
-            <h3>💾 セーブ・機能について</h3>
-            <ul>
-                <li><strong>セーブ機能:</strong> 画面上部の「セーブ」ボタンでいつでも保存できます（ブラウザに保存されます）。</li>
-                <li><strong>オートセーブではありません:</strong> こまめなセーブを推奨します。</li>
-                <li><strong>ログ機能:</strong> 会話を見逃した場合は「ログ」ボタンで履歴を確認できます。</li>
-                <li><strong>カレンダー:</strong> 現在の日付や、今後のイベント予定を確認できます。</li>
-            </ul>
+    <!-- ヘルプモーダル -->
+    <div id="help-modal" class="modal-overlay hidden">
+        <div class="modal-content help-content">
+            <h2>ゲームの遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>⚾ ゲームの目的</h3>
+                <p>高校球児として3年間練習に励み、甲子園優勝とプロ入り（ドラフト指名）を目指す育成シミュレーションゲームです。</p>
+                <h3>🎮 基本的な流れ</h3>
+                <ul>
+                    <li><strong>コマンド選択:</strong> 「筋トレ」「練習」「デート」などを選び、能力を上げたり体力を管理します。</li>
+                    <li><strong>イベント:</strong> 季節ごとのイベントや、ランダムイベントが発生します。選択肢によって結果が変わります。</li>
+                    <li><strong>試合:</strong> 夏と春の大会は自動試合ですが、チャンスの場面ではあなたの操作（タイミング押し・ルーレット）が必要になります。</li>
+                </ul>
+                <h3>📡 配信者モードについて</h3>
+                <p>YouTube/Twitchのライブチャットと連携し、視聴者のコメント投票（「1」「2」などの数字）で主人公の行動を決定できます。</p>
+                <h3>💾 セーブ・機能について</h3>
+                <ul>
+                    <li><strong>セーブ機能:</strong> 画面上部の「セーブ」ボタンでいつでも保存できます（ブラウザに保存されます）。</li>
+                    <li><strong>オートセーブではありません:</strong> こまめなセーブを推奨します。</li>
+                    <li><strong>ログ機能:</strong> 会話を見逃した場合は「ログ」ボタンで履歴を確認できます。</li>
+                    <li><strong>カレンダー:</strong> 現在の日付や、今後のイベント予定を確認できます。</li>
+                </ul>
+            </div>
+            <button id="close-help-btn" class="start-game-btn" style="background-color: #718096;">閉じる</button>
         </div>
-        <button id="close-help-btn" class="start-game-btn" style="background-color: #718096;">閉じる</button>
     </div>
-</div>
 
-<div id="support-modal" class="modal-overlay hidden">
-    <div class="modal-content help-content" style="text-align: center;">
-        <h2>開発者を支援する</h2>
-        <p>プレイしていただきありがとうございます！<br>もしこのゲームを気に入っていただけたら、<br>ご支援いただけると今後の開発の励みになります。</p>
-        
-        <div class="support-links">
-            <!-- ※ご自身の実際のリンクに書き換えてください -->
-            <a href="https://ko-fi.com/" target="_blank" class="support-link-btn">Ko-fi で支援</a>
+    <div id="support-modal" class="modal-overlay hidden">
+        <div class="modal-content help-content" style="text-align: center;">
+            <h2>開発者を支援する</h2>
+            <p>プレイしていただきありがとうございます！<br>もしこのゲームを気に入っていただけたら、<br>ご支援いただけると今後の開発の励みになります。</p>
+            <div class="support-links">
+                <a href="https://ko-fi.com/dontokoi_games" target="_blank" class="support-link-btn">Ko-fi で支援</a>
+            </div>
+            <button id="close-support-btn" class="start-game-btn" style="background-color: #718096; margin-top: 20px;">閉じる</button>
         </div>
-
-        <button id="close-support-btn" class="start-game-btn" style="background-color: #718096; margin-top: 20px;">閉じる</button>
     </div>
-</div>
 
-    <!-- ゲーム画面全体 (最初は非表示) -->
+    <!-- ゲーム画面全体 -->
     <div id="game-wrapper" class="hidden">
         
-        <!-- ゲーム開始時の選択モーダル -->
-<div id="start-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-        <h2 style="margin-bottom: 20px; color: #fff;">ゲームを開始します</h2>
-        
-        <!-- メインの選択ボタン -->
-        <div class="save-data-buttons">
-            <button id="new-game-btn">はじめから</button>
-            <button id="load-game-btn" class="hidden">続きから</button>
+        <!-- スタートモーダル -->
+        <div id="start-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h2 style="margin-bottom: 20px; color: #fff;">ゲームを開始します</h2>
+                <div class="save-data-buttons">
+                    <button id="new-game-btn">はじめから</button>
+                    <button id="load-game-btn" class="hidden">続きから</button>
+                </div>
+                <div style="margin-top: 20px;"> 
+                    <button id="back-to-home-from-start-btn" class="secondary-btn">ホームに戻る</button>
+                </div>
+            </div>
         </div>
-        <!-- ▲▲▲ ここで一旦 div を閉じる ▲▲▲ -->
-        
-        <!-- ▼▼▼ 下のボタン（別ブロックにする） ▼▼▼ -->
-        <div style="margin-top: 20px;"> <!-- さらに余白を追加 -->
-            <button id="back-to-home-from-start-btn" class="secondary-btn">ホームに戻る</button>
-        </div>
-        <!-- ▲▲▲▲▲▲▲▲▲▲ -->
-    </div>
-</div>
 
-        <!-- 初期設定モーダル (API関連の項目を削除) -->
+        <!-- 初期設定モーダル -->
         <div id="setup-modal" class="modal-overlay hidden">
             <div class="modal-content">
                 <h2>初期設定</h2>
+                
+                <!-- ▼▼▼ 追加: プラットフォーム選択 ▼▼▼ -->
+                <div class="setup-item" id="platform-setup" style="display: none;">
+                    <label>配信プラットフォーム</label>
+                    <div id="platform-buttons">
+                        <button class="setup-btn platform-btn selected" data-platform="youtube">YouTube</button>
+                        <button class="setup-btn platform-btn" data-platform="twitch" style="color:#a970ff;">Twitch</button>
+                    </div>
+                </div>
+
                 <div class="setup-item">
                     <label for="player-name-input">主人公の名前</label>
                     <input type="text" id="player-name-input" placeholder="7文字まで" maxlength="7">
@@ -162,26 +146,20 @@
                         <button id="bgm-off-btn" class="setup-btn">BGM OFF</button>
                     </div>
                 </div>
-        <div class="setup-item" id="vote-duration-setup" style="display: none;">
-            <label>投票時間（秒）</label>
-            <div id="vote-duration-buttons">
-                <button class="setup-btn duration-btn" data-duration="15">15秒</button>
-                <button class="setup-btn duration-btn selected" data-duration="20">20秒</button>
-                <button class="setup-btn duration-btn" data-duration="25">25秒</button>
-                <button class="setup-btn duration-btn" data-duration="30">30秒</button>
-            </div>
-            
-            <!-- ▼▼▼ 追加: アドバイス文 ▼▼▼ -->
-            <p class="setup-note" style="font-size: 0.85em; color: #ecc94b; margin-top: 8px; line-height: 1.4;">
-                <strong>💡 配信者の方へ:</strong><br>
-                YouTubeのラグ（通常3〜5秒、環境によってはそれ以上）があるため、<br>
-                視聴者画面に選択肢が出てからコメントが反映されるまで時間がかかります。<br>
-                迷ったら<strong>長めの時間（25秒〜30秒）</strong>から始めるのがおすすめです。<br>
-                <span style="color: #e53e3e;">※YouTubeの配信設定は「超低遅延」を推奨します。</span>
-            </p>
-            
-            <p class="setup-note">※ゲーム開始後、F5を押すとこの画面に戻ります。</p>
-        </div>
+                <div class="setup-item" id="vote-duration-setup" style="display: none;">
+                    <label>投票時間（秒）</label>
+                    <div id="vote-duration-buttons">
+                        <button class="setup-btn duration-btn" data-duration="15">15秒</button>
+                        <button class="setup-btn duration-btn selected" data-duration="20">20秒</button>
+                        <button class="setup-btn duration-btn" data-duration="25">25秒</button>
+                        <button class="setup-btn duration-btn" data-duration="30">30秒</button>
+                    </div>
+                    <p class="setup-note" style="font-size: 0.85em; color: #ecc94b; margin-top: 8px; line-height: 1.4;">
+                        <strong>💡 配信者の方へ:</strong><br>
+                        配信の遅延があるため、<strong>長めの時間（25秒〜30秒）</strong>から始めるのがおすすめです。<br>
+                    </p>
+                    <p class="setup-note">※ゲーム開始後、F5を押すとこの画面に戻ります。</p>
+                </div>
                 <button id="confirm-setup-btn" class="start-game-btn">ゲーム開始</button>
             </div>
         </div>
@@ -199,13 +177,12 @@
         <div id="backlog-modal" class="modal-overlay hidden">
             <div class="modal-content backlog-content">
                 <h2>会話ログ</h2>
-                <ul id="backlog-list" class="backlog-list">
-                    <!-- ログがここに挿入されます -->
-                </ul>
+                <ul id="backlog-list" class="backlog-list"></ul>
                 <button id="close-backlog-btn">閉じる</button>
             </div>
         </div>
 
+        <!-- カレンダーモーダル -->
         <div id="calendar-modal" class="modal-overlay hidden">
             <div class="modal-content calendar-content">
                 <h2>カレンダー</h2>
@@ -235,7 +212,6 @@
 
         <!-- メインコンテンツ -->
         <div class="game-container">
-            <!-- 左パネル -->
             <div class="left-panel">
                 <div class="vote-status">
                     <h3>現在の投票状況 (<span id="vote-timer">10</span>秒)</h3>
@@ -251,36 +227,24 @@
                 </div>
             </div>
 
-            <!-- 中央パネル -->
             <div class="center-panel">
                 <div class="upcoming-events-panel">
                     <h4>今後の重要イベント</h4>
                     <p id="upcoming-event-text">--</p>
                 </div>
 
-                <!-- ★ここから試合用UI（普段は非表示）★ -->
                 <div id="match-ui" class="hidden">
                     <div class="team-power-display">
-                        <div class="team-info">
-                            <span id="away-team-name-power"></span>
-                            <span>総合力: <span id="away-team-power"></span></span>
-                        </div>
+                        <div class="team-info"><span id="away-team-name-power"></span><span>総合力: <span id="away-team-power"></span></span></div>
                         <div class="vs">VS</div>
-                        <div class="team-info">
-                            <span id="home-team-name-power"></span>
-                            <span>総合力: <span id="home-team-power"></span></span>
-                        </div>
+                        <div class="team-info"><span id="home-team-name-power"></span><span>総合力: <span id="home-team-power"></span></span></div>
                     </div>
                     <div class="scoreboard">
                         <div class="team-name" id="away-team-name"></div>
-                        <div class="inning-scores" id="away-inning-scores">
-                            <span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span>
-                        </div>
+                        <div class="inning-scores" id="away-inning-scores"><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span></div>
                         <div class="total-score" id="away-team-score">0</div>
                         <div class="team-name" id="home-team-name"></div>
-                        <div class="inning-scores" id="home-inning-scores">
-                            <span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span>
-                        </div>
+                        <div class="inning-scores" id="home-inning-scores"><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span></div>
                         <div class="total-score" id="home-team-score">0</div>
                     </div>
                     <div id="match-interaction-window"></div>
@@ -290,27 +254,20 @@
                             <h4>主人公の能力と成功マス数</h4>
                             <table>
                                 <thead><tr><th>能力平均</th><th>成功マス(全10個中)</th></tr></thead>
-                                <tbody>
-                                    <tr><td>20未満</td><td>2個</td></tr><tr><td>20～39</td><td>3個</td></tr>
-                                    <tr><td>40～59</td><td>4個</td></tr><tr><td>60～74</td><td>5個</td></tr>
-                                    <tr><td>75～89</td><td>6個</td></tr><tr><td>90以上</td><td>7個</td></tr>
-                                </tbody>
+                                <tbody><tr><td>20未満</td><td>2個</td></tr><tr><td>20～39</td><td>3個</td></tr><tr><td>40～59</td><td>4個</td></tr><tr><td>60～74</td><td>5個</td></tr><tr><td>75～89</td><td>6個</td></tr><tr><td>90以上</td><td>7個</td></tr></tbody>
                             </table>
                             <p>※タイミングゲームの結果で最大+2個</p>
                         </div>
                     </div>
                 </div>
-                <!-- ★ここまで試合用UI★ -->
 
                 <div id="event-choices-window" class="event-choices-window"></div>
-                
                 <div class="log-window">
                     <img id="character-sprite" class="character-sprite hidden" src="" alt="Character">
                     <p id="log-text">ゲームを選択してください</p>
                 </div>
             </div>
 
-            <!-- 右パネル -->
             <div class="right-panel">
                 <div class="team-status-panel">
                     <div class="team-status-item"><span>チーム総合力</span><progress id="team-total-bar" value="0" max="100"></progress></div>
@@ -324,9 +281,9 @@
                     <h2>選手能力</h2>
                     <div class="player-info">
                         <span id="player-name">名前</span>
-                            <span id="player-condition">調子: 普通</span>
-                            <span id="girlfriend-status">彼女: なし</span>
-                            <span id="red-mark-display">赤点: 0回</span>
+                        <span id="player-condition">調子: 普通</span>
+                        <span id="girlfriend-status">彼女: なし</span>
+                        <span id="red-mark-display">赤点: 0回</span>
                     </div>
                     <div class="status-item health-status">
                         <label>体力:</label>
@@ -349,6 +306,8 @@
             </div>
         </div>
     </div>
-<script type="module" src="js/main.js?v=2"></script>
+    
+    <!-- ▼▼▼ 修正点: moduleとして読み込む ▼▼▼ -->
+    <script type="module" src="js/main.js?v=3"></script>
 </body>
 </html>

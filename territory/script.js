@@ -1,14 +1,17 @@
+// ★Twitchモジュールをインポート
+import * as twitch from '../twitch.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- 設定 ---
     const GRID_SIZE = 16; 
-    const DISPLAY_SIZE = 600; // CSS上の表示サイズ
-    const CELL_SIZE = DISPLAY_SIZE / GRID_SIZE; // 1マスのサイズ
+    const DISPLAY_SIZE = 600; 
+    const CELL_SIZE = DISPLAY_SIZE / GRID_SIZE; 
     const DEMO_BOT_INTERVAL = 800;
     
     // --- 色定義 ---
     const COLORS = {
         0: '#2d3748', 1: '#e53e3e', 2: '#4299e1', 3: '#48bb78', 4: '#ecc94b', 
-        9: '#805ad5' // アイテム (Purple)
+        9: '#805ad5' 
     };
 
     const NUMBER_COLOR_ON_PAINTED = '#dfe6e9';
@@ -16,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ゲーム状態 ---
     let mapData = []; 
-    let gameMode = 'demo'; // デフォルトはdemo
+    let gameMode = 'demo'; 
     let isGameRunning = false;
     let gameDuration = 300;
     let timeRemaining = 300;
@@ -27,9 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const players = {}; 
     const playerSlots = [null, null, null, null, null]; 
     let entryCount = 0; 
-    let streamerIdentifier = null; // 配信者のIDまたはハンドル名を保存
+    let streamerIdentifier = null;
 
     // --- API用 ---
+    let platform = 'youtube'; // ★追加
+    let TWITCH_CHANNEL_ID = ""; // ★追加
     let YOUTUBE_API_KEY = "", TARGET_VIDEO_ID = "", liveChatId = null, nextPageToken = null;
     let intervals = [];
 
@@ -75,6 +80,18 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('mode-demo').addEventListener('click', () => setMode('demo'));
         document.getElementById('mode-stream').addEventListener('click', () => setMode('stream'));
         
+        // ★プラットフォーム選択
+        const platformGroup = document.getElementById('platform-group');
+        if(platformGroup) {
+            platformGroup.addEventListener('click', (e) => {
+                if(e.target.tagName === 'BUTTON') {
+                    platformGroup.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    platform = e.target.dataset.val;
+                }
+            });
+        }
+        
         document.getElementById('player-2').addEventListener('click', () => setPlayerCount(2));
         document.getElementById('player-4').addEventListener('click', () => setPlayerCount(4));
 
@@ -99,8 +116,19 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('setup-modal').classList.remove('hidden');
             intervals.forEach(clearInterval);
             intervals = [];
+            // ★戻る時にTwitch切断
+            if(platform === 'twitch') twitch.disconnectTwitch();
         });
         document.getElementById('start-game-btn').addEventListener('click', startGame);
+
+        // リロードボタン（結果画面）
+        const reloadBtn = document.getElementById('reload-btn');
+        if(reloadBtn) {
+            reloadBtn.addEventListener('click', () => {
+                if(platform === 'twitch') twitch.disconnectTwitch();
+                location.reload();
+            });
+        }
 
         canvas.addEventListener('mousedown', onCanvasClick);
         canvas.addEventListener('contextmenu', e => { e.preventDefault(); onCanvasClick(e); });
@@ -136,9 +164,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('mode-desc').textContent = mode === 'demo' ? "AI同士が戦う様子を観戦します。" : "YouTubeのコメントで視聴者が参加します。";
 
         const streamerIdSetting = document.getElementById('streamer-id-setting');
-        if (streamerIdSetting) {
-            streamerIdSetting.style.display = (mode === 'stream') ? 'block' : 'none';
-        }
+        const platformSetting = document.getElementById('platform-setting'); // ★
+        
+        if (streamerIdSetting) streamerIdSetting.style.display = (mode === 'stream') ? 'block' : 'none';
+        if (platformSetting) platformSetting.style.display = (mode === 'stream') ? 'block' : 'none';
     }
 
     function setPlayerCount(n) {
@@ -153,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(`time-${sec}`).classList.add('selected');
     }
 
-    function onNextStep() {
+    async function onNextStep() {
         if (gameMode === 'stream') {
             const streamerIdInput = document.getElementById('streamer-id-input');
             let input = streamerIdInput ? streamerIdInput.value.trim() : null;
@@ -165,20 +194,37 @@ document.addEventListener('DOMContentLoaded', () => {
             streamerIdentifier = null;
         }
 
-        document.getElementById('setup-modal').classList.add('hidden');
         if (gameMode === 'demo') {
+            document.getElementById('setup-modal').classList.add('hidden');
             startGame();
         } else {
-            document.getElementById('entry-modal').classList.remove('hidden');
-            initEntryScreen();
-            YOUTUBE_API_KEY = sessionStorage.getItem('youtube_api_key');
-            TARGET_VIDEO_ID = sessionStorage.getItem('youtube_target_video_id');
-            if (!YOUTUBE_API_KEY || !TARGET_VIDEO_ID) {
-                alert("配信設定がありません。");
-                location.reload();
-                return;
+            // ★配信接続チェック
+            if (platform === 'youtube') {
+                YOUTUBE_API_KEY = sessionStorage.getItem('youtube_api_key');
+                TARGET_VIDEO_ID = sessionStorage.getItem('youtube_target_video_id');
+                if (!YOUTUBE_API_KEY || !TARGET_VIDEO_ID) {
+                    alert("配信設定がありません。");
+                    return;
+                }
+                document.getElementById('setup-modal').classList.add('hidden');
+                document.getElementById('entry-modal').classList.remove('hidden');
+                initEntryScreen();
+                startYouTubeConnection();
+
+            } else if (platform === 'twitch') {
+                TWITCH_CHANNEL_ID = sessionStorage.getItem('twitch_channel_id');
+                if (!TWITCH_CHANNEL_ID) {
+                    alert('Twitchチャンネル名が設定されていません。'); return;
+                }
+                try {
+                    await twitch.connectTwitch(TWITCH_CHANNEL_ID, handleTwitchMessage);
+                    document.getElementById('setup-modal').classList.add('hidden');
+                    document.getElementById('entry-modal').classList.remove('hidden');
+                    initEntryScreen();
+                } catch(e) {
+                    alert('Twitchへの接続に失敗しました: ' + e);
+                }
             }
-            startYouTubeConnection();
         }
     }
 
@@ -338,6 +384,9 @@ document.addEventListener('DOMContentLoaded', () => {
         intervals.forEach(clearInterval);
         playSe('finish');
         
+        // ★終了時に切断
+        if(platform === 'twitch') twitch.disconnectTwitch();
+        
         const scores = [];
         for(let i=1; i<=maxPlayers; i++) {
             scores.push({ id: i, score: parseInt(document.getElementById(`score-${i}`).textContent), name: document.getElementById(`name-${i}`).textContent });
@@ -371,9 +420,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('result-modal').classList.remove('hidden');
     }
 
+    // ★共通処理：コメント解析とゲーム反映
     function processComment(msg, authorName, authorId) {
         if (!authorId) authorId = authorName;
 
+        // 配信者自動参加ロジック
         if (streamerIdentifier && players['STREAMER_PLACEHOLDER']) {
             const isStreamerById = authorId === streamerIdentifier;
             const isStreamerByName = authorName.toLowerCase() === streamerIdentifier.toLowerCase();
@@ -396,6 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateHeaderNames();
         }
 
+        // 参加コマンド
         if (msg.includes('参加') || msg.includes('join') || msg.includes('ノ')) {
             if (players[authorId]) return; 
             const entryModal = document.getElementById('entry-modal');
@@ -421,6 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // ゲーム中の操作
         if (!isGameRunning) return;
         const playerNum = players[authorId];
         if (!playerNum) return; 
@@ -439,6 +492,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 playSe('paint');
             }
         }
+    }
+
+    // ★Twitch用メッセージハンドラ
+    function handleTwitchMessage(message, authorName) {
+        // authorIdとしてもauthorNameを使用（Twitchは名前がユニーク）
+        processComment(message, authorName, authorName);
     }
 
     function tryPaint(x, y, teamId) {
