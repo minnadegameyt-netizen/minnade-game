@@ -174,11 +174,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (platform === 'youtube') {
                     const connected = await fetchLiveChatId();
                     if (!connected) {
-                        throw new Error("YouTube接続エラー");
+                        // fetchLiveChatId内でalertが出るので、ここではErrorを投げるだけでOK
+                        throw new Error("YouTube接続に失敗しました。");
                     }
                 } else if (platform === 'twitch') {
-                    // Twitch接続開始（共通のコメント処理関数を渡す）
-                    twitch.connectTwitch(TWITCH_CHANNEL_ID, handleCommentFromStream);
+                    // ★修正点: awaitを使ってTwitchへの接続完了を待つ
+                    try {
+                        console.log(`[Twitch] チャンネル "${TWITCH_CHANNEL_ID}" に接続を試みます...`);
+                        await twitch.connectTwitch(TWITCH_CHANNEL_ID, handleCommentFromStream);
+                        // 接続成功のメッセージはtwitch.js側に任せる
+                    } catch (err) {
+                        // 接続失敗時の処理
+                        console.error(err);
+                        alert(`Twitchへの接続に失敗しました。\nエラー: ${err.message}\nチャンネル名が正しいか確認してください。`);
+                        throw new Error("Twitch接続に失敗しました。"); // ここで処理を中断させる
+                    }
                 }
             }
 
@@ -187,10 +197,10 @@ document.addEventListener('DOMContentLoaded', () => {
             readyScreen.classList.remove('hidden');
         } catch (e) {
             console.error(e);
-            loadingOverlay.classList.add('hidden');
-            document.getElementById('setup-done-btn').disabled = false;
-            // alert表示はfetchLiveChatId内などで出しているのでここでは省略可
+            // エラーが発生した場合、ここに到達する
+            // loadingOverlayを非表示にし、ボタンを再度有効化
         } finally {
+            // tryブロックが成功しようが失敗しようが、最終的に必ず実行される
             loadingOverlay.classList.add('hidden');
             document.getElementById('setup-done-btn').disabled = false;
         }
@@ -440,7 +450,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ★共通: ストリームからのコメント処理 ---
     function handleCommentFromStream(message, authorName) {
-        console.log(`[Twitch受信] ${authorName}: ${message}`);
         // 投票期間中でなければ無視
         if (!gameState.isVoting) return;
 
@@ -659,15 +668,19 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch(url);
             const data = await res.json();
-            if (data.items && data.items.length > 0) {
+            if (data.items && data.items.length > 0 && data.items[0].liveStreamingDetails) {
                 liveChatId = data.items[0].liveStreamingDetails.activeLiveChatId;
+                if (!liveChatId) {
+                    alert("ライブ配信中ですが、チャットIDが取得できませんでした。配信が公開状態になっているか確認してください。");
+                    return false;
+                }
                 return true;
             } else {
-                alert("指定された動画はライブ配信ではないか、見つかりません。");
+                alert("指定された動画はライブ配信ではないか、見つかりません。Video IDと配信の状態を確認してください。");
                 return false;
             }
         } catch (e) {
-            alert("YouTube APIエラー: " + e.message);
+            alert("YouTube APIへの接続でエラーが発生しました。APIキーが正しいか、有効期限が切れていないか確認してください。");
             return false;
         }
     }
