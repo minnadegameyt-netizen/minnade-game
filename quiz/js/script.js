@@ -1,5 +1,5 @@
 // ★共通ライブラリをインポート（階層に合わせてパスを調整しています）
-import * as twitch from '../../twitch.js';
+import * as twitch from '../twitch.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 設定変数 ---
