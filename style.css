@@ -1153,3 +1153,99 @@ body {
     box-shadow: 0 0 10px rgba(236, 201, 75, 0.5);
     transform: scale(1.1);
 }
+
+/* --- 更新通知スライダー --- */
+.update-slider {
+    position: fixed;
+    bottom: 20px;
+    right: -400px; /* 最初は画面外（右）に隠す */
+    display: flex;
+    align-items: flex-end;
+    z-index: 9999;
+    transition: right 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); /* 勢いよく出るアニメーション */
+    pointer-events: none; /* 表示前はクリックを邪魔しない */
+}
+
+/* 表示状態 */
+.update-slider.active {
+    right: 20px; /* 画面内に出現 */
+    pointer-events: auto;
+}
+
+/* キャラクター画像 */
+.slider-chara {
+    width: 150px; /* サイズは画像に合わせて調整 */
+    height: auto;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
+    margin-left: -20px; /* 吹き出しと少し重ねる */
+    z-index: 2;
+}
+
+/* 吹き出し */
+.slider-bubble {
+    background-color: #fff;
+    color: #333;
+    padding: 15px 20px;
+    border-radius: 20px;
+    border-bottom-right-radius: 0; /* 吹き出しのしっぽ用 */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+    max-width: 220px;
+    text-align: center;
+    margin-bottom: 40px; /* キャラの顔の高さに合わせる調整 */
+    border: 3px solid #ecc94b; /* サイトのテーマカラー枠 */
+    z-index: 1;
+}
+
+/* 吹き出しのタイトル */
+.slider-title {
+    font-family: 'Orbitron', sans-serif;
+    color: #e53e3e;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin: 0 0 5px 0;
+    border-bottom: 2px dashed #ddd;
+}
+
+/* テキスト */
+.slider-text {
+    font-size: 0.9em;
+    line-height: 1.5;
+    margin: 0 0 10px 0;
+    font-weight: bold;
+}
+
+/* ロゴアイコンエリア */
+.slider-logos {
+    font-size: 1.8em; /* アイコンの大きさ */
+    background: #f7f9fa;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+/* 閉じるボタン */
+.slider-close {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background: #718096;
+    color: #fff;
+    border: 2px solid #fff;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    line-height: 1;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.slider-close:hover {
+    background: #e53e3e;
+}
+
+/* スマホでは少し小さく */
+@media (max-width: 600px) {
+    .slider-chara { width: 100px; }
+    .slider-bubble { font-size: 0.9em; padding: 10px; margin-bottom: 20px; }
+}

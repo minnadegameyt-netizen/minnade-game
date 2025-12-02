@@ -1398,5 +1398,57 @@
         });
     </script>
 
+<!-- ▼▼▼ Font Awesome (ロゴアイコン用) ▼▼▼ -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- ▼▼▼ 更新通知スライダー ▼▼▼ -->
+    <div id="update-slider" class="update-slider">
+        <!-- 閉じるボタン -->
+        <button id="close-slider-btn" class="slider-close">×</button>
+        
+        <!-- 吹き出しメッセージ -->
+        <div class="slider-bubble">
+            <p class="slider-title">NEWS!</p>
+            <p class="slider-text">
+                <strong>Twitch</strong> 連携に対応しました！<br>
+                YouTubeと両方遊べるよ！
+            </p>
+            <div class="slider-logos">
+                <!-- YouTubeロゴ (赤) -->
+                <i class="fa-brands fa-youtube" style="color: #ff0000;"></i>
+                <span style="margin: 0 5px; color:#aaa;">&</span>
+                <!-- Twitchロゴ (紫) -->
+                <i class="fa-brands fa-twitch" style="color: #9146ff;"></i>
+            </div>
+        </div>
+
+        <!-- キャラクター画像 (★ここを作成した画像に書き換える★) -->
+        <img src="img/update_chara.webp" alt="案内キャラ" class="slider-chara">
+    </div>
+
+    <script src="script.js"></script> <!-- 既存のスクリプト読み込み -->
+    
+    <!-- ▼▼▼ スライダー用スクリプト ▼▼▼ -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slider = document.getElementById('update-slider');
+            const closeBtn = document.getElementById('close-slider-btn');
+
+            // セッション内で「閉じる」を押していなければ表示
+            if (!sessionStorage.getItem('update_closed')) {
+                // 1.5秒後に表示クラスをつける
+                setTimeout(() => {
+                    slider.classList.add('active');
+                }, 1500);
+            }
+
+            // 閉じるボタンの処理
+            closeBtn.addEventListener('click', () => {
+                slider.classList.remove('active');
+                // 今回の訪問ではもう表示しないようにする
+                sessionStorage.setItem('update_closed', 'true');
+            });
+        });
+    </script>
 </body>
 </html>
