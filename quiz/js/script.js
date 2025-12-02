@@ -1,3 +1,6 @@
+// ★共通ライブラリをインポート（階層に合わせてパスを調整しています）
+import * as twitch from '../../twitch.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- 設定変数 ---
     let gameMode = 'solo';
@@ -72,14 +75,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('back-to-setup-btn').addEventListener('click', () => {
             readyScreen.classList.add('hidden');
             setupModal.classList.remove('hidden');
-            if (platform === 'twitch') disconnectTwitch();
+            // ★修正: twitchモジュールの切断関数を使用
+            if (platform === 'twitch') twitch.disconnectTwitch();
         });
         
-        // 結果画面のボタンの onclick 属性はHTML側で直接書くのではなく、こちらで設定
         const resultButton = resultModal.querySelector('button');
         if(resultButton) {
             resultButton.addEventListener('click', () => {
-                if (platform === 'twitch') disconnectTwitch();
+                // ★修正: twitchモジュールの切断関数を使用
+                if (platform === 'twitch') twitch.disconnectTwitch();
                 location.reload();
             });
         }
@@ -113,7 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert("Twitchチャンネル名が設定されていません。"); return;
                 }
                 try {
-                    await connectTwitch(TWITCH_CHANNEL_ID);
+                    // ★修正: twitchモジュールの接続関数を使用し、コールバックを渡す
+                    await twitch.connectTwitch(TWITCH_CHANNEL_ID, handleCommentFromStream);
                 } catch(e) {
                     alert('Twitchへの接続に失敗しました: ' + e); return;
                 }
@@ -125,8 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
         readyScreen.classList.remove('hidden');
     }
 
-    // (ここから下のゲームロジック関数は変更なし)
-    // prepareQuestions, startCountDown, startGame, ...
     function prepareQuestions() {
         // @ts-ignore
         let filtered = QUIZ_DATA.filter(q => q.diff === difficulty);
@@ -206,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 nextPageToken = null;
                 startYouTubePolling();
             }
+            // Twitchは常時接続なのでポーリング開始は不要
         } else {
             votingStatus.classList.add('hidden');
         }
@@ -266,6 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('result-title').textContent = "GAME OVER";
         document.getElementById('result-title').style.color = "#e74c3c";
         document.getElementById('result-msg').textContent = `${currentQIndex + 1}問目でリタイア...\n正解数: ${currentQIndex}`;
+        
+        if (platform === 'twitch') twitch.disconnectTwitch();
     }
     function gameClear() {
         playSe('clear');
@@ -273,6 +279,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('result-title').textContent = "CONGRATULATIONS!!";
         document.getElementById('result-title').style.color = "#f1c40f";
         document.getElementById('result-msg').textContent = `全${questionCountGoal}問クリア！\n素晴らしい知識です！`;
+        
+        if (platform === 'twitch') twitch.disconnectTwitch();
     }
     async function fetchLiveChatId() {
         const url = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${TARGET_VIDEO_ID}&key=${YOUTUBE_API_KEY}`;
@@ -319,50 +327,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
 
-    // --- Twitch連携 (ここからが修正・追加箇所) ---
-    let twitchClient = null;
-
-    function connectTwitch(channelName) {
-        return new Promise((resolve, reject) => {
-            // ★★★★★ 重要なチェック ★★★★★
-            // tmiオブジェクトがwindowに存在するか確認
-            // @ts-ignore
-            if (typeof tmi === 'undefined') {
-                // エラーメッセージを具体的にしてreject
-                return reject("TMI.jsライブラリが読み込まれていません。");
-            }
-
-            // @ts-ignore
-            twitchClient = new tmi.Client({ channels: [channelName] });
-            
-            twitchClient.on('connected', () => {
-                console.log('Twitchに接続しました。');
-                resolve(true);
-            });
-
-            twitchClient.on('message', (channel, tags, message, self) => {
-                if (isVoting) {
-                    handleCommentFromStream(message);
-                }
-            });
-
-            twitchClient.connect().catch(e => {
-                console.error('Twitch接続エラー:', e);
-                reject(e);
-            });
-        });
-    }
-
-    function disconnectTwitch() {
-        if (twitchClient) {
-            twitchClient.disconnect();
-            twitchClient = null;
-            console.log('Twitchから切断しました。');
-        }
-    }
     
-    // 共通のコメント処理関数
+    // --- ★修正: 共通のコメント処理関数のみ残しました ---
     function handleCommentFromStream(msg) {
+        if (!isVoting) return;
+
         if (msg.match(/[1１]/)) vote(0);
         else if (msg.match(/[2２]/)) vote(1);
         else if (msg.match(/[3３]/)) vote(2);
