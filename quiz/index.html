@@ -42,7 +42,7 @@
     <div id="setup-modal" class="modal-overlay">
         <div class="modal-content">
             <h2>GAME SETTINGS</h2>
-
+            
             <!-- ▼▼▼ 修正点: プラットフォーム選択を追加 ▼▼▼ -->
             <div class="setup-group">
                 <label>配信プラットフォーム</label>
@@ -51,7 +51,7 @@
                     <button class="setup-btn" data-val="twitch" style="color:#a970ff;">Twitch</button>
                 </div>
             </div>
-            
+
             <div class="setup-group">
                 <label>難易度</label>
                 <div class="btn-group" id="diff-select">
@@ -154,10 +154,10 @@
             <button id="reload-btn" class="action-btn primary">タイトルに戻る</button>
         </div>
     </div>
-    
+
     <script src="js/quiz-data.js"></script>
     
-    <!-- ▼▼▼ 修正点: tmi.jsライブラリを読み込む ▼▼▼ -->
+    <!-- ▼▼▼ 修正点: tmi.jsライブラリを、あなたのscript.jsより「前」に読み込む ▼▼▼ -->
     <script src="https://cdn.jsdelivr.net/npm/tmi.js@1.8.5/dist/tmi.min.js"></script>
 
     <script src="js/script.js"></script>
