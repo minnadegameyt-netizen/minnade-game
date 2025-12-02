@@ -351,6 +351,15 @@
                     ※URLを入力した場合、自動でID部分を抽出します。
                 </p>
             </div>
+
+            <div class="input-group" style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #4a5568;">
+                <label style="color: #c3a6ff;">Twitch Channel Name (Twitchで配信する場合)</label>
+                <input type="text" id="global-twitch-id" placeholder="例: your_channel_name" autocomplete="off" style="border-color: #7f5ad5;">
+                <p style="font-size: 0.8em; color: #a0aec0; margin-top: 5px;">
+                    ※Twitchで配信する場合は、こちらにあなたのチャンネル名を入力してください。
+                </p>
+            </div>
+
             <div style="text-align: left; margin-top: 15px;">
                 <button id="toggle-help-btn" class="btn-gray" style="width: 100%; font-size: 0.9em; padding: 8px;">
                     💡 キーの取得方法を見る
@@ -1026,44 +1035,68 @@
             const apiCloseBtn = document.getElementById('close-api-btn');
             const apiInput = document.getElementById('global-api-key');
             const videoInput = document.getElementById('global-video-id');
-            apiOpenBtn.addEventListener('click', (e) => { e.preventDefault(); const k = sessionStorage.getItem('youtube_api_key'); const v = sessionStorage.getItem('youtube_target_video_id'); if (k) apiInput.value = k; if (v) videoInput.value = v; apiModal.style.display = 'flex'; });
-// 変更後のコード（コピペ用）
-apiSaveBtn.addEventListener('click', () => { 
-    const k = apiInput.value.trim(); 
-    let v = videoInput.value.trim();
+            // 「配信者用設定」ボタンが押されたときの処理
+            apiOpenBtn.addEventListener('click', (e) => { 
+                e.preventDefault(); 
+                // sessionStorageから保存済みの値を取得
+                const k = sessionStorage.getItem('youtube_api_key'); 
+                const v = sessionStorage.getItem('youtube_target_video_id'); 
+                const t = sessionStorage.getItem('twitch_channel_id'); // ★Twitchチャンネル名を取得
 
-    // ▼▼▼ URL自動変換ロジック（強化版） ▼▼▼
-    try {
-        // URL形式なら自動解析
-        if (v.startsWith('http')) {
-            const url = new URL(v);
-            if (url.searchParams.has('v')) {
-                // youtube.com/watch?v=XXX のパターン
-                v = url.searchParams.get('v');
-            } else if (url.pathname.includes('/live/')) {
-                // youtube.com/live/XXX のパターン（← これが今回の原因）
-                v = url.pathname.split('/live/')[1];
-            } else if (url.hostname === 'youtu.be') {
-                // youtu.be/XXX のパターン
-                v = url.pathname.slice(1);
-            }
-        }
-        // URLパラメータ(?si=...)などが残っていたら削除
-        v = v.split('?')[0];
-    } catch (e) {
-        console.log("URL解析エラー: そのままIDとして扱います");
-    }
-    // ▲▲▲▲▲▲
+                // 各入力欄に値を設定
+                apiInput.value = k || '';
+                videoInput.value = v || '';
+                const twitchInput = document.getElementById('global-twitch-id');
+                if(twitchInput) twitchInput.value = t || ''; // ★Twitch入力欄に値を設定
+                
+                apiModal.style.display = 'flex'; 
+            });
 
-    if (k && v) { 
-        sessionStorage.setItem('youtube_api_key', k); 
-        sessionStorage.setItem('youtube_target_video_id', v); 
-        alert('設定を保存しました。\nID: ' + v); // IDを確認できるように表示
-        apiModal.style.display = 'none'; 
-    } else { 
-        alert('APIキーとVideo IDを入力してください。'); 
-    }
-});
+            // 「設定を保存」ボタンが押されたときの処理
+            apiSaveBtn.addEventListener('click', () => { 
+                const k = apiInput.value.trim(); 
+                let v = videoInput.value.trim();
+                const twitchInput = document.getElementById('global-twitch-id');
+                const t = twitchInput ? twitchInput.value.trim() : ''; // ★Twitchチャンネル名を取得
+
+                // YouTubeのURL自動変換ロジック (既存のまま)
+                try {
+                    if (v.startsWith('http')) {
+                        const url = new URL(v);
+                        if (url.searchParams.has('v')) { v = url.searchParams.get('v'); }
+                        else if (url.pathname.includes('/live/')) { v = url.pathname.split('/live/')[1]; }
+                        else if (url.hostname === 'youtu.be') { v = url.pathname.slice(1); }
+                    }
+                    v = v.split('?')[0];
+                } catch (e) {
+                    console.log("URL解析エラー: そのままIDとして扱います");
+                }
+
+                let savedItems = [];
+
+                // YouTube設定を保存 (APIキーとVideo IDが両方ある場合)
+                if (k && v) { 
+                    sessionStorage.setItem('youtube_api_key', k); 
+                    sessionStorage.setItem('youtube_target_video_id', v); 
+                    savedItems.push('YouTube設定');
+                }
+
+                // ★Twitch設定を保存 (チャンネル名が入力されている場合)
+                if (t) {
+                    // tmi.jsは小文字を推奨するため、小文字に変換して保存
+                    sessionStorage.setItem('twitch_channel_id', t.toLowerCase()); 
+                    savedItems.push('Twitch設定');
+                }
+
+                // 保存結果をアラートで通知
+                if (savedItems.length > 0) {
+                    alert(savedItems.join(' と ') + 'を保存しました。');
+                    apiModal.style.display = 'none'; 
+                } else { 
+                    alert('保存する設定（YouTubeまたはTwitch）を正しく入力してください。'); 
+                }
+            });
+
             apiCloseBtn.addEventListener('click', () => { apiModal.style.display = 'none'; });
             apiModal.addEventListener('click', (e) => { if (e.target === apiModal) apiModal.style.display = 'none'; });
 

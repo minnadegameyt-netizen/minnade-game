@@ -89,9 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 初期化 ---
     function init() {
-
-
-    gameMode = 'solo'; 
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('mode')) gameMode = urlParams.get('mode');
 
         setupSettings();
         
@@ -441,6 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ★共通: ストリームからのコメント処理 ---
     function handleCommentFromStream(message, authorName) {
+        console.log(`[Twitch受信] ${authorName}: ${message}`);
         // 投票期間中でなければ無視
         if (!gameState.isVoting) return;
 
