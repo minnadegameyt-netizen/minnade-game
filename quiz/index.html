@@ -42,6 +42,15 @@
     <div id="setup-modal" class="modal-overlay">
         <div class="modal-content">
             <h2>GAME SETTINGS</h2>
+
+            <!-- ▼▼▼ 修正点: プラットフォーム選択を追加 ▼▼▼ -->
+            <div class="setup-group">
+                <label>配信プラットフォーム</label>
+                <div class="btn-group" id="platform-select">
+                    <button class="setup-btn selected" data-val="youtube">YouTube</button>
+                    <button class="setup-btn" data-val="twitch" style="color:#a970ff;">Twitch</button>
+                </div>
+            </div>
             
             <div class="setup-group">
                 <label>難易度</label>
@@ -142,14 +151,15 @@
         <div class="modal-content">
             <h2 id="result-title">GAME OVER</h2>
             <p id="result-msg">残念...</p>
-            <button onclick="location.reload()" class="action-btn primary">タイトルに戻る</button>
+            <button id="reload-btn" class="action-btn primary">タイトルに戻る</button>
         </div>
     </div>
-
-    <!-- SE読み込み (warと同じファイルがあれば流用、なければ適当な音源で) -->
-    <!-- 今回は音源ファイルがない前提で、script.js内のAudio生成はコメントアウトまたは空実装にしておきます -->
-
+    
     <script src="js/quiz-data.js"></script>
+    
+    <!-- ▼▼▼ 修正点: tmi.jsライブラリを読み込む ▼▼▼ -->
+    <script src="https://cdn.jsdelivr.net/npm/tmi.js@1.8.5/dist/tmi.min.js"></script>
+
     <script src="js/script.js"></script>
 </body>
 </html>

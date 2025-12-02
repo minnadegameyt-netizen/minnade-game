@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- 設定変数 ---
     let gameMode = 'solo';
+    let platform = 'youtube'; // ★追加: 'youtube' or 'twitch'
+    let TWITCH_CHANNEL_ID = ""; // ★追加
     let questionCountGoal = 10;
     let voteTimeLimit = 30;
     let difficulty = 2; // 1~4
@@ -14,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let voteCounts = [0, 0, 0, 0];
     let timerInterval = null;
     let youtubeInterval = null;
-    let questionStartTime = null; // ★変更点: 投票受付開始時刻を記録する変数を追加
+    let questionStartTime = null;
 
     // --- YouTube API用 ---
     let YOUTUBE_API_KEY = "";
@@ -41,9 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const votingStatus = document.getElementById('voting-status');
     const voteCountDisplay = document.getElementById('vote-count');
     const lifeDisplay = document.getElementById('life-display');
+    const reloadBtn = document.getElementById('reload-btn');
 
     // --- SE読み込み ---
-    // index.html から見たパス (quizフォルダ内にあるため、bgmフォルダは同じ階層)
     const sfx = {
         correct: new Audio('bgm/quiz_correct.mp3'),
         wrong: new Audio('bgm/quiz_incorrect.mp3'),
@@ -74,13 +76,33 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // ★追加: プラットフォーム選択のイベントリスナー
+        const platformSelect = document.getElementById('platform-select');
+        if (platformSelect) {
+            platformSelect.addEventListener('click', e => {
+                if (e.target.tagName === 'BUTTON') {
+                    platform = e.target.dataset.val;
+                }
+            });
+        }
+
         document.getElementById('setup-done-btn').addEventListener('click', onSetupDone);
         document.getElementById('game-start-btn').addEventListener('click', startCountDown);
         document.getElementById('back-btn').addEventListener('click', () => window.location.href = "../index.html");
+        
+        // ★修正: 戻るボタンにTwitch切断処理を追加
         document.getElementById('back-to-setup-btn').addEventListener('click', () => {
             readyScreen.classList.add('hidden');
             setupModal.classList.remove('hidden');
+            if (platform === 'twitch') disconnectTwitch();
         });
+        
+        // ★修正: 結果画面のボタンにTwitch切断処理を追加
+        reloadBtn.addEventListener('click', () => {
+            if (platform === 'twitch') disconnectTwitch();
+            location.reload();
+        });
+
 
         optionBtns.forEach((btn, index) => {
             btn.addEventListener('click', () => {
@@ -91,37 +113,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 設定完了 -> 待機画面へ ---
     async function onSetupDone() {
-        // 設定値取得
         difficulty = parseInt(document.querySelector('#diff-select .selected').dataset.val);
         maxLife = parseInt(document.querySelector('#life-select .selected').dataset.val);
         questionCountGoal = parseInt(document.querySelector('#goal-select .selected').dataset.val);
         voteTimeLimit = parseInt(document.querySelector('#time-select .selected').dataset.val);
 
-        // 配信設定チェック
         if (gameMode === 'streamer') {
-            YOUTUBE_API_KEY = sessionStorage.getItem('youtube_api_key');
-            TARGET_VIDEO_ID = sessionStorage.getItem('youtube_target_video_id');
-            if (!YOUTUBE_API_KEY || !TARGET_VIDEO_ID) {
-                alert("配信設定がありません。トップページから設定してください。");
-                return;
+            if (platform === 'youtube') {
+                YOUTUBE_API_KEY = sessionStorage.getItem('youtube_api_key');
+                TARGET_VIDEO_ID = sessionStorage.getItem('youtube_target_video_id');
+                if (!YOUTUBE_API_KEY || !TARGET_VIDEO_ID) {
+                    alert("YouTube配信設定が見つかりません。トップページから設定してください。");
+                    return;
+                }
+                const connected = await fetchLiveChatId();
+                if (!connected) return;
+            } else if (platform === 'twitch') {
+                TWITCH_CHANNEL_ID = sessionStorage.getItem('twitch_channel_id');
+                if (!TWITCH_CHANNEL_ID) {
+                    alert("Twitchチャンネル名が設定されていません。トップページから設定してください。");
+                    return;
+                }
+                try {
+                    await connectTwitch(TWITCH_CHANNEL_ID);
+                } catch(e) {
+                    alert('Twitchへの接続に失敗しました: ' + e);
+                    return;
+                }
             }
-            const connected = await fetchLiveChatId();
-            if (!connected) return;
         }
 
-        // 問題データ準備
         prepareQuestions();
-
         setupModal.classList.add('hidden');
         readyScreen.classList.remove('hidden');
     }
 
-    // --- 問題データの準備 ---
     function prepareQuestions() {
         let filtered = QUIZ_DATA.filter(q => q.diff === difficulty);
-        if (filtered.length < questionCountGoal) {
-            filtered = [...QUIZ_DATA]; // データ不足時は全データから
-        }
+        if (filtered.length < questionCountGoal) filtered = [...QUIZ_DATA];
         shuffleArray(filtered);
         currentQuestions = [];
         while (currentQuestions.length < questionCountGoal) {
@@ -130,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
         currentQuestions = currentQuestions.slice(0, questionCountGoal);
     }
 
-    // --- カウントダウン演出 ---
     function startCountDown() {
         readyScreen.classList.add('hidden');
         countdownOverlay.classList.remove('hidden');
@@ -138,30 +166,23 @@ document.addEventListener('DOMContentLoaded', () => {
         let count = 3;
         const textEl = document.getElementById('countdown-text');
         
-        // 最初の表示
-        textEl.textContent = count;
-        playSe('count');
-        
-        // アニメーション適用
-        textEl.classList.remove('anim');
-        void textEl.offsetWidth; // リフロー発生
-        textEl.classList.add('anim');
+        const showCount = () => {
+            textEl.textContent = count;
+            playSe('count');
+            textEl.classList.remove('anim');
+            void textEl.offsetWidth;
+            textEl.classList.add('anim');
+        };
 
+        showCount();
         const countInterval = setInterval(() => {
             count--;
             if (count > 0) {
-                textEl.textContent = count;
-                playSe('count');
-                
-                // アニメーション再始動
-                textEl.classList.remove('anim');
-                void textEl.offsetWidth;
-                textEl.classList.add('anim');
+                showCount();
             } else {
                 clearInterval(countInterval);
                 textEl.textContent = "START!";
                 playSe('start');
-                
                 setTimeout(() => {
                     countdownOverlay.classList.add('hidden');
                     startGame();
@@ -170,40 +191,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    // --- ゲーム開始 ---
     function startGame() {
         gameContainer.classList.remove('hidden');
         currentLife = maxLife;
         updateLifeDisplay();
         document.getElementById('total-q-num').textContent = questionCountGoal;
-        
         currentQIndex = 0;
         nextQuestion();
     }
 
     function updateLifeDisplay() {
-        let lifeStr = "";
-        for(let i=0; i<currentLife; i++) lifeStr += "❤️";
-        lifeDisplay.textContent = lifeStr;
+        lifeDisplay.textContent = "❤️".repeat(currentLife);
     }
 
-    // --- 次の問題へ ---
     function nextQuestion() {
         if (currentQIndex >= questionCountGoal) {
             gameClear();
             return;
         }
-
         resetUI();
         document.getElementById('current-q-num').textContent = currentQIndex + 1;
-
         const qData = currentQuestions[currentQIndex];
         questionText.textContent = qData.q;
-
         optionBtns.forEach((btn, i) => {
             btn.querySelector('.opt-text').textContent = qData.a[i];
         });
-
         startVotingPhase();
     }
 
@@ -220,12 +232,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function startVotingPhase() {
         isVoting = true;
         let timeLeft = voteTimeLimit;
-        questionStartTime = new Date(); // ★変更点: 投票受付開始時刻を記録
+        questionStartTime = new Date();
         
         if (gameMode === 'streamer') {
             votingStatus.classList.remove('hidden');
-            nextPageToken = null; // ポーリング履歴をリセット
-            startYouTubePolling();
+            if (platform === 'youtube') {
+                nextPageToken = null;
+                startYouTubePolling();
+            }
         } else {
             votingStatus.classList.add('hidden');
         }
@@ -233,14 +247,12 @@ document.addEventListener('DOMContentLoaded', () => {
         timerInterval = setInterval(() => {
             timeLeft--;
             timerDisplay.textContent = timeLeft;
-
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 if (gameMode === 'streamer') {
-                    stopYouTubePolling();
+                    if (platform === 'youtube') stopYouTubePolling();
                     decideStreamerAnswer();
                 } else {
-                    // ソロの場合、時間切れはミス扱い
                     handleIncorrect();
                 }
             }
@@ -251,16 +263,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isVoting) return;
         isVoting = false;
         clearInterval(timerInterval);
-        if (gameMode === 'streamer') stopYouTubePolling();
+        if (gameMode === 'streamer' && platform === 'youtube') stopYouTubePolling();
 
         const qData = currentQuestions[currentQIndex];
         const correctIndex = qData.correct;
-
         optionBtns[selectedIndex].classList.add('selected');
 
         setTimeout(() => {
             if (selectedIndex === correctIndex) {
-                // 正解
                 playSe('correct');
                 optionBtns[selectedIndex].classList.remove('selected');
                 optionBtns[selectedIndex].classList.add('correct');
@@ -269,14 +279,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     nextQuestion();
                 }, 2000);
             } else {
-                // 不正解
                 playSe('wrong');
                 optionBtns[selectedIndex].classList.remove('selected');
                 optionBtns[selectedIndex].classList.add('wrong');
                 optionBtns[correctIndex].classList.add('correct');
-                setTimeout(() => {
-                    handleIncorrect();
-                }, 2000);
+                setTimeout(() => handleIncorrect(), 2000);
             }
         }, 1500);
     }
@@ -293,18 +300,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function decideStreamerAnswer() {
-        let maxVotes = -1;
-        let maxIndex = -1;
-        for (let i = 0; i < 4; i++) {
-            if (voteCounts[i] > maxVotes) {
-                maxVotes = voteCounts[i];
-                maxIndex = i;
-            }
-        }
+        const maxVotes = Math.max(...voteCounts);
         if (maxVotes === 0) {
             handleIncorrect();
             return;
         }
+        const maxIndex = voteCounts.indexOf(maxVotes);
         submitAnswer(maxIndex);
     }
 
@@ -353,24 +354,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!liveChatId) return;
         let url = `https://www.googleapis.com/youtube/v3/liveChat/messages?liveChatId=${liveChatId}&part=snippet&key=${YOUTUBE_API_KEY}`;
         if (nextPageToken) url += `&pageToken=${nextPageToken}`;
-
         try {
             const res = await fetch(url);
             const data = await res.json();
             if (data.nextPageToken) nextPageToken = data.nextPageToken;
             if (data.items) {
                 data.items.forEach(item => {
-                    // ★変更点: この問題の投票受付開始時刻より後のコメントのみを対象とする
                     const messageTimestamp = new Date(item.snippet.publishedAt);
                     if (questionStartTime && messageTimestamp >= questionStartTime) {
-                        const msg = item.snippet.displayMessage;
-                        if (msg.match(/[1１]/)) vote(0);
-                        else if (msg.match(/[2２]/)) vote(1);
-                        else if (msg.match(/[3３]/)) vote(2);
-                        else if (msg.match(/[4４]/)) vote(3);
+                        handleCommentFromStream(item.snippet.displayMessage);
                     }
                 });
-                updateVoteBars();
             }
         } catch (e) {}
     }
@@ -381,9 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const total = voteCounts.reduce((a, b) => a + b, 0);
         document.getElementById('vote-count').textContent = total;
         optionBtns.forEach((btn, i) => {
-            const count = voteCounts[i];
-            let percentage = 0;
-            if (total > 0) percentage = (count / total) * 100;
+            const percentage = total > 0 ? (voteCounts[i] / total) * 100 : 0;
             btn.querySelector('.vote-bar').style.width = `${percentage}%`;
         });
     }
@@ -393,6 +385,51 @@ document.addEventListener('DOMContentLoaded', () => {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
         }
+    }
+
+    // --- ★追加: Twitch連携 ---
+    let twitchClient = null;
+    function connectTwitch(channelName) {
+        return new Promise((resolve, reject) => {
+            if (!window.tmi) {
+                return reject("TMI.jsライブラリが読み込まれていません。");
+            }
+            // @ts-ignore
+            twitchClient = new tmi.Client({ channels: [channelName] });
+            
+            twitchClient.on('connected', () => {
+                console.log('Twitchに接続しました。');
+                resolve(true);
+            });
+
+            twitchClient.on('message', (channel, tags, message, self) => {
+                if (isVoting) {
+                    handleCommentFromStream(message);
+                }
+            });
+
+            twitchClient.connect().catch(e => {
+                console.error('Twitch接続エラー:', e);
+                reject(e);
+            });
+        });
+    }
+
+    function disconnectTwitch() {
+        if (twitchClient) {
+            twitchClient.disconnect();
+            twitchClient = null;
+            console.log('Twitchから切断しました。');
+        }
+    }
+    
+    // --- ★追加: 共通コメント処理 ---
+    function handleCommentFromStream(msg) {
+        if (msg.match(/[1１]/)) vote(0);
+        else if (msg.match(/[2２]/)) vote(1);
+        else if (msg.match(/[3３]/)) vote(2);
+        else if (msg.match(/[4４]/)) vote(3);
+        updateVoteBars();
     }
 
     init();
