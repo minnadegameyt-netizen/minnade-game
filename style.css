@@ -848,7 +848,7 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
-    overflow: visible;
+    overflow: hidden;
     transition: all 0.3s;
     box-shadow: 0 4px 10px rgba(229, 62, 62, 0.2);
 }
