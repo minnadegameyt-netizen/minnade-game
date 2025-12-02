@@ -76,13 +76,9 @@ body {
 #home-page {
     flex: 1;
     display: flex;
-    
-    /* ▼▼▼ ここを修正・追加しました ▼▼▼ */
     flex-direction: column;  /* 横並びを「縦並び」に変更 */
     justify-content: flex-start; /* 上から順に表示 */
     gap: 0px; /* ランキングとゲーム一覧の間隔を開ける */
-    /* ▲▲▲ 修正ここまで ▲▲▲ */
-
     align-items: center;
     padding: 0 20px 20px;
     box-sizing: border-box;
@@ -643,56 +639,6 @@ body {
 .sns-icon.note-icon:hover {
     background-color: #41c9b4; /* Noteグリーン */
     border-color: #41c9b4;
-}.footer-sns {
-    display: flex;
-    justify-content: center;
-    gap: 30px; /* アイコン同士の間隔を広げる */
-    margin-bottom: 25px; /* 下のリンクとの距離を広げる */
-}
-
-.sns-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 60px; /* 40px -> 60px に拡大 */
-    height: 60px; /* 40px -> 60px に拡大 */
-    background-color: #2d3748;
-    border-radius: 50%;
-    color: #fff;
-    text-decoration: none;
-    transition: all 0.3s; /* アニメーションを少し滑らかに */
-    border: 2px solid #4a5568; /* 枠線を少し太く */
-}
-
-/* SVGアイコンのサイズも大きくする */
-.sns-icon svg {
-    width: 30px; /* 20px -> 30px に拡大 */
-    height: 30px;
-}
-
-/* ホバー時の挙動 */
-.sns-icon:hover {
-    transform: translateY(-5px); /* 浮き上がりを大きく */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* 影をつけて立体的に */
-}
-
-/* X (Twitter) のブランドカラー */
-.sns-icon.x-icon {
-    /* デフォルトでも少し目立つようにするならコメントアウトを外す */
-    /* background-color: #000; */
-}
-.sns-icon.x-icon:hover {
-    background-color: #000;
-    border-color: #fff;
-}
-
-/* Note のブランドカラー */
-.sns-icon.note-icon {
-    /* background-color: #41c9b4; */
-}
-.sns-icon.note-icon:hover {
-    background-color: #41c9b4; /* Noteグリーン */
-    border-color: #41c9b4;
 }
 
 /* --- 自動ランキング用スタイル (スライダー版) --- */
@@ -747,11 +693,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* padding: 0 50px;  ←これを下記に変更 */
     padding: 0 70px;  /* 矢印ボタンが被らないように広げる */
 }
 
-/* 2. 表示窓の幅を広げる */
+/* 表示窓 */
 .ranking-viewport {
     /* 220px * 3枚 + 15px * 2隙間 = 690px */
     width: 690px;
@@ -760,7 +705,7 @@ body {
     margin: 0 auto;  /* 中央寄せ */
 }
 
-/* 2. トラックの設定（変更なし、確認用） */
+/* トラックの設定 */
 .ranking-track {
     display: flex;
     gap: 15px;
@@ -890,23 +835,20 @@ body {
     box-sizing: border-box;
 }
 
-/* style.css (1082行目あたり) */
-
 .live-banner {
-    /* 既存のスタイル */
     width: 100%;
     background: linear-gradient(90deg, #2d3748 0%, #1a202c 100%);
     border: 2px solid #e53e3e;
     color: #fff;
     padding: 0 20px;
-    height: 60px;    /* ★変更: 80pxから60pxに小さく */
+    height: 60px;
     border-radius: 8px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
-    overflow: hidden;   /* ★変更: hiddenからはみ出しを許可するvisibleに */
+    overflow: visible;
     transition: all 0.3s;
     box-shadow: 0 4px 10px rgba(229, 62, 62, 0.2);
 }
@@ -919,11 +861,11 @@ body {
     z-index: 2; /* キャラより前に表示 */
 }
 
-/* キャラクター画像共通 (1102行目あたり) */
+/* キャラクター画像共通 */
 .banner-chara {
     position: absolute;
     top: -35px; /* 下揃え */
-    height: 250%; /* ★変更: 100%から125%に大きくしてはみ出させる */
+    height: 250%; 
     width: auto;
     object-fit: contain;
     opacity: 0.9;
@@ -992,20 +934,53 @@ body {
 .live-arrow { color: #a0aec0; }
 
 /* --- 配信リスト（モーダル内） --- */
+/* ▼▼▼ 修正箇所：固定高さとスクロール対応 ▼▼▼ */
 .live-modal-content {
     max-width: 800px;
     width: 95%;
-    max-height: 85vh;
+    /* モーダル自体の最大高さも制限 */
+    max-height: 85vh; 
+    display: flex;
+    flex-direction: column;
 }
 
 .live-list-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    /* PCでは横2列、スマホでは1列 */
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
     gap: 20px;
-    padding: 10px;
-    overflow-y: auto;
-    max-height: 60vh;
+    width: 100%;
+    
+    /* 高さ固定 & スクロール設定 */
+    max-height: 500px; /* 枠の高さを制限（これ以上増えるとスクロール） */
+    overflow-y: auto;  /* 縦方向にスクロールバーを出す */
+    padding-right: 10px; /* スクロールバーと被らないように余白 */
+    
+    /* 見た目の微調整 */
+    box-sizing: border-box; 
+    padding-bottom: 10px; 
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    padding-top: 20px;
+    margin-top: 10px;
 }
+
+/* スクロールバーのデザイン */
+.live-list-grid::-webkit-scrollbar {
+    width: 8px;
+}
+.live-list-grid::-webkit-scrollbar-track {
+    background: #1a202c;
+    border-radius: 4px;
+}
+.live-list-grid::-webkit-scrollbar-thumb {
+    background: #4a5568;
+    border-radius: 4px;
+}
+.live-list-grid::-webkit-scrollbar-thumb:hover {
+    background: #718096;
+}
+/* ▲▲▲ 修正箇所ここまで ▲▲▲ */
 
 .stream-card {
     background-color: #1a202c;
@@ -1100,8 +1075,6 @@ body {
     transform: none;
     box-shadow: none;
 }
-
-/* style.css (末尾に追加) */
 
 /* --- 特集バナーエリア --- */
 .feature-banners {

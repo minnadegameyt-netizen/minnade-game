@@ -1176,7 +1176,7 @@
             }
 
             // 2. 配信データの読み込み & バナーの人数更新
-// ▼▼▼ 2. 配信データの読み込み & バナーの人数更新 (修正版) ▼▼▼
+// 2. 配信データの読み込み & バナーの人数更新
             function loadStreams() {
                 const listContainer = document.getElementById('live-list-container');
                 const countSpan = document.getElementById('live-count');
@@ -1193,28 +1193,50 @@
                         if (now - data.createdAt.toMillis() < EXPIRE_MS) {
                             validCount++;
                             
-                            // 登録者数の整形 (例: 12345 -> 1.2万人)
+                            // プラットフォーム判定
+                            const isTwitch = data.platform === 'twitch';
+                            
+                            // リンク先
+                            const linkUrl = isTwitch 
+                                ? `https://www.twitch.tv/${data.videoId}` 
+                                : `https://www.youtube.com/watch?v=${data.videoId}`;
+                            
+                            // サムネイル処理
+                            const thumbUrl = isTwitch ? '' : data.thumbnail;
+
+                            // 画像タグ生成
+                            let imgTag = "";
+                            if (isTwitch) {
+                                // Twitch用のプレースホルダー
+                                imgTag = `<div style="width:120px; height:68px; background:#9146ff; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-family:sans-serif; border-radius:4px;">Twitch</div>`;
+                            } else {
+                                imgTag = `<img src="${thumbUrl}" class="stream-thumb" alt="サムネイル">`;
+                            }
+
+                            // チャンネル情報の補足テキスト
                             let subText = "";
-                            if (data.subscriberCount) {
+                            if (!isTwitch && data.subscriberCount) {
                                 const count = Number(data.subscriberCount);
                                 if (count >= 100000000) subText = (count / 100000000).toFixed(1) + "億人";
                                 else if (count >= 10000) subText = (count / 10000).toFixed(1) + "万人";
                                 else subText = count + "人";
                                 subText = `<span style="font-size:0.8em; color:#718096; margin-left:8px;">(登録者: ${subText})</span>`;
+                            } else if (isTwitch) {
+                                subText = `<span style="font-size:0.8em; color:#a970ff; margin-left:8px;">(Twitch Live)</span>`;
                             }
 
                             html += `
-                                <div class="stream-card">
-                                    <a href="https://www.youtube.com/watch?v=${data.videoId}" target="_blank" class="stream-thumb-link">
-                                        <img src="${data.thumbnail}" class="stream-thumb" alt="サムネイル">
+                                <div class="stream-card" style="${isTwitch ? 'border-left: 4px solid #9146ff;' : ''}">
+                                    <a href="${linkUrl}" target="_blank" class="stream-thumb-link">
+                                        ${imgTag}
                                     </a>
                                     <div class="stream-info">
                                         <div class="stream-title">${escapeHtml(data.title)}</div>
                                         <div class="stream-channel">
-                                            <span>📺</span> ${escapeHtml(data.channelTitle)}
-                                            ${subText} <!-- ここに追加 -->
+                                            <span>${isTwitch ? '👾' : '📺'}</span> ${escapeHtml(data.channelTitle)}
+                                            ${subText}
                                         </div>
-                                        <a href="https://www.youtube.com/watch?v=${data.videoId}" target="_blank" class="watch-btn">視聴する</a>
+                                        <a href="${linkUrl}" target="_blank" class="watch-btn" style="${isTwitch ? 'background-color:#9146ff;' : ''}">視聴する</a>
                                     </div>
                                 </div>
                             `;
@@ -1232,7 +1254,7 @@
             // 初回読み込み
             loadStreams();
 
-            // ▼▼▼ 3. 配信登録処理 (修正版：登録者数も取得) ▼▼▼
+// ▼▼▼ 3. 配信登録処理 (YouTube & Twitch対応) ▼▼▼
             const registerBtn = document.getElementById('register-stream-btn');
             const registerStatus = document.getElementById('register-status');
 
@@ -1240,81 +1262,128 @@
                 registerBtn.addEventListener('click', async () => {
                     const apiKey = document.getElementById('global-api-key').value.trim();
                     let videoId = document.getElementById('global-video-id').value.trim();
+                    
+                    // Twitch入力欄の取得
+                    const twitchInput = document.getElementById('global-twitch-id');
+                    const twitchId = twitchInput ? twitchInput.value.trim() : '';
 
-    try {
-        if (videoId.startsWith('http')) {
-            const url = new URL(videoId);
-            if (url.searchParams.has('v')) {
-                videoId = url.searchParams.get('v');
-            } else if (url.pathname.includes('/live/')) {
-                // youtube.com/live/XXX 対応
-                videoId = url.pathname.split('/live/')[1];
-            } else if (url.hostname === 'youtu.be') {
-                videoId = url.pathname.slice(1);
-            }
-        }
-        videoId = videoId.split('?')[0]; // ?si=xxxxx などを削除
-    } catch (e) {
-        console.log("ID解析エラー: そのまま使用します");
-    }
+                    // 入力チェック (YouTubeかTwitchどちらかがあればOK)
+                    const hasYoutube = apiKey && videoId;
+                    const hasTwitch = twitchId !== '';
 
-                    if (!apiKey || !videoId) {
-                        registerStatus.textContent = "⚠️ APIキーとVideo IDを入力してください";
+                    if (!hasYoutube && !hasTwitch) {
+                        registerStatus.textContent = "⚠️ YouTube設定 または Twitch IDを入力してください";
                         registerStatus.style.color = "#fc8181";
                         return;
                     }
 
-                    registerStatus.textContent = "🔄 YouTubeに確認中...";
-                    registerStatus.style.color = "#ecc94b";
                     registerBtn.disabled = true;
 
-                    try {
-                        // 1. 動画情報を取得
-                        const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,liveStreamingDetails&id=${videoId}&key=${apiKey}`);
-                        const vData = await vRes.json();
+                    // --- Twitchの登録処理 ---
+                    if (!hasYoutube && hasTwitch) {
+                        registerStatus.textContent = "🔄 Twitch配信を登録中...";
+                        registerStatus.style.color = "#a970ff";
 
-                        if (!vData.items || vData.items.length === 0) {
-                            throw new Error("動画が見つかりません。IDを確認してください。");
+                        try {
+                            // TwitchはAPIキーがないため、入力されたIDをそのまま登録
+                            // ドキュメントIDにはチャンネル名(小文字)を使用
+                            await db.collection('streams').doc(twitchId.toLowerCase()).set({
+                                videoId: twitchId, // チャンネルIDとして使用
+                                platform: 'twitch',
+                                title: `${twitchId}'s Stream`, // 仮タイトル
+                                channelTitle: twitchId,
+                                thumbnail: '', // 画像なし
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+
+                            registerStatus.textContent = "✅ Twitch配信を登録しました！";
+                            registerStatus.style.color = "#48bb78";
+                            
+                            // 保存してリスト更新
+                            sessionStorage.setItem('twitch_channel_id', twitchId);
+                            loadStreams();
+
+                        } catch (err) {
+                            console.error(err);
+                            registerStatus.textContent = "❌ 登録エラー: " + err.message;
+                            registerStatus.style.color = "#fc8181";
+                        } finally {
+                            registerBtn.disabled = false;
                         }
+                        return; // Twitch処理が終わったらここで終了
+                    }
 
-                        const video = vData.items[0];
-                        const snippet = video.snippet;
-                        const channelId = snippet.channelId;
+                    // --- YouTubeの登録処理 ---
+                    if (hasYoutube) {
+                        try {
+                            if (videoId.startsWith('http')) {
+                                const url = new URL(videoId);
+                                if (url.searchParams.has('v')) {
+                                    videoId = url.searchParams.get('v');
+                                } else if (url.pathname.includes('/live/')) {
+                                    videoId = url.pathname.split('/live/')[1];
+                                } else if (url.hostname === 'youtu.be') {
+                                    videoId = url.pathname.slice(1);
+                                }
+                            }
+                            videoId = videoId.split('?')[0];
+                        } catch (e) { console.log("ID解析エラー"); }
 
-                        // 生放送チェック (テスト時はコメントアウトで緩和してもOK)
-                        if (snippet.liveBroadcastContent === 'none') {
-                            throw new Error("ライブ配信中の動画ではありません。");
+                        registerStatus.textContent = "🔄 YouTubeに確認中...";
+                        registerStatus.style.color = "#ecc94b";
+
+                        try {
+                            // 1. 動画情報を取得
+                            const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,liveStreamingDetails&id=${videoId}&key=${apiKey}`);
+                            const vData = await vRes.json();
+
+                            if (!vData.items || vData.items.length === 0) {
+                                throw new Error("動画が見つかりません。IDを確認してください。");
+                            }
+
+                            const video = vData.items[0];
+                            const snippet = video.snippet;
+                            const channelId = snippet.channelId;
+
+                            // 生放送チェック
+                            if (snippet.liveBroadcastContent === 'none') {
+                                throw new Error("ライブ配信中の動画ではありません。");
+                            }
+
+                            // 2. チャンネル情報を取得 (登録者数用)
+                            const cRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`);
+                            const cData = await cRes.json();
+                            let subscriberCount = 0;
+                            if (cData.items && cData.items.length > 0) {
+                                subscriberCount = cData.items[0].statistics.subscriberCount;
+                            }
+
+                            // Firebaseに保存
+                            await db.collection('streams').doc(videoId).set({
+                                videoId: videoId,
+                                platform: 'youtube', // 明示的に追加
+                                title: snippet.title,
+                                channelTitle: snippet.channelTitle,
+                                thumbnail: snippet.thumbnails.medium.url,
+                                subscriberCount: subscriberCount,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+
+                            registerStatus.textContent = "✅ リストに登録しました！";
+                            registerStatus.style.color = "#48bb78";
+                            
+                            // 保存してリスト更新
+                            sessionStorage.setItem('youtube_api_key', apiKey);
+                            sessionStorage.setItem('youtube_target_video_id', videoId);
+                            loadStreams();
+
+                        } catch (err) {
+                            console.error(err);
+                            registerStatus.textContent = "❌ エラー: " + (err.message || "登録に失敗しました");
+                            registerStatus.style.color = "#fc8181";
+                        } finally {
+                            registerBtn.disabled = false;
                         }
-
-                        // 2. チャンネル情報を取得 (登録者数用)
-                        const cRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`);
-                        const cData = await cRes.json();
-                        let subscriberCount = 0;
-                        if (cData.items && cData.items.length > 0) {
-                            subscriberCount = cData.items[0].statistics.subscriberCount;
-                        }
-
-                        // Firebaseに保存
-                        await db.collection('streams').doc(videoId).set({
-                            videoId: videoId,
-                            title: snippet.title,
-                            channelTitle: snippet.channelTitle,
-                            thumbnail: snippet.thumbnails.medium.url,
-                            subscriberCount: subscriberCount, // 追加
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-
-                        registerStatus.textContent = "✅ リストに登録しました！";
-                        registerStatus.style.color = "#48bb78";
-                        
-                        loadStreams(); // リスト更新
-
-                    } catch (err) {
-                        console.error(err);
-                        registerStatus.textContent = "❌ エラー: " + (err.message || "登録に失敗しました");
-                        registerStatus.style.color = "#fc8181";
-                    } finally {
-                        registerBtn.disabled = false;
                     }
                 });
             }
