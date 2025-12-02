@@ -277,3 +277,56 @@ canvas {
     text-align: right;
     flex-shrink: 0;
 }
+
+/* ツールチップ用のスタイル */
+.help-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 18px;
+    height: 18px;
+    background-color: #718096;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.8em;
+    margin-left: 8px;
+    cursor: help;
+    position: relative; /* ツールチップの基準位置 */
+}
+
+/* マウスホバー時のツールチップ表示 */
+.help-icon:hover::after {
+    content: attr(data-tooltip); /* data-tooltip属性の中身を表示 */
+    position: absolute;
+    bottom: 120%; /* アイコンの上に表示 */
+    left: 50%;
+    transform: translateX(-50%); /* 中央揃え */
+    
+    background-color: #2d3748;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #4a5568;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    
+    font-size: 0.85em;
+    font-weight: normal;
+    white-space: pre-wrap; /* 改行コード(\n)を有効にする */
+    width: max-content;
+    max-width: 280px; /* 幅が広がりすぎないように制限 */
+    z-index: 1000;
+    pointer-events: none; /* ツールチップ自体はクリック不可 */
+}
+
+/* ツールチップの矢印（下向き） */
+.help-icon:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 90%; /* アイコンのすぐ上 */
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #2d3748 transparent transparent transparent; /* 下向きの三角形 */
+    z-index: 1000;
+}
