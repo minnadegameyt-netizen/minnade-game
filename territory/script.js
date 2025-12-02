@@ -420,16 +420,21 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('result-modal').classList.remove('hidden');
     }
 
-    // ★共通処理：コメント解析とゲーム反映
+// ★共通処理：コメント解析とゲーム反映
     function processComment(msg, authorName, authorId) {
         if (!authorId) authorId = authorName;
 
         // 配信者自動参加ロジック
         if (streamerIdentifier && players['STREAMER_PLACEHOLDER']) {
-            const isStreamerById = authorId === streamerIdentifier;
-            const isStreamerByName = authorName.toLowerCase() === streamerIdentifier.toLowerCase();
+            // 入力されたIDと、コメント主のIDまたは名前を比較（大文字小文字を無視）
+            const targetId = streamerIdentifier.toLowerCase();
+            const currentId = authorId.toLowerCase();
+            const currentName = authorName.toLowerCase();
+
+            // IDが一致するか、名前が一致するか
+            const isStreamer = (currentId === targetId) || (currentName === targetId);
             
-            if (isStreamerById || (!(streamerIdentifier.startsWith('UC') || streamerIdentifier.startsWith('UG')) && isStreamerByName)) {
+            if (isStreamer) {
                 delete players['STREAMER_PLACEHOLDER'];
                 players[authorId] = 1;
                 playerSlots[1] = authorName;
@@ -440,6 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } 
         else if (players[authorId] === 1 && playerSlots[1] !== authorName) {
+            // 既に登録済みだが名前が変わった場合の更新
             playerSlots[1] = authorName;
             if (!isGameRunning) {
                 updateSlotDisplay(1, authorName);
