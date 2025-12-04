@@ -605,7 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.fillText('?', px + CELL_SIZE/2, py + CELL_SIZE/2 + 1);
                 } else { // 通常マスの数字
                     ctx.fillStyle = (val === 0) ? NUMBER_COLOR_ON_EMPTY : NUMBER_COLOR_ON_PAINTED;
-                    ctx.font = 'bold 12px "Noto Sans JP", sans-serif';
+                    ctx.font = 'bold 16px "Noto Sans JP", sans-serif';
                     ctx.fillText((y * GRID_SIZE) + x + 1, px + CELL_SIZE/2, py + CELL_SIZE/2 + 1);
                 }
             }
