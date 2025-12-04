@@ -535,7 +535,10 @@ body {
 /* --- 投票・結果画面 --- */
 #vote-screen { background: rgba(0,0,0,0.95); z-index: 100; }
 #vote-list { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+
 .vote-card {
+    position: relative; /* 子要素を配置する基準点にする */
+    overflow: hidden;   /* はみ出した要素を隠す */
     width: 25vw;
     height: 35vw;
     max-width: 180px;
@@ -550,12 +553,23 @@ body {
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
+
 .vote-card img {
     height: 60%;
     background: radial-gradient(circle, rgba(255,255,255,0.2), transparent);
     border-radius: 50%;
 }
 .vote-card:hover { background: #555; border-color: #fff; transform: scale(1.05); }
+
+.vote-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: height 0.5s ease;
+}
 
 /* ▼▼▼ ここから追加 ▼▼▼ */
 .vote-card.voted-reveal {
@@ -623,4 +637,32 @@ body {
 
 .home-btn:hover {
     background: #5a6268;
+}
+
+.sound-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 999;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid #fff;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    transition: background-color 0.2s;
+}
+
+.sound-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.sound-toggle.muted {
+    background-color: rgba(255, 69, 58, 0.6); /* 赤っぽくしてミュート状態を示す */
 }

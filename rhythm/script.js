@@ -34,8 +34,8 @@ const AUDIO = {
 Object.values(AUDIO.beat).forEach(a => a.volume = 0.5);
 Object.values(AUDIO.se).forEach(a => a.volume = 0.6);
 
-function playSe(name) { if(AUDIO.se[name]) AUDIO.se[name].cloneNode().play().catch(()=>{}); }
-function playBeatSound(name) { if(AUDIO.beat[name]) AUDIO.beat[name].cloneNode().play().catch(()=>{}); }
+function playSe(name) { if (isMuted) return; if(AUDIO.se[name]) AUDIO.se[name].cloneNode().play().catch(()=>{}); }
+function playBeatSound(name) { if (isMuted) return; if(AUDIO.beat[name]) AUDIO.beat[name].cloneNode().play().catch(()=>{}); }
 
 // ゲーム定義
 const ALL_GAMES = [
@@ -52,6 +52,7 @@ const ALL_GAMES = [
 ];
 
 // --- グローバル状態管理 ---
+let isMuted = false;
 let gameState = {
     mode: 'solo', // 'solo' or 'streamer'
     playMode: 'ai', // soloモード内でのプレイヤーの役割
@@ -102,6 +103,27 @@ function handleComment(comment) {
 
 // --- 初期化 ---
 document.addEventListener('DOMContentLoaded', () => {
+    const soundToggleBtn = document.getElementById('sound-toggle-btn');
+    isMuted = localStorage.getItem('soundMuted') === 'true';
+
+    function updateSoundButton() {
+        if (isMuted) {
+            soundToggleBtn.textContent = '🔇';
+            soundToggleBtn.classList.add('muted');
+        } else {
+            soundToggleBtn.textContent = '🔊';
+            soundToggleBtn.classList.remove('muted');
+        }
+    }
+
+    soundToggleBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        localStorage.setItem('soundMuted', String(isMuted));
+        updateSoundButton();
+    });
+
+    updateSoundButton(); // 初期表示を更新
+
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
 
@@ -386,7 +408,7 @@ function startStreamerVotePhase() {
     remainingChars.forEach(id => {
         const card = document.createElement('div');
         card.className = `vote-card color-${id + 1}`;
-        card.innerHTML = `<img src="${IMAGES.stand}" style="height:80px;"><div style="font-weight:bold; font-size:1.5em;">${id + 1}</div><div class="vote-bar" id="vote-bar-${id}" style="position:absolute; bottom:0; left:0; width:100%; height:0%; background:rgba(255,255,255,0.3); transition: height 0.5s;"></div>`;
+        card.innerHTML = `<img src="${IMAGES.stand}" style="height:80px;"><div style="font-weight:bold; font-size:1.5em;">${id + 1}</div><div class="vote-bar" id="vote-bar-${id}"></div>`;
         voteList.appendChild(card);
     });
 
@@ -984,8 +1006,17 @@ function startDarumaGame() {
     const updateSignal = () => {
         const sc = document.querySelector('.signal-circle');
         const st = document.querySelector('.signal-text');
-        if(isSafe) { sc.style.background = '#00b894'; st.textContent = "進め"; st.style.color = '#00b894'; }
-        else { sc.style.background = '#d63031'; st.textContent = "止まれ"; st.style.color = '#d63031'; playSe('miss'); }
+        if(isSafe) { 
+            sc.style.background = '#00b894'; 
+            st.textContent = "スタート"; // 「進め」から変更
+            st.style.color = '#00b894'; 
+        }
+        else { 
+            sc.style.background = '#d63031'; 
+            st.textContent = "止まれ"; // 変更なし
+            st.style.color = '#d63031'; 
+            playSe('miss'); 
+        }
     };
     updateSignal();
     gameInterval = setInterval(() => { isSafe = !isSafe; updateSignal(); }, 3000);
