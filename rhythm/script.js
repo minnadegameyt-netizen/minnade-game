@@ -1002,7 +1002,7 @@ function startEatingGame() {
 }
 
 function startDarumaGame() {
-    let isSafe = true;
+    let isSafe = false;
     const updateSignal = () => {
         const sc = document.querySelector('.signal-circle');
         const st = document.querySelector('.signal-text');

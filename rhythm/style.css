@@ -408,7 +408,14 @@ body {
 /* 旗揚げ・サイモン・だるま */
 .flag-text { font-size: 60px; font-weight: bold; text-shadow: 0 0 10px var(--accent); }
 .simon-sequence { font-size: 60px; font-weight: bold; letter-spacing: 15px; min-height: 80px; }
-.simon-msg { font-size: 30px; color: var(--c4); }
+/* ▼▼▼ ここを修正 ▼▼▼ */
+.simon-msg {
+    font-size: 60px; /* 30pxから60pxに大きく */
+    color: var(--c4);
+    font-weight: bold; /* 太字にする */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* 影を追加 */
+}
+/* ▲▲▲ ここまで修正 ▲▲▲ */
 .signal-circle { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 20px; box-shadow: 0 0 30px currentColor; }
 .signal-text { font-size: 40px; font-weight: bold; }
 
