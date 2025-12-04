@@ -3,7 +3,7 @@ import * as twitch from '../twitch.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 設定 ---
-    const GRID_SIZE = 16; 
+    const GRID_SIZE = 12; 
     const DISPLAY_SIZE = 600; 
     const CELL_SIZE = DISPLAY_SIZE / GRID_SIZE; 
     const DEMO_BOT_INTERVAL = 800;

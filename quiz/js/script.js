@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultModal.classList.remove('hidden');
         document.getElementById('result-title').textContent = "GAME OVER";
         document.getElementById('result-title').style.color = "#e74c3c";
-        document.getElementById('result-msg').textContent = `${currentQIndex + 1}問目でリタイア...\n正解数: ${currentQIndex}`;
+        document.getElementById('result-msg').textContent = `${currentQIndex + 1}問目でリタイア...\n回答数: ${currentQIndex}`;
         
         if (platform === 'twitch') twitch.disconnectTwitch();
     }
