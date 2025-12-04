@@ -1163,6 +1163,7 @@
                 }
             });
 
+        const supportModal = document.getElementById('home-support-modal'); // この行を追加
         const supportBtns = document.querySelectorAll('#home-support-btn, #war-support-btn, #quiz-support-btn, #kanji-support-btn, #mystery-support-btn, #territory-support-btn, #aha-support-btn, #rhythm-support-btn');
             supportBtns.forEach(btn => { btn.addEventListener('click', () => { supportModal.style.display = 'flex'; }); });
             const closeSupportBtn = document.getElementById('close-home-support-btn');
