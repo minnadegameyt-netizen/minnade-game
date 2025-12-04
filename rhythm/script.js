@@ -74,6 +74,7 @@ let simonSeq = [], simonInputIndex = 0, simonInputActive = false;
 let flagTarget = null;
 let golfCursorPos = 0, golfDir = 1, golfActive = false;
 let mathAnswer = 0, mathCount = 0, mathInputActive = false;
+let voteCounts = Array(CHAR_COUNT).fill(0);
 
 // --- YouTube API用 ---
 let YOUTUBE_API_KEY = "";
@@ -83,6 +84,20 @@ let nextPageToken = null;
 let youtubeInterval = null;
 
 const COMMON_RHYTHM = ['kick', 'hat', 'snare', 'hat', 'kick', 'hat', 'snare', 'hat'];
+
+// --- コメント処理 ---
+function handleComment(comment) {
+    if (!gameState.isVoting) return;
+    const match = comment.match(/([1-5])/);
+    if (match) {
+        const vote = parseInt(match[1]) - 1;
+        // 投票画面に表示されているキャラクターへの投票のみ受け付ける
+        if (remainingChars.includes(vote)) {
+            voteCounts[vote]++;
+            updateVoteDisplay(voteCounts);
+        }
+    }
+}
 
 // --- 初期化 ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -346,19 +361,8 @@ function startStreamerVotePhase() {
         voteCards.push(card);
     });
 
-    let voteCounts = Array(CHAR_COUNT).fill(0);
-
-    handleComment = (comment) => {
-        if (!gameState.isVoting) return;
-        const match = comment.match(/([1-5])/);
-        if (match) {
-            const vote = parseInt(match[1]) - 1;
-            if (vote >= 0 && vote < CHAR_COUNT) {
-                voteCounts[vote]++;
-                updateVoteDisplay(voteCounts);
-            }
-        }
-    };
+    voteCounts = Array(CHAR_COUNT).fill(0);
+    updateVoteDisplay(voteCounts); // UIをリセット
 
     if (gameState.platform === 'youtube') startYouTubePolling();
 
@@ -373,8 +377,13 @@ function startStreamerVotePhase() {
             twitch.disconnectTwitch();
             gameState.isVoting = false;
 
-            const maxVotes = Math.max(...voteCounts);
-            const votedIndex = voteCounts.indexOf(maxVotes);
+            const totalVotes = voteCounts.reduce((a, b) => a + b, 0);
+            let votedIndex = -1; // 誰も投票しなかった場合のデフォルト値
+            if (totalVotes > 0) {
+                const maxVotes = Math.max(...voteCounts);
+                votedIndex = voteCounts.indexOf(maxVotes);
+            }
+            
             handleVote(votedIndex);
         }
     }, 1000);
@@ -383,7 +392,14 @@ function startStreamerVotePhase() {
 function updateVoteDisplay(counts) {
     const total = counts.reduce((a, b) => a + b, 0);
     document.getElementById('total-vote-count').textContent = total;
-    if (total === 0) return;
+    if (total === 0) {
+        // 全員のバーを0にする
+        counts.forEach((count, id) => {
+            const bar = document.getElementById(`vote-bar-${id}`);
+            if (bar) bar.style.height = '0%';
+        });
+        return;
+    }
 
     counts.forEach((count, id) => {
         const bar = document.getElementById(`vote-bar-${id}`);
@@ -392,9 +408,6 @@ function updateVoteDisplay(counts) {
         }
     });
 }
-
-// --- コメント処理 ---
-let handleComment = (comment) => {};
 
 // --- YouTube ポーリング ---
 async function fetchLiveChatId() {
@@ -1002,11 +1015,17 @@ function setupVoteScreen() {
 
 function handleVote(id) {
     playSe('select');
-    const isCorrect = (id === gameState.imposterIndex);
+    // idが-1（投票なし）の場合も考慮
+    const isCorrect = (id !== -1 && id === gameState.imposterIndex);
 
     if (gameState.mode === 'streamer') {
-        if (isCorrect) showResult(true, `正解！人狼は ${id + 1}番でした！`);
-        else showResult(false, `不正解... 人狼は ${gameState.imposterIndex + 1}番でした。`);
+        if(id === -1) {
+             showResult(false, `投票がありませんでした... 人狼は ${gameState.imposterIndex + 1}番でした。`);
+        } else if (isCorrect) {
+             showResult(true, `正解！人狼は ${id + 1}番でした！`);
+        } else {
+             showResult(false, `不正解... 人狼は ${gameState.imposterIndex + 1}番でした。`);
+        }
     } else {
         if (isCorrect) {
             showResult(true, "人狼を見事追放しました！");
