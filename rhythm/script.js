@@ -3,6 +3,7 @@ import * as twitch from '../../twitch.js';
 const CHAR_COUNT = 5;
 const NOTES_SPEED_H = 6;
 const NOTES_SPEED_V = 8;
+const GAME_ROUNDS = 5; // ★ ラウンド数を5に設定
 
 // --- タイミング調整用の設定値 ---
 const TIMING_OFFSET_MS = -80;
@@ -194,10 +195,26 @@ async function onStreamerSetupDone() {
             alert('Twitchへの接続に失敗しました: ' + e); return;
         }
     }
-
+    
+    // ★★★ 接続成功後、説明画面を表示 ★★★
     document.getElementById('streamer-setup-modal').classList.add('hidden');
-    startStreamerSession();
+    showExplanationScreen();
 }
+
+// ★★★ ゲーム説明画面の表示ロジックを追加 ★★★
+function showExplanationScreen() {
+    const screen = document.getElementById('explanation-screen');
+    const startBtn = document.getElementById('explanation-start-btn');
+    
+    screen.classList.remove('hidden');
+    
+    startBtn.onclick = () => {
+        playSe('select');
+        screen.classList.add('hidden');
+        startStreamerSession(); // 説明が終わったらセッション開始
+    };
+}
+
 
 // --- 入力処理 ---
 function setupInput() {
@@ -214,7 +231,6 @@ function setupInput() {
             }
         }
         
-        // ▼▼▼ ここから変更 ▼▼▼
         const streamerSetupModal = document.getElementById('streamer-setup-modal');
         if (streamerSetupModal && !streamerSetupModal.classList.contains('hidden')) {
             if (e.key >= '1' && e.key <= '5') {
@@ -228,7 +244,6 @@ function setupInput() {
                 playSe('select');
             }
         }
-        // ▲▲▲ ここまで変更 ▲▲▲
 
         if(gameState.isGameActive) {
             const c = characters.find(c=>c.isPlayer);
@@ -279,24 +294,23 @@ function startSoloSession() {
     startRound();
 }
 
-// ▼▼▼ ここから変更 ▼▼▼
 function startStreamerSession() {
     // 配信者が事前に選択していなければランダムで決定
     if (gameState.imposterIndex === -1) {
         gameState.imposterIndex = Math.floor(Math.random() * CHAR_COUNT);
     }
-    // ▲▲▲ ここまで変更 ▲▲▲
     
-    gameState.selectedGames = [...ALL_GAMES].sort(() => 0.5 - Math.random()).slice(0, 5);
+    // ★★★ ラウンド数を5に固定 ★★★
+    gameState.selectedGames = [...ALL_GAMES].sort(() => 0.5 - Math.random()).slice(0, GAME_ROUNDS);
     gameState.round = 1;
     remainingChars = [0, 1, 2, 3, 4];
     startRound();
 }
-// ▲▲▲ ここまで変更 ▲▲▲
 
 // --- ラウンド進行 ---
 function startRound() {
-    if (gameState.mode === 'streamer' && gameState.round > gameState.selectedGames.length) {
+    // ★★★ 配信モードの終了条件を5ラウンド後に変更 ★★★
+    if (gameState.mode === 'streamer' && gameState.round > GAME_ROUNDS) {
         finishStreamerGame();
         return;
     }
@@ -310,11 +324,21 @@ function startRound() {
     gameState.currentModeId = game.id;
 
     resetUIForNewGame(game);
+    
+    // ★★★ ラウンド表示を更新 ★★★
+    const roundDisplay = document.getElementById('round-display');
+    if (roundDisplay) {
+        if(gameState.mode === 'streamer') {
+            roundDisplay.textContent = `ROUND ${gameState.round} / ${GAME_ROUNDS}`;
+        } else {
+             roundDisplay.textContent = `ROUND ${gameState.round}`;
+        }
+    }
+
 
     showReadyScreen(game, () => {
         document.getElementById('ready-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.remove('hidden');
-        document.getElementById('round-num').textContent = gameState.round;
         initCharacters();
         gameState.isGameActive = true;
 
@@ -545,9 +569,7 @@ function initCharacters() {
             burgerStack:d.querySelector('.burger-stack'),
             burgerCount:0,
             isImposter: i === gameState.imposterIndex,
-            // ▼▼▼ ここが重要な変更点です ▼▼▼
-            isPlayer: i === gameState.imposterIndex && ((gameState.mode === 'solo' && gameState.playMode === 'streamer') || gameState.mode === 'streamer'),
-            // ▲▲▲ ここまで ▲▲▲
+            isPlayer: (i === gameState.imposterIndex && gameState.mode === 'streamer') || (i === gameState.imposterIndex && gameState.mode === 'solo' && gameState.playMode === 'streamer'),
             aiParams: {
                 baseSpeed: Math.random() * 80 + 120,
                 burstiness: Math.random() * 0.5 + 0.1

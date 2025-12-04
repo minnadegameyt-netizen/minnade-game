@@ -2,164 +2,144 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-<!-- Google Analytics Control Script -->
-<script>
-  (function() {
-    var GA_ID = 'G-TS77Z86Q2V';
-    var isLocal = window.location.hostname === 'localhost' || 
-                  window.location.hostname === '127.0.0.1' || 
-                  window.location.hostname.startsWith('192.168.') ||
-                  window.location.protocol === 'file:';
-    var isAdmin = localStorage.getItem('analytics_ignore') === 'true';
-    if (!isLocal && !isAdmin) {
-      var script = document.createElement('script');
-      script.async = true;
-      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
-      document.head.appendChild(script);
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', GA_ID);
-    } else {
-      console.log('Google Analytics blocked (Local or Admin)');
-    }
-  })();
-</script>
-    <title>難読漢字クイズ</title>
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>リズム・インポスター FINAL+</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700&display=swap">
 </head>
 <body>
 
-    <!-- 設定モーダル -->
-    <div id="setup-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h2>GAME SETTINGS</h2>
-
-            <p style="font-size: 0.9em; color: #ecc94b; margin-bottom: 20px;">
-                ※配信モードの場合、配信者もコメント欄から投票してください。<br>
-                （ゲーム画面上でのクリック操作は無効になります）
-            </p>
-            
-            <!-- ▼▼▼ 追加: プラットフォーム選択 ▼▼▼ -->
-            <div class="setup-group">
-                <label>配信プラットフォーム</label>
-                <div class="btn-group" id="platform-select">
-                    <button class="setup-btn selected" data-val="youtube">YouTube</button>
-                    <button class="setup-btn" data-val="twitch" style="color:#a970ff;">Twitch</button>
-                </div>
+    <!-- ★★★ ゲーム説明モーダルを追加 ★★★ -->
+    <div id="explanation-screen" class="screen hidden">
+        <div style="background: rgba(0,0,0,0.9); padding: 40px; border-radius: 20px; border: 3px solid #00d2d3; text-align: center; max-width: 90%; box-shadow: 0 0 40px rgba(0, 210, 211, 0.5);">
+            <h1 style="font-size: 2.8rem; margin-bottom: 20px; color:#00d2d3;">ゲームのルール</h1>
+            <div style="font-size: 1.3rem; line-height: 1.8; margin-bottom: 30px; text-align: left;">
+                これから <strong style="color:#ff7675; font-size:1.5rem;">5つ</strong> のミニゲームを連続でプレイします。<br>
+                5人のキャラクターのうち、<strong style="color:#ff7675; font-size:1.5rem;">1人</strong> だけが配信者のあなたです。<br>
+                あなたは <strong style="color:#ff7675;">インポスター（人狼）</strong> として、<br>
+                うまくAIに紛れ込み、正体を見破られないように振る舞ってください。<br><br>
+                5ゲーム終了後、視聴者投票でインポスターが誰かを当てます！
             </div>
-
-            <div class="setup-group">
-                <label>難易度</label>
-                <div class="btn-group" id="diff-select">
-                    <button class="setup-btn" data-val="1">初級</button>
-                    <button class="setup-btn selected" data-val="2">中級</button>
-                    <button class="setup-btn" data-val="3">上級</button>
-                    <button class="setup-btn" data-val="4" style="color:#e74c3c;">特級</button>
-                </div>
-            </div>
-
-            <div class="setup-group">
-                <label>ライフ (許容ミス数)</label>
-                <div class="btn-group" id="life-select">
-                    <button class="setup-btn" data-val="1">1回</button>
-                    <button class="setup-btn selected" data-val="3">3回</button>
-                    <button class="setup-btn" data-val="5">5回</button>
-                </div>
-            </div>
-
-            <div class="setup-group">
-                <label>目標問題数</label>
-                <div class="btn-group" id="goal-select">
-                    <button class="setup-btn selected" data-val="10">10問</button>
-                    <button class="setup-btn" data-val="30">30問</button>
-                    <button class="setup-btn" data-val="50">50問</button>
-                </div>
-            </div>
-
-            <div class="setup-group">
-                <label>投票時間（秒）</label>
-                <div class="btn-group" id="time-select">
-                    <button class="setup-btn" data-val="15">15秒</button>
-                    <button class="setup-btn selected" data-val="30">30秒</button>
-                    <button class="setup-btn" data-val="60">60秒</button>
-                </div>
-            </div>
-
-            <div style="margin-top: 30px; display: flex; gap: 10px;">
-                <button id="back-btn" class="action-btn secondary">ホームへ</button>
-                <button id="setup-done-btn" class="action-btn primary">OK</button>
-            </div>
+            <button id="explanation-start-btn" class="action-btn" style="background: #00d2d3; color: #000; padding: 15px 40px; font-size: 1.8em; border:none; border-radius: 10px; cursor:pointer;">ゲーム開始！</button>
         </div>
     </div>
 
-    <!-- 待機画面 -->
-    <div id="ready-screen" class="modal-overlay hidden" style="background: rgba(0,0,0,0.9);">
-        <div class="modal-content" style="border-color: #e53e3e; box-shadow: 0 0 30px #e53e3e;">
-            <h2 style="color: #e53e3e; font-size: 2.5em;">いざ、勝負！</h2>
-            <p style="color: #fff;">心の準備はいいですか？</p>
-            <button id="game-start-btn" class="action-btn primary" style="font-size: 1.5em; margin-top: 20px; background-color: #e53e3e;">START</button>
-            <div style="margin-top:15px;">
-                <button id="back-to-setup-btn" style="background:transparent; border:none; color:#888; cursor:pointer; text-decoration:underline;">設定に戻る</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- カウントダウン -->
-    <div id="countdown-overlay" class="modal-overlay hidden" style="background: transparent; pointer-events: none;">
-        <div id="countdown-text" style="color: #e53e3e; text-shadow: 0 0 30px #e53e3e;">3</div>
-    </div>
-
-    <!-- ゲーム画面 -->
-    <div id="game-container" class="hidden">
-        <header>
-            <div class="status-box">
-                <span>Q. <span id="current-q-num">1</span> / <span id="total-q-num">10</span></span>
-                <span style="margin-left: 20px; color: #e74c3c;">LIFE: <span id="life-display">❤️❤️❤️</span></span>
-            </div>
-            <div class="timer-box">
-                TIME: <span id="timer">00</span>
-            </div>
-        </header>
-
-        <div class="main-area">
-            <div class="question-box">
-                <p id="question-text" style="font-size: 4em; font-family: serif;">漢字</p>
-            </div>
-
-            <div class="options-grid" id="options-container">
-                <button class="option-btn" id="btn-1"><span class="opt-label">1</span> <span class="opt-text">A</span><div class="vote-bar"></div></button>
-                <button class="option-btn" id="btn-2"><span class="opt-label">2</span> <span class="opt-text">B</span><div class="vote-bar"></div></button>
-                <button class="option-btn" id="btn-3"><span class="opt-label">3</span> <span class="opt-text">C</span><div class="vote-bar"></div></button>
-                <button class="option-btn" id="btn-4"><span class="opt-label">4</span> <span class="opt-text">D</span><div class="vote-bar"></div></button>
-            </div>
-            
-            <div id="voting-status" class="hidden">
-                投票受付中... (計: <span id="vote-count">0</span>票)
-            </div>
-        </div>
-    </div>
-
-    <!-- 結果モーダル -->
-    <div id="result-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2 id="result-title">終了</h2>
-            <p id="result-msg">結果...</p>
-            <!-- 修正: ボタンにIDを追加してJSで制御する形に変更（Twitch切断のため） -->
-            <button id="reload-btn" class="action-btn primary" style="background-color: #e53e3e;">タイトルに戻る</button>
-        </div>
-    </div>
-
-    <!-- ▼▼▼ ここから追加 ▼▼▼ -->
-    <!-- Twitch連携に必要なライブラリ(tmi.js)を読み込みます -->
-    <script src="https://cdn.jsdelivr.net/npm/tmi.js/dist/tmi.min.js"></script>
-    <!-- ▲▲▲ ここまで追加 ▲▲▲ -->
-
-    <script src="js/kanji-data.js"></script>
+    <!-- ステージ背景（CSSで管理） -->
+    <div id="stage-bg"></div>
     
-    <!-- ▼▼▼ 修正点: moduleとして読み込む ▼▼▼ -->
-    <script type="module" src="js/script.js"></script>
+    <!-- 配信モード用 設定モーダル (変更なし) -->
+    <div id="streamer-setup-modal" class="screen hidden">
+        <div style="background: rgba(0,0,0,0.8); padding: 30px; border-radius: 15px; border: 2px solid #fff; text-align: center; max-width: 90%;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 20px; color:#00d2d3;">配信モード設定</h1>
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">① 配信プラットフォーム</label>
+                <div id="platform-select" style="display: flex; gap: 10px;">
+                    <button class="mode-btn selected" data-val="youtube">YouTube</button>
+                    <button class="mode-btn" data-val="twitch" style="background: #9146FF; border-color: #9146FF;">Twitch</button>
+                </div>
+            </div>
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">② 投票時間 (秒)</label>
+                <div id="vote-time-select" style="display: flex; gap: 10px;">
+                    <button class="mode-btn" data-val="30">30秒</button>
+                    <button class="mode-btn selected" data-val="60">60秒</button>
+                    <button class="mode-btn" data-val="90">90秒</button>
+                </div>
+            </div>
+            <div style="text-align: left; margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 5px;">③ インポスターを選択 (数字キー 1-5)</label>
+                <div id="imposter-select-status" style="background: #333; padding: 10px; border-radius: 5px; color: #888;">
+                    未選択 (指定しない場合はランダム)
+                </div>
+            </div>
+            <p style="font-size: 0.9em; color:#ffeaa7; margin-bottom: 20px;">
+                ※APIキー等はトップページの「配信者用設定」から入力してください。<br>
+                ※ゲームが始まったら、視聴者はコメントで人狼を投票します。
+            </p>
+            <button id="streamer-start-btn" class="action-btn" style="background: #00d2d3; color: #000; padding: 15px; font-size: 1.5em; border:none; border-radius: 8px;">ゲームスタート</button>
+            <button onclick="window.location.href='../index.html'" style="margin-top: 15px; background: transparent; border: 1px solid #555; color: #888; padding: 10px; border-radius: 5px; cursor: pointer;">ホームに戻る</button>
+        </div>
+    </div>
+
+
+    <!-- 個人モード用 セットアップ画面 (変更なし) -->
+    <div id="solo-setup-screen" class="screen hidden">
+        <h1 style="font-size: 3rem; margin-bottom: 30px; text-shadow: 0 0 20px #00d2d3;">リズム・インポスター <span style="font-size:1.5rem; color:#ff7675;">FINAL+</span></h1>
+        
+        <h2>【STEP 1】 自分のキャラクターを選択 (数字キー1-5)</h2>
+        <div id="char-selector">
+            <!-- JSで自動生成 -->
+        </div>
+
+        <h2>【STEP 2】 ゲームモードを選択</h2>
+        <div id="mode-list">
+            <!-- JSで自動生成 -->
+        </div>
+
+<div class="setup-buttons-container">
+            <button id="start-btn" disabled>ゲームスタート</button>
+            <button onclick="window.location.href='../index.html'" class="home-btn">ホームに戻る</button>
+        </div>
+        <p style="margin-top:20px; color:#888;">※0キーで観戦モード（AIのみ）</p>
+    </div>
+
+    <!-- スタート直前のレディ画面 (変更なし) -->
+    <div id="ready-screen" class="screen hidden">
+        <div class="ready-card">
+            <h1 id="ready-title">ゲーム名</h1>
+            <p id="ready-desc">説明文がここに入ります</p>
+            <img id="preview-img" src="" alt="preview">
+            <div style="font-size: 1.5rem; color:#ccc;">使うキー</div>
+            <div id="preview-key">SPACE</div>
+            <div id="ready-count">3</div>
+        </div>
+    </div>
+
+    <!-- メインゲーム画面 -->
+    <div id="game-screen" class="screen hidden">
+        <div class="top-bar">
+            <!-- ★★★ top-info-rowの構造を変更 ★★★ -->
+            <div class="top-info-row">
+                <div id="game-title">ゲームタイトル</div>
+                <div id="round-display">ROUND 1 / 5</div>
+                <div class="timer-container">残り <span id="game-timer">0</span> 秒</div>
+            </div>
+            <div id="key-guide">操作：---</div>
+            <div id="round-num" class="hidden"></div>
+        </div>
+
+        <div id="game-area">
+            <!-- (各種ゲームUIは変更なし) -->
+            <div id="horizontal-bar" class="hidden"><div id="target-zone-h"></div><div id="notes-container-h"></div></div>
+            <div id="samurai-signal" class="hidden">!</div>
+            <div id="sync-command" class="hidden"><div class="sync-icon"></div><div class="sync-countdown"></div></div>
+            <div id="simon-display" class="hidden"><div class="simon-sequence"></div><div class="simon-msg"></div></div>
+            <div id="flag-display" class="hidden"><div class="flag-text"></div></div>
+            <div id="golf-display" class="hidden"><div class="golf-bar"><div class="golf-target"></div><div class="golf-cursor"></div></div><div class="golf-msg">赤でスペース！</div></div>
+            <div id="math-display" class="hidden"><div class="math-problem"></div><div class="math-equals">= ?</div></div>
+            <div id="vertical-field" class="hidden"><div class="sing-target-line"></div><div id="notes-container-v"></div></div>
+            <div id="daruma-signal" class="hidden"><div class="signal-circle"></div><div class="signal-text">進め</div></div>
+            <div id="game-message"></div>
+        </div>
+        <div id="char-container"></div>
+    </div>
+
+    <!-- 投票画面 (変更なし) -->
+    <div id="vote-screen" class="screen hidden">
+        <h2 style="font-size: 2.5rem; margin-bottom: 10px;">インポスターは誰だ？</h2>
+        <p style="font-size: 1.5rem;">投票まで残り <span id="vote-time" style="color:#ff7675; font-weight:bold;">15</span> 秒</p>
+        <div id="vote-list"></div>
+        <div id="streamer-vote-info" class="hidden" style="margin-top: 15px; font-size: 1.2rem; color: #ffeaa7;">
+            コメントで番号を投票してね！ (合計: <span id="total-vote-count">0</span>票)
+        </div>
+    </div>
+
+    <!-- 結果画面 (変更なし) -->
+    <div id="result-screen" class="screen hidden">
+        <h1 id="result-title">勝利！</h1>
+        <p id="result-msg">メッセージ</p>
+        <button class="retry-btn" onclick="location.reload()">もう一度遊ぶ</button>
+    </div>
+
+    <script type="module" src="script.js"></script>
 </body>
 </html>
