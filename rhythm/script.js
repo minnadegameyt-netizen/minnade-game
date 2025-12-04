@@ -95,7 +95,7 @@ function handleComment(comment) {
         // 投票画面に表示されているキャラクターへの投票のみ受け付ける
         if (remainingChars.includes(vote)) {
             voteCounts[vote]++;
-            updateVoteDisplay(voteCounts);
+            // リアルタイムでの直接描画はやめる
         }
     }
 }
@@ -264,6 +264,7 @@ function setupInput() {
             if(c) {
                 if(gameState.currentModeId === 'daruma' && e.key === 'ArrowRight') playPose(c, 'stand');
                 if(gameState.currentModeId === 'chorus' && e.key === 'ArrowUp') chorusHolding = false;
+                if(gameState.currentModeId === 'eating' && e.key === ' ') playPose(c, 'stand'); // 早食い用
             }
         }
     });
@@ -376,19 +377,28 @@ function startStreamerVotePhase() {
     document.getElementById('streamer-vote-info').classList.remove('hidden');
     const voteList = document.getElementById('vote-list');
     voteList.innerHTML = '';
-    const voteCards = [];
+    
+    // UIのタイトルを元に戻す
+    document.querySelector('#vote-screen h2').textContent = "インポスターは誰だ？";
+    document.querySelector('#vote-screen p').style.display = 'block';
+
+
     remainingChars.forEach(id => {
         const card = document.createElement('div');
         card.className = `vote-card color-${id + 1}`;
         card.innerHTML = `<img src="${IMAGES.stand}" style="height:80px;"><div style="font-weight:bold; font-size:1.5em;">${id + 1}</div><div class="vote-bar" id="vote-bar-${id}" style="position:absolute; bottom:0; left:0; width:100%; height:0%; background:rgba(255,255,255,0.3); transition: height 0.5s;"></div>`;
         voteList.appendChild(card);
-        voteCards.push(card);
     });
 
     voteCounts = Array(CHAR_COUNT).fill(0);
-    updateVoteDisplay(voteCounts); // UIをリセット
+    updateVoteDisplay(voteCounts, false); // UIをリセット
 
     if (gameState.platform === 'youtube') startYouTubePolling();
+
+    // ゲージを揺らすためのインターバル
+    const voteDisplayInterval = setInterval(() => {
+        updateVoteDisplay(voteCounts, true);
+    }, 800);
 
     let t = gameState.voteTimeLimit;
     document.getElementById('vote-time').textContent = t;
@@ -397,41 +407,85 @@ function startStreamerVotePhase() {
         document.getElementById('vote-time').textContent = t;
         if (t <= 0) {
             clearInterval(timer);
+            clearInterval(voteDisplayInterval); // ゲージ揺らしを停止
+            
             stopYouTubePolling();
             twitch.disconnectTwitch();
             gameState.isVoting = false;
 
             const totalVotes = voteCounts.reduce((a, b) => a + b, 0);
-            let votedIndex = -1; // 誰も投票しなかった場合のデフォルト値
+            let votedIndex = -1;
             if (totalVotes > 0) {
                 const maxVotes = Math.max(...voteCounts);
+                // 同票の場合は先にその票数に達した方を優先 (indexOfの仕様)
                 votedIndex = voteCounts.indexOf(maxVotes);
             }
             
-            handleVote(votedIndex);
+            // 直接結果を表示せず、新しい演出関数を呼び出す
+            revealFinalVotes(votedIndex);
         }
     }, 1000);
 }
 
-function updateVoteDisplay(counts) {
+function updateVoteDisplay(counts, isAnimating = false) {
     const total = counts.reduce((a, b) => a + b, 0);
     document.getElementById('total-vote-count').textContent = total;
-    if (total === 0) {
-        // 全員のバーを0にする
-        counts.forEach((count, id) => {
-            const bar = document.getElementById(`vote-bar-${id}`);
-            if (bar) bar.style.height = '0%';
-        });
-        return;
-    }
 
     counts.forEach((count, id) => {
         const bar = document.getElementById(`vote-bar-${id}`);
         if (bar) {
-            bar.style.height = `${(count / total) * 100}%`;
+            let percentage = 0;
+            if (total > 0) {
+                percentage = (count / total) * 100;
+            }
+
+            // 投票中はゲージを揺らす
+            if (isAnimating && total > 0) {
+                percentage += (Math.random() - 0.5) * 10; // ±5%の範囲で揺らす
+                if (percentage < 0) percentage = 0;
+                if (percentage > 100) percentage = 100;
+            }
+            
+            bar.style.height = `${percentage}%`;
         }
     });
 }
+
+function revealFinalVotes(votedIndex) {
+    // 1. タイトルとタイマー表示を更新
+    document.querySelector('#vote-screen h2').textContent = "投票結果！";
+    document.querySelector('#vote-screen p').style.display = 'none';
+
+    // 2. 最終的な正しいゲージの高さを設定（アニメーションされる）
+    updateVoteDisplay(voteCounts, false);
+    playSe('start'); // ドラムロール的な音
+
+    // 3. ゲージが伸びるのを待ってから、結果をハイライト
+    setTimeout(() => {
+        // 最多票のキャラクターをハイライト
+        if (votedIndex !== -1) {
+            const votedCard = document.querySelector(`.vote-card.color-${votedIndex + 1}`);
+            if(votedCard) votedCard.classList.add('voted-reveal');
+        }
+
+        // さらに待ってから、インポスターを明かす
+        setTimeout(() => {
+            const imposterCard = document.querySelector(`.vote-card.color-${gameState.imposterIndex + 1}`);
+            if (imposterCard) {
+                imposterCard.classList.add('imposter-reveal');
+            }
+            playSe('select');
+
+            // 最後に結果画面へ
+            setTimeout(() => {
+                handleVote(votedIndex);
+            }, 2500); // 2.5秒間、最終結果を見せる
+
+        }, 2000); // 2秒後
+
+    }, 1500); // 1.5秒後
+}
+
 
 // --- YouTube ポーリング ---
 async function fetchLiveChatId() {
