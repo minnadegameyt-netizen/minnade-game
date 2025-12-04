@@ -286,15 +286,16 @@
                 </div>
             </div>
 
-            <!-- ゲームカード7: Coming Soon -->
+            <!-- ゲームカード7: リズム人狼 -->
             <div class="game-card">
-                <h2>Coming Soon</h2>
-                <div class="thumbnail-placeholder" style="border-color: #718096; color: #718096; border-style: dashed;">
-                    <span style="font-size: 2em;">?</span>
-                </div>
-                <p>新しいゲームを準備中です。<br>次回アップデートをお楽しみに！</p>
+                <h2>リズム人狼</h2>
+                <img src="rhythm/img/stand.webp" alt="リズム人狼 サムネイル" class="game-thumbnail" width="110" height="110">
+                <p>リズムに合わせてキーを押せ！<br>紛れ込んだ人狼を見つけ出せ！</p>
                 <div class="mode-buttons">
-                    <button class="game-link-btn btn-gray" disabled style="cursor: default; opacity: 0.6;">制作中</button>
+                    <a href="rhythm/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ（デモ）</a>
+                    <a href="rhythm/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    <button id="rhythm-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
+                    <button id="rhythm-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
 
@@ -575,6 +576,31 @@
                 </p>
             </div>
             <button id="close-aha-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
+        </div>
+    </div>
+
+    <!-- ▼▼▼ ここにリズム人狼ゲーム用のモーダルを追加 ▼▼▼ -->
+    <div id="rhythm-help-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content help-content">
+            <h2>リズム・インポスターの遊び方</h2>
+            <div class="help-scroll-area">
+                <h3>🕹️ 個人モード（デモ）</h3>
+                <p>好きなミニゲームを選んで練習したり、AI相手に人狼を探すモードです。操作はキーボードで行います。</p>
+                <h3>📡 配信モードについて</h3>
+                <p><strong>全員AI</strong>でゲームが進行し、視聴者は誰が人狼かを見抜くモードです。</p>
+                <h4>基本的な流れ</h4>
+                <ol>
+                    <li>配信者がゲームを開始すると、5人のキャラクターのうち1人がランダムで「人狼」に設定されます。</li>
+                    <li>全10種類以上のミニゲームから、<strong>ランダムに選ばれた5つ</strong>が連続で行われます。</li>
+                    <li>市民AIは正確にリズムを刻みますが、人狼AIは<strong>わざとミスをしたり、タイミングをずらしたり</strong>します。</li>
+                    <li>5つのゲームがすべて終了すると、<strong>投票タイム</strong>が始まります。</li>
+                    <li>視聴者はコメント欄に、人狼だと思うキャラクターの番号（1〜5）を投稿します。</li>
+                    <li>一番多く票を集めたキャラクターを追放し、人狼だったら市民の勝利です！</li>
+                </ol>
+                <h3>💡 ヒント</h3>
+                <p>ゲームごとに人狼のミスの仕方が異なります。キャラクターの動きをよく観察して、怪しい動きをしている人狼を見つけ出しましょう！</p>
+            </div>
+            <button id="close-rhythm-help-btn" class="btn-gray" style="margin-top:20px;">閉じる</button>
         </div>
     </div>
 
@@ -1113,7 +1139,8 @@
                 { btn: 'mystery-how-to-play-btn', modal: 'mystery-help-modal', close: 'close-mystery-help-btn' },
                 { btn: 'territory-how-to-play-btn', modal: 'territory-help-modal', close: 'close-territory-help-btn' },
                 { btn: 'pixel-how-to-play-btn', modal: 'pixel-help-modal', close: 'close-pixel-help-btn' },
-            { btn: 'aha-how-to-play-btn', modal: 'aha-help-modal', close: 'close-aha-help-btn' }
+            { btn: 'aha-how-to-play-btn', modal: 'aha-help-modal', close: 'close-aha-help-btn' },
+            { btn: 'rhythm-how-to-play-btn', modal: 'rhythm-help-modal', close: 'close-rhythm-help-btn' }
         ];
             modalIds.forEach(item => {
                 const btn = document.getElementById(item.btn);
@@ -1126,8 +1153,7 @@
                 }
             });
 
-            const supportModal = document.getElementById('home-support-modal');
-        const supportBtns = document.querySelectorAll('#home-support-btn, #war-support-btn, #quiz-support-btn, #kanji-support-btn, #mystery-support-btn, #territory-support-btn, #aha-support-btn');
+        const supportBtns = document.querySelectorAll('#home-support-btn, #war-support-btn, #quiz-support-btn, #kanji-support-btn, #mystery-support-btn, #territory-support-btn, #aha-support-btn, #rhythm-support-btn');
             supportBtns.forEach(btn => { btn.addEventListener('click', () => { supportModal.style.display = 'flex'; }); });
             const closeSupportBtn = document.getElementById('close-home-support-btn');
             if (closeSupportBtn) { closeSupportBtn.addEventListener('click', () => { supportModal.style.display = 'none'; }); supportModal.addEventListener('click', (e) => { if (e.target === supportModal) supportModal.style.display = 'none'; }); }
@@ -1141,7 +1167,8 @@
                 'kanji': 'kanji/index.html',
                 'mystery': 'mystery/index.html',
                 'pixel': 'pixel/index.html',
-                'aha': 'aha/index.html'
+                'aha': 'aha/index.html',
+                'rhythm': 'rhythm/index.html'
             };
             document.querySelectorAll('.game-selection .game-link-btn').forEach(btn => {
                 const href = btn.getAttribute('href');
