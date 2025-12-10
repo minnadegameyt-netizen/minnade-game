@@ -1357,3 +1357,34 @@ body {
     #mobile-warning-overlay { display: none !important; }
     .pc-only { display: none !important; }
 }
+
+/* =========================================
+   下層ページのスマホ対応
+   ========================================= */
+@media (max-width: 768px) {
+
+    /* メインコンテンツ全体の余白を調整 */
+    .content-page {
+        padding: 20px 15px; /* 上下20px, 左右15px に変更 */
+        font-size: 0.9em;   /* 全体の文字を少し小さく */
+    }
+
+    /* 見出しのサイズを調整 */
+    .content-page h2 {
+        font-size: 1.5em;
+    }
+    .content-page h3 {
+        font-size: 1.2em;
+    }
+
+    /* 404ページ用の調整 */
+    .error-code {
+        font-size: 4em; /* 数字を小さく */
+    }
+    .error-msg {
+        font-size: 1em; /* メッセージを小さく */
+    }
+    .back-btn {
+        padding: 12px 30px; /* ボタンを少し小さく */
+    }
+}
