@@ -53,6 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('mode')) gameMode = urlParams.get('mode');
 
+        document.body.classList.add(gameMode === 'streamer' ? 'mode-streamer' : 'mode-solo');
+
         document.querySelectorAll('.setup-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const parent = this.parentElement;
@@ -194,6 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         optionBtns.forEach(btn => {
             btn.className = 'option-btn';
             btn.querySelector('.vote-bar').style.width = '0%';
+            btn.blur(); 
         });
         voteCounts = [0, 0, 0, 0];
         timerDisplay.textContent = voteTimeLimit;
@@ -222,7 +225,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (platform === 'youtube') stopYouTubePolling();
                     decideStreamerAnswer();
                 } else {
-                    handleIncorrect();
+                    // ★修正: いきなり handleIncorrect() を呼ばず、時間切れ演出を呼ぶ
+                    handleTimeUp();
                 }
             }
         }, 1000);
@@ -253,6 +257,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 1500);
     }
+
+    // ★追加: 時間切れ時の処理（不正解と同じ演出を行う）
+    function handleTimeUp() {
+        isVoting = false; // 操作を受け付けなくする
+        clearInterval(timerInterval); // 念のためタイマー停止
+        
+        playSe('wrong'); // 不正解音
+
+        // 正解のボタンを緑色にする
+        const qData = currentQuestions[currentQIndex];
+        const correctIndex = qData.correct;
+        optionBtns[correctIndex].classList.add('correct');
+
+        // 2秒待ってからライフ減少処理へ
+        setTimeout(() => {
+            handleIncorrect();
+        }, 2000);
+    }
+
     function handleIncorrect() {
         currentLife--;
         updateLifeDisplay();
@@ -260,7 +283,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function decideStreamerAnswer() {
         const maxVotes = Math.max(...voteCounts);
-        if (maxVotes === 0) { handleIncorrect(); return; }
+        // ★修正: 0票の場合も即座に進まず、時間切れ演出（handleTimeUp）を呼ぶ
+        if (maxVotes === 0) { handleTimeUp(); return; }
+        
         const maxIndex = voteCounts.indexOf(maxVotes);
         submitAnswer(maxIndex);
     }

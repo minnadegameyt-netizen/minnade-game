@@ -522,3 +522,160 @@ button.wrong {
         max-width: 300px;
     }
 }
+
+/* --- ▼▼▼ style.css の一番下に追加してください ▼▼▼ --- */
+
+/* =========================================
+   スマホ対応 & ソロモード最適化
+   ========================================= */
+
+/* スマホレイアウト（幅900px以下で適用） */
+@media (max-width: 900px) {
+    /* ヘッダーをコンパクトに */
+    header {
+        padding: 5px;
+        font-size: 0.8em;
+        min-height: 50px;
+    }
+    .score-box, .timer {
+        font-size: 1.2em;
+    }
+
+    /* フッター（回答エリア）の調整 */
+    footer {
+        padding: 10px;
+        min-height: auto; /* 高さを固定しない */
+    }
+
+    #options-container {
+        flex-direction: column; /* 縦並びにする */
+        gap: 15px;
+    }
+
+    .options-wrapper {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    .options-column {
+        gap: 8px;
+    }
+
+    /* 配信者（自分）のボタンを押しやすく */
+    #host-options button {
+        padding: 12px;
+        font-size: 1em;
+    }
+    
+    /* 視聴者ボタンは少し小さく */
+    #viewer-options button {
+        height: 45px;
+        font-size: 0.9em;
+    }
+
+    /* 変化タイマーの位置調整 */
+    .change-timer-box {
+        min-width: 100px;
+        height: 50px;
+        font-size: 1.4em;
+        border-top-left-radius: 10px;
+    }
+
+    /* "どこが変わった？" オーバーレイ */
+    #question-overlay {
+        font-size: 1em;
+        padding: 8px 20px;
+        top: 10px;
+        right: 10px;
+    }
+
+    /* モーダル（設定・結果画面）のスマホ対応 */
+    .modal-content {
+        width: 95% !important;
+        padding: 20px !important;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    /* 結果画面の画像 */
+    .result-image-section img {
+        max-width: 100% !important;
+    }
+    
+    .final-scores {
+        font-size: 1em;
+        padding: 10px;
+    }
+}
+
+/* -----------------------------------------
+   ★ソロモード（個人で遊ぶ）専用の特別設定
+   ----------------------------------------- */
+body.mode-solo .viewer-wrapper {
+    /* ソロプレイ時は「視聴者投票エリア」を完全に消す */
+    display: none !important;
+}
+
+body.mode-solo .host-wrapper {
+    /* 自分の回答エリアを目立たせる */
+    border-color: #48bb78; /* 緑色っぽく */
+    box-shadow: 0 0 15px rgba(72, 187, 120, 0.2);
+}
+
+body.mode-solo .host-wrapper .column-header {
+    /* ヘッダーの文字を変える（擬似要素でハック） */
+    font-size: 0; /* 元の文字を消す */
+}
+body.mode-solo .host-wrapper .column-header::after {
+    content: "あなたの回答";
+    font-size: 16px; /* 文字サイズ復活 */
+    color: #9ae6b4;
+    font-weight: bold;
+}
+body.mode-solo #host-options button {
+    /* ボタンの色を緑系にする */
+    background: linear-gradient(145deg, #38a169, #2f855a);
+    border-color: #48bb78;
+}
+
+/* スマホかつソロモードの時は、ボタンを2列ではなく1列にして押しやすくする */
+@media (max-width: 900px) {
+    body.mode-solo #host-options {
+        grid-template-columns: 1fr; /* 1列 */
+    }
+}
+
+/* ソロモードの時は、配信プラットフォーム設定を隠す */
+body.mode-solo #platform-setting-group {
+    display: none !important;
+}
+
+/* --- ▼▼▼ style.css の一番下に追加・修正 ▼▼▼ --- */
+
+/* 1. ソロモードの時だけ「投票受付中」を消す */
+body.mode-solo #voting-status {
+    display: none !important;
+}
+
+/* 2. スマホ表示の調整 */
+@media (max-width: 900px) {
+    /* 問題切り替え時の「QUESTION 1」がでかすぎるのを直す */
+    .transition-text {
+        font-size: 3em; /* 5emから縮小 */
+        width: 100%;
+        text-align: center;
+        padding: 0 10px;
+        box-sizing: border-box;
+    }
+
+    /* 右上の「どこが変わった？」オーバーレイも見切れないようにする */
+    #question-overlay {
+        font-size: 1em;
+        padding: 8px 15px;
+        max-width: 60%; /* 画面幅の60%までに制限 */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}

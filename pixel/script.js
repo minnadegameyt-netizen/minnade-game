@@ -213,9 +213,15 @@ document.addEventListener('DOMContentLoaded', () => {
             cvs.dataset.index = i;
 
             if (state.mode === 'solo' || (state.mode === 'stream' && i === 0)) {
+                // マウスイベント
                 cvs.addEventListener('mousedown', onCanvasMouseDown);
                 window.addEventListener('mouseup', onCanvasMouseUp);
                 cvs.addEventListener('mousemove', onCanvasMouseMove);
+
+                // ★追加: タッチイベント (スマホ対応)
+                cvs.addEventListener('touchstart', onCanvasTouchStart, { passive: false });
+                cvs.addEventListener('touchmove', onCanvasTouchMove, { passive: false });
+                cvs.addEventListener('touchend', onCanvasTouchEnd);
             }
             cvs.addEventListener('contextmenu', e => e.preventDefault());
 
@@ -480,6 +486,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- ★修正: 共通の座標計算関数 ---
+    function getGridPosition(cvs, clientX, clientY) {
+        const rect = cvs.getBoundingClientRect();
+        
+        // 画面上の表示サイズと、キャンバス内部解像度の比率を計算
+        const scaleX = cvs.width / rect.width;
+        const scaleY = cvs.height / rect.height;
+
+        // クリック位置(px)をキャンバス内部座標に変換
+        const canvasX = (clientX - rect.left) * scaleX;
+        const canvasY = (clientY - rect.top) * scaleY;
+
+        // グリッド座標に変換
+        const x = Math.floor(canvasX / (cvs.width / state.gridSize));
+        const y = Math.floor(canvasY / (cvs.height / state.gridSize));
+
+        return { x, y };
+    }
+
     function onCanvasMouseDown(e) {
         const mapIndex = parseInt(e.target.dataset.index, 10);
         if (!state.isRunning || (state.mode === 'stream' && mapIndex !== 0)) return;
@@ -504,19 +529,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ★追加: タッチイベントハンドラ
+    function onCanvasTouchStart(e) {
+        if (!state.isRunning) return;
+        // スクロール防止
+        e.preventDefault(); 
+        
+        soloState.isDrawing = true;
+        soloState.currentStroke = [];
+        
+        // 最初の1点を塗る
+        handleTouchPaint(e);
+    }
+
+    function onCanvasTouchMove(e) {
+        if (!state.isRunning || !soloState.isDrawing) return;
+        e.preventDefault(); // スクロール防止
+        
+        handleTouchPaint(e);
+    }
+
+    function onCanvasTouchEnd(e) {
+        if (soloState.isDrawing) {
+            soloState.isDrawing = false;
+            if (soloState.currentStroke.length > 0) {
+                soloState.history.push([...soloState.currentStroke]);
+                if(soloState.history.length > 50) soloState.history.shift();
+            }
+        }
+    }
+
+    // ★修正: 座標取得に getGridPosition を使用
     function handleMousePaint(e) {
         const cvs = e.target;
-        const rect = cvs.getBoundingClientRect();
-        const size = cvs.width / state.gridSize;
-        const x = Math.floor((e.clientX - rect.left) / size);
-        const y = Math.floor((e.clientY - rect.top) / size);
+        const pos = getGridPosition(cvs, e.clientX, e.clientY);
         
-        if (x < 0 || x >= state.gridSize || y < 0 || y >= state.gridSize) return;
+        if (pos.x < 0 || pos.x >= state.gridSize || pos.y < 0 || pos.y >= state.gridSize) return;
 
-        soloState.cursor.x = x;
-        soloState.cursor.y = y;
+        soloState.cursor.x = pos.x;
+        soloState.cursor.y = pos.y;
 
-        paintAt(0, x, y, soloState.currentColorId, false);
+        paintAt(0, pos.x, pos.y, soloState.currentColorId, false);
+    }
+
+    // ★追加: タッチ用描画処理
+    function handleTouchPaint(e) {
+        const cvs = e.target;
+        const touch = e.touches[0];
+        const pos = getGridPosition(cvs, touch.clientX, touch.clientY);
+
+        if (pos.x < 0 || pos.x >= state.gridSize || pos.y < 0 || pos.y >= state.gridSize) return;
+
+        soloState.cursor.x = pos.x;
+        soloState.cursor.y = pos.y;
+
+        paintAt(0, pos.x, pos.y, soloState.currentColorId, false);
     }
 
     function paintAt(mapIndex, x, y, colorId, isKeyAction) {

@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Google Analytics Control Script -->
     <script>
       (function() {
@@ -46,24 +47,6 @@
     </style>
 </head>
 <body>
-
-<div id="mobile-warning-overlay">
-    <div class="mobile-warning-content">
-        <!-- アイコンを入れてキャッチーに -->
-        <div style="font-size: 3em; margin-bottom: 10px;">💻</div>
-        <h1>PCからのアクセスを推奨します</h1>
-        <p>
-            このサイトは<strong>「配信者向け」</strong>のゲーム集です。<br>
-            ゲームの操作や画面表示は、PC（パソコン）での利用に最適化されています。
-        </p>
-        <p style="font-size: 0.9em; color: #ecc94b; border: 1px dashed #ecc94b; padding: 10px; border-radius: 8px; margin: 15px 0;">
-            💡 <strong>スマホでご覧の方へ</strong><br>
-            ぜひURLをコピーして、PCのブラウザで開き直してみてください！
-        </p>
-        <button id="mobile-warning-close-btn">閉じてサイトを見る（閲覧のみ）</button>
-    </div>
-</div>
-
     <header class="site-header">
         <h1>視聴者参加型：みんなでゲーム</h1>
         <nav>
@@ -90,15 +73,23 @@
                 <a href="https://note.com/dontokoi_games/" target="_blank" class="feature-btn btn-gray">最新情報を見る</a>
             </div>
         </div>
-        <!-- バナー2: 新作ゲーム -->
+<!-- バナー2: 新作ゲーム -->
         <div class="feature-card">
-    <picture>
-        <source srcset="img/banner_newgame.webp" type="image/webp">
-        <img src="img/banner_newgame.png" alt="新作ゲーム" width="640" height="360">
-    </picture>
+            <picture>
+                <source srcset="img/banner_newgame.webp" type="image/webp">
+                <img src="img/banner_newgame.png" alt="新作ゲーム" width="640" height="360">
+            </picture>
             <div class="feature-content">
                 <h3>✨ 新作ゲーム登場！</h3>
-                <a href="mystery/index.html" class="feature-btn" style="background-color: #6b46c1;">今すぐプレイ</a>
+                
+                <!-- ▼▼▼ 修正: PC専用クラス(pc-only)を追加 ▼▼▼ -->
+                <a href="mystery/index.html" class="feature-btn pc-only" style="background-color: #6b46c1;">今すぐプレイ</a>
+                
+                <!-- ▼▼▼ 追加: スマホ用の表示（クリック不可） ▼▼▼ -->
+                <!-- mobile-only-msgクラスを使ってスマホのみ表示にしつつ、見た目をバナー用に調整 -->
+                <div class="mobile-only-msg" style="margin-top: 0; padding: 8px 15px; border: 1px solid #a0aec0; background-color: rgba(0,0,0,0.6); color: #fff; text-align: center;">
+                    💻 PC専用です
+                </div>
             </div>
         </div>
         <!-- バナー3: 初めての方へ (ここが新しいページへのリンク) -->
@@ -174,37 +165,48 @@
             </div>
         </div>
 
-        <div class="game-selection" id="game-list">
-            <!-- ゲームカード1: 高校野球シミュレーション -->
+<div class="game-selection" id="game-list">
+            
+            <!-- 1. 高校野球シミュレーション (PC専用) -->
             <div class="game-card">
                 <h2>高校野球シミュレーション</h2>
-<picture>
-    <source srcset="baseball/img/p_normal.webp" type="image/webp">
-    <img src="baseball/img/p_normal.webp" alt="高校野球シミュレーション サムネイル" class="game-thumbnail" width="110" height="110">
-</picture>
+                <picture>
+                    <source srcset="baseball/img/p_normal.webp" type="image/webp">
+                    <img src="baseball/img/p_normal.webp" alt="高校野球シミュレーション サムネイル" class="game-thumbnail" width="110" height="110">
+                </picture>
                 <p>高校球児として3年間を過ごし、甲子園を目指そう！</p>
                 <div class="mode-buttons">
-                    <a href="baseball/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
-                    <a href="baseball/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    <!-- PC専用なので pc-only を追加 -->
+                    <a href="baseball/index.html?mode=solo" class="game-link-btn btn-green pc-only">個人で遊ぶ</a>
+                    <a href="baseball/index.html?mode=streamer" class="game-link-btn btn-blue pc-only">配信で遊ぶ</a>
+                    
+                    <!-- スマホ用メッセージ -->
+                    <div class="mobile-only-msg">💻 このゲームは<br>PC専用です</div>
+
                     <button id="home-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="home-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
             
-            <!-- ゲームカード2: 視聴者参加型世論調査 -->
+            <!-- 2. 視聴者参加型世論調査 (PC専用) -->
             <div class="game-card">
                 <h2>視聴者参加型世論調査</h2>
                 <img src="war/thumbnail.webp" alt="陣取り合戦 サムネイル" class="game-thumbnail" width="110" height="110">
                 <p>コメント数で勢力を拡大せよ！<br>視聴者参加型の陣取りゲーム。</p>
                 <div class="mode-buttons">
-                    <a href="war/index.html?mode=demo" class="game-link-btn btn-green">デモプレイ（個人）</a>
-                    <a href="war/index.html?mode=stream" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    <!-- PC専用 -->
+                    <a href="war/index.html?mode=demo" class="game-link-btn btn-green pc-only">デモプレイ（個人）</a>
+                    <a href="war/index.html?mode=stream" class="game-link-btn btn-blue pc-only">配信で遊ぶ</a>
+
+                    <!-- スマホ用メッセージ -->
+                    <div class="mobile-only-msg">💻 このゲームは<br>PC専用です</div>
+
                     <button id="war-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="war-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
             
-            <!-- ゲームカード3: みんなでクイズ！ -->
+            <!-- 3. みんなでクイズ！ (スマホOK) -->
             <div class="game-card">
                 <h2>みんなでクイズ！</h2>
                 <div class="thumbnail-placeholder" style="border-color: #f6ad55; color: #f6ad55;">
@@ -212,14 +214,18 @@
                 </div>
                 <p>全問正解を目指せ！<br>視聴者の投票で答えを決めるクイズ番組。</p>
                 <div class="mode-buttons">
+                    <!-- 個人プレイはスマホOKなのでそのまま -->
                     <a href="quiz/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
-                    <a href="quiz/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    
+                    <!-- 配信機能はPC推奨なので pc-only -->
+                    <a href="quiz/index.html?mode=streamer" class="game-link-btn btn-blue pc-only">配信で遊ぶ</a>
+
                     <button id="quiz-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="quiz-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
 
-            <!-- ゲームカード4: 難読漢字クイズ -->
+            <!-- 4. 難読漢字クイズ (スマホOK) -->
             <div class="game-card">
                 <h2>難読漢字クイズ</h2>
                 <div class="thumbnail-placeholder" style="border-color: #e53e3e; color: #e53e3e;">
@@ -227,14 +233,18 @@
                 </div>
                 <p>読めたら天才！？<br>視聴者と一緒に難読漢字に挑戦しよう。</p>
                 <div class="mode-buttons">
+                    <!-- 個人プレイはスマホOK -->
                     <a href="kanji/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
-                    <a href="kanji/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    
+                    <!-- 配信機能はPC推奨 -->
+                    <a href="kanji/index.html?mode=streamer" class="game-link-btn btn-blue pc-only">配信で遊ぶ</a>
+
                     <button id="kanji-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="kanji-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
 
-            <!-- ゲームカード5: The Secret Site -->
+            <!-- 5. The Secret Site (PC専用) -->
             <div class="game-card">
                 <h2>The Secret Site</h2>
                 <div class="thumbnail-placeholder" style="border-color: #000; color: #fff; background: #222;">
@@ -242,13 +252,18 @@
                 </div>
                 <p>深夜2時、そのサイトは現れる。<br>都市伝説の謎を解き明かせ。</p>
                 <div class="mode-buttons">
-                    <a href="mystery/index.html" class="game-link-btn btn-purple" style="background-color: #6b46c1;">PLAY START</a>
+                    <!-- キーボード操作などがあるためPC専用 -->
+                    <a href="mystery/index.html" class="game-link-btn btn-purple pc-only" style="background-color: #6b46c1;">PLAY START</a>
+                    
+                    <!-- スマホ用メッセージ -->
+                    <div class="mobile-only-msg">💻 このゲームは<br>PC専用です</div>
+
                     <button id="mystery-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="mystery-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
             
-            <!-- ゲームカード6: 陣取りゲーム -->
+            <!-- 6. 配信者 VS 視聴者 陣取ゲーム (PC専用) -->
             <div class="game-card">
                 <h2>配信者 VS 視聴者 陣取ゲーム</h2>
                 <div class="thumbnail-placeholder" style="border-color: #4299e1; color: #4299e1;">
@@ -256,14 +271,19 @@
                 </div>
                 <p>コメントでマスを塗って陣地を広げろ！<br>視聴者参加型のリアルタイム陣取り合戦。</p>
                 <div class="mode-buttons">
-                    <a href="territory/index.html?mode=demo" class="game-link-btn btn-green">個人で遊ぶ（デモプレイ）</a>
-                    <a href="territory/index.html?mode=stream" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    <!-- PC専用 -->
+                    <a href="territory/index.html?mode=demo" class="game-link-btn btn-green pc-only">個人で遊ぶ（デモプレイ）</a>
+                    <a href="territory/index.html?mode=stream" class="game-link-btn btn-blue pc-only">配信で遊ぶ</a>
+
+                    <!-- スマホ用メッセージ -->
+                    <div class="mobile-only-msg">💻 このゲームは<br>PC専用です</div>
+
                     <button id="territory-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="territory-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
 
-            <!-- Pixel Art ゲーム用 -->
+            <!-- 7. ピクセル イラストレーター (スマホOK) -->
             <div class="game-card">
                 <h2>ピクセル　イラストレーター</h2>
                 <div class="thumbnail-placeholder" style="border-color: #ff7675; color: #ff7675;">
@@ -271,13 +291,17 @@
                 </div>
                 <p>みんなで絵を描こう！<br>キャンバスを彩るお絵描きゲーム。</p>
                 <div class="mode-buttons">
+                    <!-- 個人プレイはスマホOK -->
                     <a href="pixel/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
-                    <button class="game-link-btn btn-gray" disabled style="cursor: default; opacity: 0.6;">開発中です</button>
+                    
+                    <button class="game-link-btn btn-gray pc-only" disabled style="cursor: default; opacity: 0.6;">開発中です</button>
+
                     <button id="pixel-how-to-play-btn" class="game-link-btn btn-gray">遊び方</button>
                     <button class="game-link-btn btn-pink" onclick="document.getElementById('home-support-modal').style.display = 'flex'">開発者を支援する</button>
                 </div>
             </div>
 
+            <!-- 8. アハ体験 VSバトル (スマホOK) -->
             <div class="game-card">
                 <h2>アハ体験 VSバトル</h2>
                 <div class="thumbnail-placeholder" style="border-color: #a29bfe; color: #a29bfe;">
@@ -285,26 +309,36 @@
                 </div>
                 <p>徐々に変化する絵を見て、どこが変わったか当てよう！<br>配信者と視聴者の観察力が試される対戦型間違い探し。</p>
                 <div class="mode-buttons">
+                    <!-- 個人プレイはスマホOK -->
                     <a href="aha/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ</a>
-                    <a href="aha/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    
+                    <!-- 配信機能はPC推奨 -->
+                    <a href="aha/index.html?mode=streamer" class="game-link-btn btn-blue pc-only">配信で遊ぶ</a>
+
                     <button id="aha-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="aha-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
 
-            <!-- ゲームカード7: リズム人狼 -->
+            <!-- 9. リズム人狼 (PC専用) -->
             <div class="game-card">
                 <h2>リズム人狼</h2>
                 <img src="rhythm/img/stand.webp" alt="リズム人狼 サムネイル" class="game-thumbnail" width="110" height="110">
                 <p>リズムに合わせてキーを押せ！<br>紛れ込んだ人狼を見つけ出せ！</p>
                 <div class="mode-buttons">
-                    <a href="rhythm/index.html?mode=solo" class="game-link-btn btn-green">個人で遊ぶ（デモ）</a>
-                    <a href="rhythm/index.html?mode=streamer" class="game-link-btn btn-blue">配信で遊ぶ</a>
+                    <!-- キーボード必須のためPC専用 -->
+                    <a href="rhythm/index.html?mode=solo" class="game-link-btn btn-green pc-only">個人で遊ぶ（デモ）</a>
+                    <a href="rhythm/index.html?mode=streamer" class="game-link-btn btn-blue pc-only">配信で遊ぶ</a>
+                    
+                    <!-- スマホ用メッセージ -->
+                    <div class="mobile-only-msg">💻 このゲームは<br>PC専用です</div>
+
                     <button id="rhythm-how-to-play-btn" class="game-link-btn btn-gray">遊び方・機能説明</button>
                     <button id="rhythm-support-btn" class="game-link-btn btn-pink">開発者を支援する</button>
                 </div>
             </div>
 
+            <!-- Coming Soon -->
             <div class="game-card">
                 <h2>Coming Soon</h2>
                 <div class="thumbnail-placeholder" style="border-color: #718096; color: #718096; border-style: dashed;">
@@ -734,69 +768,78 @@
         );
         const db = firebase.firestore();
 
-        // --- ゲームデータ定義 ---
+// --- ゲームデータ定義 ---
         const gameData = {
             "baseball": {
                 title: "高校野球シミュレーション",
+                isPcOnly: true, // ★追加：PC専用フラグ
                 imgClass: "img", imgPath: "baseball/img/p_normal.webp", color: "#48bb78",
                 buttons: [
-                    { label: "個人で遊ぶ", url: "baseball/index.html?mode=solo", class: "btn-green" },
-                    { label: "配信で遊ぶ", url: "baseball/index.html?mode=streamer", class: "btn-blue" },
+                    // ★追加：pc-onlyクラス
+                    { label: "個人で遊ぶ", url: "baseball/index.html?mode=solo", class: "btn-green pc-only" },
+                    { label: "配信で遊ぶ", url: "baseball/index.html?mode=streamer", class: "btn-blue pc-only" },
                     { label: "遊び方・機能説明", modalId: "home-help-modal", class: "btn-gray" },
                     { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
                 ]
             },
             "war": {
                 title: "視聴者参加型世論調査",
+                isPcOnly: true, // ★追加
                 imgClass: "img", imgPath: "war/thumbnail.webp", color: "#e53e3e",
                 buttons: [
-                    { label: "デモプレイ", url: "war/index.html?mode=demo", class: "btn-green" },
-                    { label: "配信で遊ぶ", url: "war/index.html?mode=stream", class: "btn-blue" },
+                    { label: "デモプレイ", url: "war/index.html?mode=demo", class: "btn-green pc-only" },
+                    { label: "配信で遊ぶ", url: "war/index.html?mode=stream", class: "btn-blue pc-only" },
                     { label: "遊び方・機能説明", modalId: "war-help-modal", class: "btn-gray" },
                     { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
                 ]
             },
             "quiz": {
                 title: "みんなでクイズ！",
+                isPcOnly: false,
                 imgClass: "icon", imgContent: "Q", color: "#f6ad55",
                 buttons: [
                     { label: "個人で遊ぶ", url: "quiz/index.html?mode=solo", class: "btn-green" },
-                    { label: "配信で遊ぶ", url: "quiz/index.html?mode=streamer", class: "btn-blue" },
+                    // ★追加：配信はPC推奨なので隠す
+                    { label: "配信で遊ぶ", url: "quiz/index.html?mode=streamer", class: "btn-blue pc-only" },
                     { label: "遊び方・機能説明", modalId: "quiz-help-modal", class: "btn-gray" },
                     { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
                 ]
             },
             "kanji": {
                 title: "難読漢字クイズ",
+                isPcOnly: false,
                 imgClass: "icon", imgContent: "漢", color: "#e53e3e",
                 buttons: [
                     { label: "個人で遊ぶ", url: "kanji/index.html?mode=solo", class: "btn-green" },
-                    { label: "配信で遊ぶ", url: "kanji/index.html?mode=streamer", class: "btn-blue" },
+                    { label: "配信で遊ぶ", url: "kanji/index.html?mode=streamer", class: "btn-blue pc-only" },
                     { label: "遊び方・機能説明", modalId: "kanji-help-modal", class: "btn-gray" },
                     { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
                 ]
             },
             "mystery": {
                 title: "The Secret Site",
+                isPcOnly: true, // ★追加
                 imgClass: "icon", imgContent: "404", color: "#000000",
                 buttons: [
-                    { label: "PLAY START", url: "mystery/index.html", class: "btn-purple", style: "background-color: #6b46c1;" },
+                    { label: "PLAY START", url: "mystery/index.html", class: "btn-purple pc-only", style: "background-color: #6b46c1;" },
                     { label: "遊び方・機能説明", modalId: "mystery-help-modal", class: "btn-gray" },
                     { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
                 ]
             },
             "territory": {
                 title: "配信者 VS 視聴者 陣取ゲーム",
+                isPcOnly: true, // ★追加
                 imgClass: "icon", imgContent: "🌐", color: "#4299e1",
                 buttons: [
-                    { label: "デモプレイ", url: "territory/index.html?mode=demo", class: "btn-green" },
-                    { label: "配信で遊ぶ", url: "territory/index.html?mode=stream", class: "btn-blue" },
+                    { label: "デモプレイ", url: "territory/index.html?mode=demo", class: "btn-green pc-only" },
+                    { label: "配信で遊ぶ", url: "territory/index.html?mode=stream", class: "btn-blue pc-only" },
                     { label: "遊び方・機能説明", modalId: "territory-help-modal", class: "btn-gray" },
                     { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
                 ]
             },
             "pixel": {
                 title: "ピクセル イラストレーター",
+                isPcOnly: false,
                 imgClass: "icon", imgContent: "🎨", color: "#ff7675",
                 buttons: [
                     { label: "個人で遊ぶ", url: "pixel/index.html?mode=solo", class: "btn-green" },
@@ -806,20 +849,22 @@
             },
             "aha": {
                 title: "アハ体験 VSバトル",
+                isPcOnly: false,
                 imgClass: "icon", imgContent: "👀", color: "#a29bfe",
                 buttons: [
                     { label: "個人で遊ぶ", url: "aha/index.html?mode=solo", class: "btn-green" },
-                    { label: "配信で遊ぶ", url: "aha/index.html?mode=streamer", class: "btn-blue" },
+                    { label: "配信で遊ぶ", url: "aha/index.html?mode=streamer", class: "btn-blue pc-only" },
                     { label: "遊び方・機能説明", modalId: "aha-help-modal", class: "btn-gray" },
                     { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
                 ]
             },
             "rhythm": {
                 title: "リズム人狼",
+                isPcOnly: true, // ★追加
                 imgClass: "img", imgPath: "rhythm/img/stand.webp", color: "#00d2d3",
                 buttons: [
-                    { label: "個人で遊ぶ（デモ）", url: "rhythm/index.html?mode=solo", class: "btn-green" },
-                    { label: "配信で遊ぶ", url: "rhythm/index.html?mode=streamer", class: "btn-blue" },
+                    { label: "個人で遊ぶ（デモ）", url: "rhythm/index.html?mode=solo", class: "btn-green pc-only" },
+                    { label: "配信で遊ぶ", url: "rhythm/index.html?mode=streamer", class: "btn-blue pc-only" },
                     { label: "遊び方・機能説明", modalId: "rhythm-help-modal", class: "btn-gray" },
                     { label: "開発者を支援する", modalId: "home-support-modal", class: "btn-pink" }
                 ]
@@ -897,7 +942,7 @@
             renderHTML(dataList.slice(0, 15));
         }
 
-        function renderHTML(dataList) {
+function renderHTML(dataList) {
             const track = document.getElementById('ranking-track');
             const messageArea = document.getElementById('ranking-message-area');
             messageArea.style.display = 'none';
@@ -922,6 +967,8 @@
                     if(rank === 3) { rankClass = "rank-3 rank-top"; crownText = "🥉 3rd"; }
 
                     let buttonsHtml = '<div class="mode-buttons">';
+                    
+                    // ボタン生成
                     data.buttons.forEach(btn => {
                         let styleAttr = btn.style ? `style="${btn.style}"` : "";
                         if (btn.url) {
@@ -930,6 +977,12 @@
                             buttonsHtml += `<button class="game-link-btn ${btn.class}" ${styleAttr} onclick="openModal('${btn.modalId}')">${btn.label}</button>`;
                         }
                     });
+
+                    // ★追加：PC専用ゲームの場合、スマホ用メッセージを追加
+                    if (data.isPcOnly) {
+                        buttonsHtml += '<div class="mobile-only-msg">💻 このゲームは<br>PC専用です</div>';
+                    }
+
                     buttonsHtml += '</div>';
 
                     html += `

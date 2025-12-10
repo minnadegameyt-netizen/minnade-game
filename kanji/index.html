@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Google Analytics Control Script -->
 <script>
   (function() {
@@ -42,8 +43,8 @@
                 （ゲーム画面上でのクリック操作は無効になります）
             </p>
             
-            <!-- ▼▼▼ 追加: プラットフォーム選択 ▼▼▼ -->
-            <div class="setup-group">
+            <!-- ▼▼▼ 修正: IDを追加 (スマホ/ソロモード制御用) ▼▼▼ -->
+            <div class="setup-group" id="platform-setting-group">
                 <label>配信プラットフォーム</label>
                 <div class="btn-group" id="platform-select">
                     <button class="setup-btn selected" data-val="youtube">YouTube</button>
@@ -147,14 +148,11 @@
         <div class="modal-content">
             <h2 id="result-title">終了</h2>
             <p id="result-msg">結果...</p>
-            <!-- 修正: ボタンにIDを追加してJSで制御する形に変更（Twitch切断のため） -->
             <button id="reload-btn" class="action-btn primary" style="background-color: #e53e3e;">タイトルに戻る</button>
         </div>
     </div>
 
     <script src="js/kanji-data.js"></script>
-    
-    <!-- ▼▼▼ 修正点: moduleとして読み込む ▼▼▼ -->
     <script type="module" src="js/script.js"></script>
 </body>
 </html>

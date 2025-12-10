@@ -2,11 +2,13 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <!-- スマホ対応のための必須設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <title>ピクセル　イラストレーター</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Orbitron:wght@700&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -51,7 +53,7 @@
 
                 <div id="players-scoreboard" class="scoreboard-container"></div>
 
-                <!-- ★追加: 番号確認用ガイドマップ -->
+                <!-- ガイドマップ -->
                 <div id="guide-map-box" class="guide-box hidden">
                     <h5 class="guide-title">NUMBER GUIDE</h5>
                     <div id="guide-size-info" class="guide-info">-- x --</div>
@@ -171,8 +173,6 @@
                     </div>
                 </div>
 
-                <!-- ★「レイアウト」設定を削除しました -->
-
                 <!-- お題 -->
                 <div class="setting-row" id="row-theme">
                     <div class="label-row">
@@ -220,10 +220,7 @@
         <div class="modal-content entry-content">
             <h2 class="setup-title">PAINTERS ENTRY</h2>
             <p>コメント欄で「参加」とコメントしてください！</p>
-            <!-- ★ここをシンプルに変更 -->
-            <div id="entry-list" class="entry-list">
-                <!-- JSがここにリストを生成します -->
-            </div>
+            <div id="entry-list" class="entry-list"></div>
             <div class="btn-area">
                 <button id="back-to-setup" class="sub-btn">戻る</button>
                 <button id="start-game-btn" class="action-btn">スタート</button>

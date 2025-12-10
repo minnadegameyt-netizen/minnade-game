@@ -4,8 +4,8 @@ import * as twitch from '../../twitch.js';
 document.addEventListener('DOMContentLoaded', () => {
     // --- 設定変数 ---
     let gameMode = 'solo';
-    let platform = 'youtube'; // ★追加
-    let TWITCH_CHANNEL_ID = ""; // ★追加
+    let platform = 'youtube';
+    let TWITCH_CHANNEL_ID = "";
     let questionCountGoal = 10;
     let voteTimeLimit = 30;
     let difficulty = 2; // 1:初級 ~ 4:特級
@@ -68,6 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function init() {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('mode')) gameMode = urlParams.get('mode');
+
+        // ★追加: ソロモード/配信モードのクラスをbodyに付与（CSS制御用）
+        document.body.classList.add(gameMode === 'streamer' ? 'mode-streamer' : 'mode-solo');
 
         // 設定ボタンの挙動
         document.querySelectorAll('.setup-btn').forEach(btn => {
@@ -251,12 +254,14 @@ document.addEventListener('DOMContentLoaded', () => {
         optionBtns.forEach(btn => {
             btn.className = 'option-btn';
             btn.querySelector('.vote-bar').style.width = '0%';
+            btn.blur(); 
         });
         voteCounts = [0, 0, 0, 0];
         timerDisplay.textContent = voteTimeLimit;
         document.getElementById('vote-count').textContent = "0";
     }
 
+    // ★修正: 時間切れ時の処理を変更
     function startVotingPhase() {
         isVoting = true;
         let timeLeft = voteTimeLimit;
@@ -284,7 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (platform === 'youtube') stopYouTubePolling();
                     decideStreamerAnswer();
                 } else {
-                    handleIncorrect();
+                    // ★修正: handleIncorrect ではなく handleTimeUp を呼ぶ
+                    handleTimeUp();
                 }
             }
         }, 1000);
@@ -324,6 +330,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1500);
     }
 
+    // ★追加: 時間切れ時の演出関数
+    function handleTimeUp() {
+        isVoting = false; // 操作無効化
+        clearInterval(timerInterval);
+        
+        playSe('wrong'); // 不正解音
+        
+        // 正解のボタンを表示
+        const qData = currentQuestions[currentQIndex];
+        const correctIndex = qData.correct;
+        optionBtns[correctIndex].classList.add('correct');
+
+        // 2秒後にライフ減少へ
+        setTimeout(() => {
+            handleIncorrect();
+        }, 2000);
+    }
+
     function handleIncorrect() {
         currentLife--;
         updateLifeDisplay();
@@ -335,6 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ★修正: 0票の場合も時間切れ演出を呼ぶ
     function decideStreamerAnswer() {
         let maxVotes = -1;
         let maxIndex = -1;
@@ -344,8 +369,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 maxIndex = i;
             }
         }
+        // 修正: 0票なら即座に不正解とせず、時間切れ演出へ
         if (maxVotes === 0) {
-            handleIncorrect();
+            handleTimeUp();
             return;
         }
         submitAnswer(maxIndex);

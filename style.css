@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Orbitron:wght@700&display=swap');
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 html {
     height: 100%;
 }
@@ -99,15 +103,20 @@ body {
 .game-card {
     background-color: #2d3748;
     border-radius: 12px;
-    padding: 20px; /* パディングを少し減らす */
+    padding: 20px;
     text-align: center;
     box-shadow: 0 8px 20px rgba(0,0,0,0.3);
     border: 1px solid #4a5568;
     display: flex;
     flex-direction: column;
     
-    width: 300px; /* 幅を固定 */
-    min-height: 420px; /* 高さを少しコンパクトに */
+    /* ▼▼▼ 修正箇所：スマホでのはみ出し防止 ▼▼▼ */
+    width: 90%;            /* 画面幅の90%にする（左右に余白ができる） */
+    max-width: 320px;      /* PCでは最大320pxまで */
+    margin: 0 auto;        /* 確実に中央寄せ */
+    /* ▲▲▲ ここまで ▲▲▲ */
+
+    min-height: 420px;
     height: auto;
 }
 
@@ -1241,4 +1250,110 @@ body {
 @media (max-width: 600px) {
     .slider-chara { width: 100px; }
     .slider-bubble { font-size: 0.9em; padding: 10px; margin-bottom: 20px; }
+}
+
+@media (max-width: 768px) {
+    #mobile-warning-overlay {
+        display: flex !important;
+        /* NEWSポップアップ(9999)より大きくする */
+        z-index: 10000 !important; 
+    }
+}
+
+/* --- スマホ閲覧時の制御 --- */
+
+/* デフォルトでは「スマホ用メッセージ」を隠す */
+.mobile-only-msg {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    /* 1. 警告画面はもう不要なので消す（HTMLに残っている場合） */
+    #mobile-warning-overlay {
+        display: none !important;
+    }
+
+    /* 2. 「PC専用」クラスがついた要素を消す */
+    .pc-only {
+        display: none !important;
+    }
+
+    /* 3. 「スマホ用メッセージ」を表示する */
+    .mobile-only-msg {
+        display: block;
+        background-color: #2d3748; /* 背景色になじませる */
+        border: 2px dashed #4a5568;
+        color: #a0aec0;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: auto; /* 下に寄せる */
+        font-size: 0.9em;
+        font-weight: bold;
+    }
+}
+
+/* --- ▼▼▼ style.css の一番下に追記・上書きしてください ▼▼▼ --- */
+
+@media (max-width: 768px) {
+    /* 1. ヘッダーナビゲーションを横並びにしてスッキリさせる */
+    .site-header {
+        padding-top: 15px;
+        padding-bottom: 10px;
+    }
+    
+    .site-header h1 {
+        font-size: 1.4em; /* タイトルを少し小さく */
+        margin-bottom: 15px;
+        line-height: 1.3;
+        padding: 0 10px;
+    }
+
+    .site-header nav {
+        display: flex;
+        flex-direction: row; /* ★横並びにする */
+        flex-wrap: wrap;     /* 画面幅が足りないときは折り返す */
+        justify-content: center;
+        align-items: center;
+        gap: 10px 15px;      /* 縦10px、横15pxの間隔 */
+    }
+
+    .site-header nav a {
+        font-size: 0.85em;   /* 文字を少し小さくして収まりを良くする */
+        padding: 5px 0;
+        white-space: nowrap; /* 勝手な改行を防ぐ */
+        border: none;        /* 下線などが邪魔なら消す */
+    }
+
+    /* 配信者用設定ボタンのデザイン調整 */
+    .header-api-btn {
+        font-size: 0.8em;
+        padding: 6px 12px;
+        margin-left: 5px; /* 少し離す */
+    }
+    
+    /* ------------------------------------------------- */
+
+    /* 2. ランキングの調整（前回の修正分） */
+    .ranking-section { margin-top: 20px; padding-bottom: 20px; }
+    .ranking-slider-wrapper { padding: 0 35px; }
+    .ranking-viewport { width: 220px; overflow: hidden; }
+    .slider-arrow { width: 30px; height: 30px; font-size: 0.9em; background-color: rgba(45, 55, 72, 0.9); }
+    .slider-arrow.prev { left: 2px; }
+    .slider-arrow.next { right: 2px; }
+
+    /* 3. 配信バナーの調整（前回の修正分） */
+    .live-banner-container { margin: 20px auto; padding: 0 10px; }
+    .live-banner { padding: 0 10px; height: auto; min-height: 50px; }
+    .live-content { flex: 1; justify-content: center; flex-wrap: wrap; gap: 8px; padding: 10px 0; }
+    .live-text { font-size: 0.85em; line-height: 1.4; white-space: nowrap; }
+    .live-text strong { font-size: 1.2em; }
+    .live-icon { font-size: 0.75em; padding: 3px 6px; }
+    .live-arrow { display: none; }
+
+    /* 4. その他・表示制御 */
+    #home-page { padding-top: 10px; }
+    .game-card { margin-bottom: 10px; }
+    .mobile-only-msg { display: block; background-color: #2d3748; border: 2px dashed #4a5568; color: #a0aec0; padding: 15px; border-radius: 8px; margin-top: auto; font-size: 0.9em; font-weight: bold; }
+    #mobile-warning-overlay { display: none !important; }
+    .pc-only { display: none !important; }
 }

@@ -374,3 +374,89 @@ canvas {
     outline: none;
     border-color: #74b9ff;
 }
+
+/* =========================================
+   スマホ・タブレット対応 (レスポンシブ)
+   ========================================= */
+@media (max-width: 768px) {
+    body {
+        height: auto; /* 縦スクロールを許可 */
+        overflow-y: auto;
+        display: block; /* フレックス解除 */
+    }
+
+    #game-container {
+        height: auto;
+        padding: 5px;
+        overflow: visible;
+    }
+
+    /* ヘッダー調整 */
+    header {
+        flex-wrap: wrap;
+        padding: 5px 10px;
+        gap: 5px;
+    }
+    .header-left {
+        order: 1; display: flex;
+    }
+    .timer-box {
+        order: 2; margin-left: auto;
+    }
+    #manual-finish-btn {
+        order: 3; width: 100%; margin-top: 5px;
+    }
+    #theme-display-area {
+        order: 4; width: 100%; margin-top: 5px;
+    }
+
+    /* メインレイアウトを縦並びに */
+    .content-wrapper {
+        flex-direction: column;
+        overflow: visible;
+    }
+
+    /* キャンバスエリア */
+    .main-column {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1/1; /* 正方形を維持 */
+        margin-bottom: 10px;
+    }
+
+    /* サイドバー（パレット等） */
+    .side-column {
+        width: 100%;
+        gap: 10px;
+    }
+
+    /* パレットを押しやすく */
+    .color-grid {
+        grid-template-columns: repeat(6, 1fr); /* 横6列にして大きく */
+        gap: 8px;
+    }
+    .color-item {
+        padding: 5px;
+    }
+
+    /* スマホではガイドマップや操作説明は場所を取るので隠すか小さくする */
+    #guide-map-box {
+        display: none !important; 
+    }
+    
+    .instruction-box {
+        display: none; /* 操作説明もスマホでは直感的なので隠す（または短くする） */
+    }
+
+    /* モーダルの調整 */
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+        margin: 20px auto;
+    }
+    
+    .setup-btn {
+        padding: 8px 5px;
+        font-size: 0.9em;
+    }
+}

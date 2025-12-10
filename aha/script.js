@@ -92,6 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('mode')) gameMode = urlParams.get('mode');
 
+        document.body.classList.add(gameMode === 'streamer' ? 'mode-streamer' : 'mode-solo');
+
         setupSettings();
         
         document.getElementById('setup-done-btn').addEventListener('click', onSetupDone);
@@ -430,14 +432,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    function handleHostAnswer(choice) {
+function handleHostAnswer(choice) {
         if (!gameState.isVoting || gameState.hostAnswer) return;
         gameState.hostAnswer = choice;
+        
         const buttons = hostOptionsContainer.querySelectorAll('button');
         buttons.forEach(btn => {
             if (btn.dataset.choice === choice) btn.classList.add('selected');
             btn.disabled = true;
         });
+
+        // ▼▼▼ ★追加：ソロモードなら待たずに即終了させる ▼▼▼
+        if (gameMode === 'solo') {
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval); // タイマー停止
+            finishVoting(); // 即座に結果画面へ
+        }
     }
 
     function finishVoting() {
@@ -524,10 +533,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    // --- 結果確認後の手動ナビゲーション表示 ---
+// --- 結果確認後の手動ナビゲーション表示 ---
     function showNavigationButtons() {
         hostOptionsContainer.innerHTML = '';
         
+        // ▼▼▼ ★追加：正解の内容を表示するエリアを作成 ▼▼▼
+        const answerDisplay = document.createElement('div');
+        answerDisplay.style.gridColumn = "1 / -1";
+        answerDisplay.style.textAlign = "center";
+        answerDisplay.style.marginBottom = "10px";
+        answerDisplay.style.color = "#e2e8f0";
+        answerDisplay.style.fontSize = "1.1em";
+        answerDisplay.innerHTML = `正解: <span style="color:#ecc94b; font-weight:bold; font-size:1.3em;">${gameState.currentChange.correct_answer}</span>`;
+        hostOptionsContainer.appendChild(answerDisplay);
+        // ▲▲▲ 追加ここまで ▲▲▲
+
         const compareBtn = document.createElement('button');
         compareBtn.textContent = '👀 変化前を見る (長押し)';
         compareBtn.style.background = 'linear-gradient(145deg, #718096, #4a5568)';
