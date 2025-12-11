@@ -28,20 +28,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Orbitron:wght@700&display=swap">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <style>
-        .game-selection {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 30px;
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding-bottom: 40px;
-        }
         #home-page {
             overflow-y: auto;
             min-height: calc(100vh - 100px);
-            align-items: flex-start;
+            align-items: center;
             padding-top: 40px;
         }
     </style>
@@ -165,10 +155,53 @@
             </div>
         </div>
 
-<div class="game-selection" id="game-list">
+<!-- ▼▼▼ メインコンテナ（サイドバー ＋ ゲーム一覧） ▼▼▼ -->
+<div class="main-container">
+
+    <!-- ▼ サイドバーエリア ▼ -->
+    <aside class="sidebar">
+        <!-- 検索ボックス -->
+        <div class="sidebar-widget">
+            <h3 class="sidebar-title">🔍 キーワード検索</h3>
+            <div class="search-box">
+                <input type="text" placeholder="タイトルを検索...">
+                <button>Go</button>
+            </div>
+        </div>
+
+        <!-- カテゴリ絞り込み -->
+        <div class="sidebar-widget">
+            <h3 class="sidebar-title">📂 カテゴリ</h3>
+            <ul class="sidebar-list">
+        <li><a href="javascript:void(0)" onclick="filterGames('all')">すべて表示</a></li>
+        <li><a href="javascript:void(0)" onclick="filterGames('category', 'quiz')">クイズ・パズル</a></li>
+        <li><a href="javascript:void(0)" onclick="filterGames('category', 'simulation')">シミュレーション</a></li>
+        <li><a href="javascript:void(0)" onclick="filterGames('category', 'action')">アクション・リズム</a></li>
+        <li><a href="javascript:void(0)" onclick="filterGames('category', 'horror')">ホラー・ミステリー</a></li>
+        <li><a href="javascript:void(0)" onclick="filterGames('category', 'creative')">お絵描き・クリエイティブ</a></li>
+            </ul>
+        </div>
+
+        <!-- タグ・機能 -->
+        <div class="sidebar-widget">
+            <h3 class="sidebar-title">🏷️ 特徴で探す</h3>
+            <div class="tag-cloud">
+        <a href="javascript:void(0)" onclick="filterGames('tag', 'smartphone')" class="tag">スマホOK</a>
+        <a href="javascript:void(0)" onclick="filterGames('tag', 'pc')" class="tag">PC専用</a>
+        <a href="javascript:void(0)" onclick="filterGames('tag', 'stream')" class="tag">配信モードあり</a>
+        <a href="javascript:void(0)" onclick="filterGames('tag', 'short')" class="tag">短時間</a>
+        <a href="javascript:void(0)" onclick="filterGames('tag', 'many')" class="tag">大人数</a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ▼ メインエリア（ゲーム一覧） ▼ -->
+    <div class="main-content">
+        
+        <div class="game-selection" id="game-list">
             
             <!-- 1. 高校野球シミュレーション (PC専用) -->
-            <div class="game-card">
+            <div class="game-card" data-category="simulation" data-tags="pc stream long many">
                 <h2>高校野球シミュレーション</h2>
                 <picture>
                     <source srcset="baseball/img/p_normal.webp" type="image/webp">
@@ -189,7 +222,7 @@
             </div>
             
             <!-- 2. 視聴者参加型世論調査 (PC専用) -->
-            <div class="game-card">
+            <div class="game-card" data-category="simulation" data-tags="pc stream many">
                 <h2>視聴者参加型世論調査</h2>
                 <img src="war/thumbnail.webp" alt="陣取り合戦 サムネイル" class="game-thumbnail" width="110" height="110">
                 <p>コメント数で勢力を拡大せよ！<br>視聴者参加型の陣取りゲーム。</p>
@@ -207,7 +240,7 @@
             </div>
             
             <!-- 3. みんなでクイズ！ (スマホOK) -->
-            <div class="game-card">
+            <div class="game-card" data-category="quiz" data-tags="smartphone stream many">
                 <h2>みんなでクイズ！</h2>
                 <div class="thumbnail-placeholder" style="border-color: #f6ad55; color: #f6ad55;">
                     <span style="font-size: 2em;">Q</span>
@@ -226,7 +259,7 @@
             </div>
 
             <!-- 4. 難読漢字クイズ (スマホOK) -->
-            <div class="game-card">
+            <div class="game-card" data-category="quiz" data-tags="smartphone stream many">
                 <h2>難読漢字クイズ</h2>
                 <div class="thumbnail-placeholder" style="border-color: #e53e3e; color: #e53e3e;">
                     <span style="font-size: 2em;">漢</span>
@@ -245,7 +278,7 @@
             </div>
 
             <!-- 5. The Secret Site (PC専用) -->
-            <div class="game-card">
+            <div class="game-card" data-category="horror" data-tags="pc">
                 <h2>The Secret Site</h2>
                 <div class="thumbnail-placeholder" style="border-color: #000; color: #fff; background: #222;">
                     <span style="font-size: 2em; font-family: 'Courier New', monospace;">404</span>
@@ -264,7 +297,7 @@
             </div>
             
             <!-- 6. 配信者 VS 視聴者 陣取ゲーム (PC専用) -->
-            <div class="game-card">
+            <div class="game-card" data-category="action" data-tags="pc stream many">
                 <h2>配信者 VS 視聴者 陣取ゲーム</h2>
                 <div class="thumbnail-placeholder" style="border-color: #4299e1; color: #4299e1;">
                     <span style="font-size: 2em;">🌐</span>
@@ -284,8 +317,8 @@
             </div>
 
             <!-- 7. ピクセル イラストレーター (スマホOK) -->
-            <div class="game-card">
-                <h2>ピクセル　イラストレーター</h2>
+            <div class="game-card" data-category="creative" data-tags="smartphone">
+                <h2>ピクセル イラストレーター</h2>
                 <div class="thumbnail-placeholder" style="border-color: #ff7675; color: #ff7675;">
                     <span style="font-size: 2em;">🎨</span>
                 </div>
@@ -302,7 +335,7 @@
             </div>
 
             <!-- 8. アハ体験 VSバトル (スマホOK) -->
-            <div class="game-card">
+            <div class="game-card" data-category="quiz" data-tags="smartphone stream many">
                 <h2>アハ体験 VSバトル</h2>
                 <div class="thumbnail-placeholder" style="border-color: #a29bfe; color: #a29bfe;">
                     <span style="font-size: 2em;">👀</span>
@@ -321,7 +354,7 @@
             </div>
 
             <!-- 9. リズム人狼 (PC専用) -->
-            <div class="game-card">
+            <div class="game-card" data-category="action" data-tags="pc stream short">
                 <h2>リズム人狼</h2>
                 <img src="rhythm/img/stand.webp" alt="リズム人狼 サムネイル" class="game-thumbnail" width="110" height="110">
                 <p>リズムに合わせてキーを押せ！<br>紛れ込んだ人狼を見つけ出せ！</p>
@@ -339,7 +372,7 @@
             </div>
 
             <!-- Coming Soon -->
-            <div class="game-card">
+            <div class="game-card" data-category="other" data-tags="">
                 <h2>Coming Soon</h2>
                 <div class="thumbnail-placeholder" style="border-color: #718096; color: #718096; border-style: dashed;">
                     <span style="font-size: 2em;">?</span>
@@ -351,8 +384,12 @@
             </div>
 
         </div>
+        
         <div id="pagination-controls" class="pagination-container"></div>
-    </main>
+    </div>
+
+</div>
+<!-- ▲▲▲ メインコンテナ終了 ▲▲▲ -->
 
     <!-- ▼▼▼ 配信設定モーダル ▼▼▼ -->
     <div id="global-api-modal" class="modal-overlay" style="display: none;">
@@ -1544,6 +1581,62 @@ function renderHTML(dataList) {
                 sessionStorage.setItem('update_closed', 'true');
             });
         });
+// ▼▼▼ 絞り込み機能のスクリプト ▼▼▼
+function filterGames(type, value) {
+    const cards = document.querySelectorAll('.game-card');
+    const pagination = document.getElementById('pagination-controls');
+
+    // 絞り込み中はページネーションを隠す（全件表示にするため）
+    if (pagination) {
+        pagination.style.display = type === 'all' ? 'flex' : 'none';
+    }
+
+    let count = 0;
+
+    cards.forEach(card => {
+        // "Coming Soon" などデータ属性がないカードの対策
+        const cardCat = card.getAttribute('data-category') || '';
+        const cardTags = card.getAttribute('data-tags') || '';
+
+        let isMatch = false;
+
+        if (type === 'all') {
+            isMatch = true; // すべて表示
+        } else if (type === 'category') {
+            isMatch = (cardCat === value); // カテゴリ一致
+        } else if (type === 'tag') {
+            isMatch = cardTags.includes(value); // タグが含まれているか
+        } else if (type === 'search') {
+            // 検索ボックス用（タイトル検索）
+            const title = card.querySelector('h2').textContent.toLowerCase();
+            isMatch = title.includes(value.toLowerCase());
+        }
+
+        // 表示・非表示の切り替え
+        if (isMatch) {
+            card.style.display = 'flex';
+            count++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // 検索結果が0件の場合のメッセージ表示などをここに追加してもOK
+}
+
+// 検索ボックスの動作（Enterキーで検索）
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.querySelector('.search-box input');
+    const searchBtn = document.querySelector('.search-box button');
+
+    if (searchInput && searchBtn) {
+        const doSearch = () => filterGames('search', searchInput.value);
+        searchBtn.addEventListener('click', doSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') doSearch();
+        });
+    }
+});
     </script>
 </body>
 </html>

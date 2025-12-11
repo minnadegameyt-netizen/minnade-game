@@ -89,14 +89,14 @@ body {
     width: 100%;
 }
 
-/* --- 3列レイアウト --- */
+/* --- 3列レイアウト (Gridシステムに変更) --- */
 .game-selection {
-    display: flex; /* gridからflexに変更して中央寄せしやすくする */
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
+    display: grid;                   /* FlexからGridに変更 */
+    grid-template-columns: repeat(3, 1fr); /* PCでは3列固定 */
+    gap: 25px;                       /* カード間の隙間 */
     width: 100%;
-    max-width: 1200px;
+    max-width: 1050px;               /* 3列がきれいに収まる最大幅 */
+    margin: 0 auto 40px auto;        /* 中央寄せ */
 }
 
 /* --- ゲームカードのスタイル --- */
@@ -110,14 +110,14 @@ body {
     display: flex;
     flex-direction: column;
     
-    /* ▼▼▼ 修正箇所：スマホでのはみ出し防止 ▼▼▼ */
-    width: 90%;            /* 画面幅の90%にする（左右に余白ができる） */
-    max-width: 320px;      /* PCでは最大320pxまで */
-    margin: 0 auto;        /* 確実に中央寄せ */
+    /* ▼▼▼ 修正箇所：グリッドに合わせて幅を調整 ▼▼▼ */
+    width: 100%;           /* グリッドの枠いっぱいに広げる */
+    max-width: 100%;       /* 幅制限を解除（または必要に応じて400px程度に） */
+    margin: 0;             /* マージンはGridのgapで制御するので0に */
     /* ▲▲▲ ここまで ▲▲▲ */
 
     min-height: 420px;
-    height: auto;
+    height: 100%;          /* 高さを揃える */
 }
 
 .game-card h2 {
@@ -247,23 +247,27 @@ body {
 }
 
 /* --- レスポンシブ対応 --- */
-@media (max-width: 1140px) {
+@media (max-width: 1000px) {
     .game-selection {
-        /* カード幅固定なのでflex-wrapで自然に折り返す */
-        justify-content: center;
+        grid-template-columns: repeat(2, 1fr); /* 2列に変更 */
+        max-width: 700px; /* 2列用の幅に調整 */
     }
 }
 
-@media (max-width: 768px) {
+/* スマホ：1列にする */
+@media (max-width: 650px) {
     .site-header h1 { font-size: 1.8em; }
+    
     .game-selection {
-        flex-direction: column;
-        align-items: center;
+        grid-template-columns: 1fr; /* 1列に変更 */
+        gap: 20px;
     }
+    
     .game-card {
-        width: 100%;
-        max-width: 350px;
+        max-width: 350px; /* スマホでは広がりすぎないように制限 */
+        margin: 0 auto;   /* 中央寄せ復活 */
     }
+    
     .site-header nav { flex-direction: column; gap: 15px; }
 }
 
@@ -1386,5 +1390,142 @@ body {
     }
     .back-btn {
         padding: 12px 30px; /* ボタンを少し小さく */
+    }
+}
+
+/* =========================================
+   サイドバー付きレイアウト (Steam風)
+   ========================================= */
+
+/* 全体を囲むコンテナ（横並びにする） */
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+    width: 100%;
+    max-width: 1250px; /* サイドバー分だけ少し広げる */
+    margin: 0 auto 40px auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* --- サイドバーのデザイン --- */
+.sidebar {
+    width: 240px; /* 幅固定 */
+    flex-shrink: 0; /* 縮まないようにする */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar-widget {
+    background-color: #2d3748;
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid #4a5568;
+}
+
+.sidebar-title {
+    font-size: 1em;
+    color: #ecc94b; /* テーマカラーの黄色 */
+    margin: 0 0 10px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #4a5568;
+    font-family: 'Orbitron', sans-serif;
+}
+
+/* 検索ボックス */
+.search-box {
+    display: flex;
+    gap: 5px;
+}
+.search-box input {
+    width: 100%;
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #4a5568;
+    background: #1a202c;
+    color: #fff;
+}
+.search-box button {
+    background: #4a5568;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* カテゴリリスト */
+.sidebar-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.sidebar-list li {
+    margin-bottom: 8px;
+}
+.sidebar-list a {
+    color: #a0aec0;
+    text-decoration: none;
+    display: block;
+    padding: 5px 8px;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+}
+.sidebar-list a:hover {
+    background-color: #4a5568;
+    color: #fff;
+}
+
+/* タグクラウド */
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.tag {
+    font-size: 0.8em;
+    background-color: #1a202c;
+    color: #63b3ed;
+    padding: 4px 8px;
+    border-radius: 12px;
+    text-decoration: none;
+    border: 1px solid #4a5568;
+    transition: all 0.2s;
+}
+.tag:hover {
+    background-color: #63b3ed;
+    color: #1a202c;
+    border-color: #63b3ed;
+}
+
+/* --- メインエリア（ゲーム一覧）の調整 --- */
+.main-content {
+    flex: 1; /* 残りの幅いっぱいを使う */
+    min-width: 0; /* Flexアイテムのはみ出し防止 */
+}
+
+/* 既存の .game-selection を上書き調整 */
+.main-content .game-selection {
+    margin: 0; /* 中央寄せのマージンを解除 */
+    max-width: 100%; /* 親要素に合わせる */
+    /* グリッド設定はそのまま継承 (gap: 10px / 3列) */
+}
+
+/* --- レスポンシブ対応（スマホ） --- */
+@media (max-width: 900px) {
+    .main-container {
+        flex-direction: column; /* 縦並びにする */
+    }
+    
+    .sidebar {
+        width: 100%; /* 横幅いっぱい */
+        flex-direction: row; /* 中身を横並びにする（任意） */
+        flex-wrap: wrap;
+    }
+    .sidebar-widget {
+        flex: 1;
+        min-width: 250px;
     }
 }
