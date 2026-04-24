@@ -1,7 +1,7 @@
 const chatLog = document.getElementById('chat-log');
 const userColors = {
-    'LogicMaster': '#569cd6', 'OccultGirl': '#ce9178',
-    'NetStalker': '#4ec9b0', 'System': '#ff3333'
+    '部長': '#569cd6', 'ヒナ': '#ce9178',
+    'レン': '#4ec9b0', '自分': '#00ff41', 'System': '#ff3333'
 };
 
 function addChatMessage(name, message, type = 'normal') {

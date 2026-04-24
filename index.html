@@ -1,36 +1,39 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
-<!-- Google Analytics Control Script -->
-<script>
-  (function() {
-    var GA_ID = 'G-TS77Z86Q2V';
-    var isLocal = window.location.hostname === 'localhost' || 
-                  window.location.hostname === '127.0.0.1' || 
-                  window.location.hostname.startsWith('192.168.') ||
-                  window.location.protocol === 'file:';
-    var isAdmin = localStorage.getItem('analytics_ignore') === 'true';
-    if (!isLocal && !isAdmin) {
-      var script = document.createElement('script');
-      script.async = true;
-      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
-      document.head.appendChild(script);
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', GA_ID);
-    } else {
-      console.log('Google Analytics blocked (Local or Admin)');
-    }
-  })();
-</script>
+    <!-- Google Analytics Control Script -->
+    <script>
+        (function () {
+            var GA_ID = 'G-TS77Z86Q2V';
+            var isLocal = window.location.hostname === 'localhost' ||
+                window.location.hostname === '127.0.0.1' ||
+                window.location.hostname.startsWith('192.168.') ||
+                window.location.protocol === 'file:';
+            var isAdmin = localStorage.getItem('analytics_ignore') === 'true';
+            if (!isLocal && !isAdmin) {
+                var script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+                document.head.appendChild(script);
+                window.dataLayer = window.dataLayer || [];
+                function gtag() { dataLayer.push(arguments); }
+                gtag('js', new Date());
+                gtag('config', GA_ID);
+            } else {
+                console.log('Google Analytics blocked (Local or Admin)');
+            }
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>真夜中の鳥籠</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
 
     <div id="loading-screen" style="
@@ -64,9 +67,9 @@
         <div class="tutorial-box">
             <h2 class="tutorial-title">SYSTEM INSTRUCTION</h2>
 
-<div style="text-align: center; margin-bottom: 20px;">
-    <h3 style="color: #ff5555;">※本作はPCブラウザ用ゲームです</h3>
-</div>            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h3 style="color: #ff5555;">※本作はPCブラウザ用ゲームです</h3>
+            </div>
             <div class="tutorial-item">
                 <h3>💾 セーブ機能について</h3>
                 <p>本システムは<span class="highlight">「Day（1日）」終了時</span>に自動保存されます。</p>
@@ -106,11 +109,12 @@
                 </div>
                 <div class="url-container">
                     <div id="tor-icon" class="tor-icon hidden">🧅</div>
-<input type="text" class="url-input" id="url-input" value="http://unknown-server.onion/404" readonly autocomplete="off">
+                    <input type="text" class="url-input" id="url-input" value="http://unknown-server.onion/404" readonly
+                        autocomplete="off">
                 </div>
                 <button id="btn-devtools" class="nav-btn tool-btn">🛠</button>
             </div>
-            
+
             <!-- Day表示 -->
             <div id="day-indicator" class="day-indicator hidden">Day 1 - 02:59 AM</div>
 
@@ -144,7 +148,7 @@
         <div class="novel-text" id="novel-text"></div>
         <div class="novel-cursor">▼</div>
     </div>
-    
+
     <!-- 日付変更演出 -->
     <div id="day-transition" class="day-transition hidden">
         <h2 id="day-title">Day 1 Completed</h2>
@@ -155,18 +159,20 @@
     <div id="result-overlay" class="reset-overlay hidden">
         <div class="reset-content">
             <h2 id="result-title" style="color: #00ff41; text-shadow: 0 0 10px #00ff41;">MISSION COMPLETED</h2>
-            
+
             <!-- ホームページ風リザルト画像ボックス -->
-            <div id="result-image-box" style="margin: 20px auto; width: 400px; height: 250px; background: #111; border: 1px solid #333; position: relative;">
-                <div style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#555; font-family:'Share Tech Mono';">
+            <div id="result-image-box"
+                style="margin: 20px auto; width: 400px; height: 250px; background: #111; border: 1px solid #333; position: relative;">
+                <div
+                    style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#555; font-family:'Share Tech Mono';">
                     <div style="font-size: 3em;">✅</div>
                     <div style="margin-top: 10px;">CASE #404</div>
                     <div style="color: #00ff41;">STATUS: CLOSED</div>
                 </div>
             </div>
-            
+
             <p id="result-text" style="color: #ddd; margin-bottom: 30px;">謎のサイトの正体を明かし、監禁されていた女性を助けた。</p>
-            
+
             <div class="reset-buttons">
                 <button id="btn-result-title" class="reset-btn">タイトルへ</button>
                 <!-- ホームボタンは削除 -->
@@ -175,11 +181,10 @@
             <!-- ▼ 隠しコンソールボタン（気づいた人だけクリック） -->
             <div id="btn-secret-console" style="
                 position: absolute; bottom: 20px; right: 20px; 
-                color: #222; font-family: monospace; cursor: pointer; 
-                font-size: 1.2em; transition: color 0.3s;"
-                onmouseover="this.style.color='#00ff41'" 
-                onmouseout="this.style.color='#222'">
-                >_ Console
+                color: #555; font-family: monospace; cursor: pointer; 
+                font-size: 1.2em; transition: color 0.3s;" onmouseover="this.style.color='#00ff41'"
+                onmouseout="this.style.color='#555'">
+                >_ NEXT?
             </div>
         </div>
     </div>
@@ -204,4 +209,5 @@
     <script src="js/scenario.js"></script>
     <script src="js/script.js"></script>
 </body>
+
 </html>
